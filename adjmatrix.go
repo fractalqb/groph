@@ -9,11 +9,14 @@ type adjMx struct {
 	vp func(idx uint) Vertex
 }
 
+func vpId(i uint) Vertex { return i }
+
 func (m *adjMx) VertexNo() uint { return m.sz }
 
 func (m *adjMx) Vertex(idx uint) Vertex { return m.vp(idx) }
 
 type AdjMxAbool struct {
+	adjMx
 	// TODO
 }
 
@@ -28,6 +31,9 @@ var _ Gint = (*AdjMxAint)(nil)
 func NewAdjMxAint(size uint, notExist int,
 	vertexProvider func(idx uint) Vertex,
 	reuse *AdjMxAint) *AdjMxAint {
+	if vertexProvider == nil {
+		vertexProvider = vpId
+	}
 	if reuse == nil {
 		reuse = &AdjMxAint{
 			adjMx: adjMx{sz: size, vp: vertexProvider},
@@ -45,19 +51,18 @@ func NewAdjMxAint(size uint, notExist int,
 }
 
 func (m *AdjMxAint) Weight(fromIdx, toIdx uint) interface{} {
-	x, w := m.Edge(fromIdx, toIdx)
-	if x {
-		return w
-	} else {
+	w := m.Edge(fromIdx, toIdx)
+	if w == m.nx {
 		return nil
+	} else {
+		return w
 	}
 }
 
 func (m *AdjMxAint) Directed() bool { return true }
 
-func (m *AdjMxAint) Edge(fromIdx, toIdx uint) (exists bool, weight int) {
-	weight = m.w[m.sz*fromIdx+toIdx]
-	return weight != m.nx, weight
+func (m *AdjMxAint) Edge(fromIdx, toIdx uint) (weight int) {
+	return m.w[m.sz*fromIdx+toIdx]
 }
 
 func (m *AdjMxAint) SetWeight(i, j uint, w interface{}) {
@@ -74,6 +79,9 @@ var _ Gf32 = (*AdjMxAf32)(nil)
 func NewAdjMxAf32(size uint,
 	vertexProvider func(idx uint) Vertex,
 	reuse *AdjMxAf32) *AdjMxAf32 {
+	if vertexProvider == nil {
+		vertexProvider = vpId
+	}
 	if reuse == nil {
 		reuse = &AdjMxAf32{
 			adjMx: adjMx{sz: size, vp: vertexProvider},
@@ -90,19 +98,18 @@ func NewAdjMxAf32(size uint,
 }
 
 func (m *AdjMxAf32) Weight(fromIdx, toIdx uint) interface{} {
-	x, w := m.Edge(fromIdx, toIdx)
-	if x {
-		return w
-	} else {
+	w := m.Edge(fromIdx, toIdx)
+	if math.IsNaN(float64(w)) {
 		return nil
+	} else {
+		return w
 	}
 }
 
 func (m *AdjMxAf32) Directed() bool { return true }
 
-func (m *AdjMxAf32) Edge(i, j uint) (ex bool, w float32) {
-	w = m.w[m.sz*i+j]
-	return !math.IsNaN(float64(w)), w
+func (m *AdjMxAf32) Edge(i, j uint) (w float32) {
+	return m.w[m.sz*i+j]
 }
 
 func (m *AdjMxAf32) SetWeight(i, j uint, w interface{}) {
@@ -116,9 +123,14 @@ type AdjMxSf32 struct {
 	w []float32
 }
 
+var _ Gf32 = (*AdjMxSf32)(nil)
+
 func NewAdjMxSf32(size uint,
 	vertexProvider func(idx uint) Vertex,
 	reuse *AdjMxSf32) *AdjMxSf32 {
+	if vertexProvider == nil {
+		vertexProvider = vpId
+	}
 	if reuse == nil {
 		reuse = &AdjMxSf32{
 			adjMx: adjMx{sz: size, vp: vertexProvider},
@@ -132,4 +144,31 @@ func NewAdjMxSf32(size uint,
 		reuse.w = make([]float32, nSum(size))
 	}
 	return reuse
+}
+
+func (m *AdjMxSf32) Weight(fromIdx, toIdx uint) interface{} {
+	w := m.Edge(fromIdx, toIdx)
+	if math.IsNaN(float64(w)) {
+		return nil
+	} else {
+		return w
+	}
+}
+
+func (m *AdjMxSf32) Directed() bool { return false }
+
+func (m *AdjMxSf32) Edge(i, j uint) (w float32) {
+	if i <= j {
+		return m.w[m.sz*i+j]
+	} else {
+		return m.w[m.sz*j+i]
+	}
+}
+
+func (m *AdjMxSf32) SetWeight(i, j uint, w interface{}) {
+	if i < j {
+		m.w[m.sz*i+j] = w.(float32)
+	} else {
+		m.w[m.sz*j+i] = w.(float32)
+	}
 }
