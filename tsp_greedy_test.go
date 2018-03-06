@@ -7,11 +7,11 @@ import (
 )
 
 func dist(o, p interface{}) interface{} {
-	u := o.([2]float64)
-	v := p.([2]float64)
+	u := o.([2]float32)
+	v := p.([2]float32)
 	d1, d2 := u[0]-v[0], u[1]-v[1]
-	d := math.Sqrt(d1*d1 + d2*d2)
-	return d
+	d := math.Sqrt(float64(d1*d1 + d2*d2))
+	return float32(d)
 }
 
 func showMatrix(dm Measure, ps []interface{}) {
@@ -22,7 +22,7 @@ func showMatrix(dm Measure, ps []interface{}) {
 			if j > 0 {
 				fmt.Print(", ")
 			}
-			d := dm(p.([2]float64), q.([2]float64))
+			d := dm(p.([2]float32), q.([2]float32))
 			fmt.Printf("%5.2f", d)
 		}
 		fmt.Println()
@@ -30,17 +30,20 @@ func showMatrix(dm Measure, ps []interface{}) {
 }
 
 var exmp1 = []interface{}{
-	[2]float64{0, 0},
-	[2]float64{10, 10},
-	[2]float64{2, 9},
-	[2]float64{4, 5},
-	[2]float64{8, 3},
+	[2]float32{0, 0},
+	[2]float32{10, 10},
+	[2]float32{2, 9},
+	[2]float32{4, 5},
+	[2]float32{8, 3},
 }
 
 func ExampleAsymGreedy() {
-	solver := AsymSolverf32(AsymGreedyf32)
+	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
+		return exmp1[i]
+	}, nil)
+	SetMetric(am, dist)
 	showMatrix(dist, exmp1)
-	w, l := solver(dist, exmp1)
+	w, l := TspGreedyAf32(am)
 	fmt.Printf("%v %.2f", w, l)
 	// Output:
 	// Matrix:
@@ -53,23 +56,83 @@ func ExampleAsymGreedy() {
 }
 
 var exmp2 = []interface{}{
-	[2]float64{0, 0},
-	[2]float64{10, 10},
-	[2]float64{2, 9},
-	[2]float64{4, 5},
-	[2]float64{8, 3},
-	[2]float64{9, 2},
-	[2]float64{5, 4},
-	[2]float64{3, 8},
+	[2]float32{0, 0},
+	[2]float32{10, 10},
+	[2]float32{2, 9},
+	[2]float32{4, 5},
+	[2]float32{8, 3},
+	[2]float32{9, 2},
+	[2]float32{5, 4},
+	[2]float32{3, 8},
 }
 
-func BenchmarkGreedy(b *testing.B) {
-	solver := AsymSolverf32(AsymGreedyf32)
-	solver(dist, exmp2)
+func BenchmarkTspGreedyf32(b *testing.B) {
+	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
+		return exmp1[i]
+	}, nil)
+	SetMetric(am, dist)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		solver(dist, exmp1)
+		TspGreedyAf32(am)
 	}
+}
+
+func BenchmarkTspGreedyGenf32(b *testing.B) {
+	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
+		return exmp1[i]
+	}, nil)
+	SetMetric(am, dist)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		TspGreedyGenf32(am)
+	}
+}
+
+func TspGreedyGenf32(m RGf32) (path []uint, plen float64) {
+	size := m.VertexNo()
+	switch size {
+	case 0:
+		return nil, 0
+	case 1:
+		return []uint{0}, 0
+	}
+	L := size - 1
+	path = make([]uint, size)
+	// start with L → 0 → 1 → … → L
+	path[L] = L
+	best := m.Edge(L, 0)
+	for k := uint(0); k < L; k++ {
+		path[k] = k
+		best += m.Edge(k, k+1)
+	}
+	perm := make([]uint, L)
+	copy(perm, path[:L])
+	c := make([]uint, L) // automatic set to 0 (go!)
+	i := uint(0)
+	for i < L {
+		if c[i] < i {
+			if (i & 1) == 0 {
+				perm[0], perm[i] = perm[i], perm[0]
+			} else {
+				perm[c[i]], perm[i] = perm[i], perm[c[i]]
+			}
+			curl := m.Edge(L, perm[0])
+			curl += m.Edge(perm[L-1], L)
+			for i := uint(0); i+1 < L; i++ {
+				curl += m.Edge(perm[i], perm[i+1])
+			}
+			if curl < best {
+				copy(path[:L], perm)
+				best = curl
+			}
+			c[i]++
+			i = 0
+		} else {
+			c[i] = 0
+			i++
+		}
+	}
+	return path, float64(best)
 }
 
 //func BenchmarkGreedy_Alt(b *testing.B) {
