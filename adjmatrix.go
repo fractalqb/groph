@@ -5,13 +5,13 @@ import (
 )
 
 type adjMx struct {
-	sz             uint
-	VertexProvider func(idx uint) Vertex
+	sz uint
+	vp func(idx uint) Vertex
 }
 
 func (m *adjMx) VertexNo() uint { return m.sz }
 
-func (m *adjMx) Vertex(idx uint) Vertex { return m.VertexProvider(idx) }
+func (m *adjMx) Vertex(idx uint) Vertex { return m.vp(idx) }
 
 type AdjMxAbool struct {
 	// TODO
@@ -25,10 +25,12 @@ type AdjMxAint struct {
 
 var _ Gint = (*AdjMxAint)(nil)
 
-func NewAdjMxAint(size uint, notExist int, reuse *AdjMxAint) *AdjMxAint {
+func NewAdjMxAint(size uint, notExist int,
+	vertexProvider func(idx uint) Vertex,
+	reuse *AdjMxAint) *AdjMxAint {
 	if reuse == nil {
 		reuse = &AdjMxAint{
-			adjMx: adjMx{sz: size},
+			adjMx: adjMx{sz: size, vp: vertexProvider},
 			w:     make([]int, size*size),
 		}
 	} else if uint(cap(reuse.w)) >= size*size {
@@ -64,17 +66,18 @@ func (m *AdjMxAint) SetWeight(i, j uint, w interface{}) {
 
 type AdjMxAf32 struct {
 	adjMx
-	sz uint
-	w  []float32
+	w []float32
 }
 
 var _ Gf32 = (*AdjMxAf32)(nil)
 
-func NewAdjMxAf32(size uint, reuse *AdjMxAf32) *AdjMxAf32 {
+func NewAdjMxAf32(size uint,
+	vertexProvider func(idx uint) Vertex,
+	reuse *AdjMxAf32) *AdjMxAf32 {
 	if reuse == nil {
 		reuse = &AdjMxAf32{
-			sz: size,
-			w:  make([]float32, size*size),
+			adjMx: adjMx{sz: size, vp: vertexProvider},
+			w:     make([]float32, size*size),
 		}
 	} else if uint(cap(reuse.w)) >= size*size {
 		reuse.sz = size
@@ -109,15 +112,17 @@ func (m *AdjMxAf32) SetWeight(i, j uint, w interface{}) {
 func nSum(n uint) uint { return n * (n + 1) / 2 }
 
 type AdjMxSf32 struct {
-	sz uint
-	w  []float32
+	adjMx
+	w []float32
 }
 
-func NewAdjMxSf32(size uint, reuse *AdjMxSf32) *AdjMxSf32 {
+func NewAdjMxSf32(size uint,
+	vertexProvider func(idx uint) Vertex,
+	reuse *AdjMxSf32) *AdjMxSf32 {
 	if reuse == nil {
 		reuse = &AdjMxSf32{
-			sz: size,
-			w:  make([]float32, nSum(size)),
+			adjMx: adjMx{sz: size, vp: vertexProvider},
+			w:     make([]float32, nSum(size)),
 		}
 	} else if uint(cap(reuse.w)) >= nSum(size) {
 		reuse.sz = size

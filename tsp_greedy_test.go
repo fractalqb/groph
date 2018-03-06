@@ -7,11 +7,11 @@ import (
 )
 
 func dist(o, p interface{}) interface{} {
-	u := o.([2]float64)
-	v := p.([2]float64)
+	u := o.([2]float32)
+	v := p.([2]float32)
 	d1, d2 := u[0]-v[0], u[1]-v[1]
-	d := math.Sqrt(d1*d1 + d2*d2)
-	return d
+	d := math.Sqrt(float64(d1*d1 + d2*d2))
+	return float32(d)
 }
 
 func showMatrix(dm Measure, ps []interface{}) {
@@ -22,7 +22,7 @@ func showMatrix(dm Measure, ps []interface{}) {
 			if j > 0 {
 				fmt.Print(", ")
 			}
-			d := dm(p.([2]float64), q.([2]float64))
+			d := dm(p.([2]float32), q.([2]float32))
 			fmt.Printf("%5.2f", d)
 		}
 		fmt.Println()
@@ -30,17 +30,20 @@ func showMatrix(dm Measure, ps []interface{}) {
 }
 
 var exmp1 = []interface{}{
-	[2]float64{0, 0},
-	[2]float64{10, 10},
-	[2]float64{2, 9},
-	[2]float64{4, 5},
-	[2]float64{8, 3},
+	[2]float32{0, 0},
+	[2]float32{10, 10},
+	[2]float32{2, 9},
+	[2]float32{4, 5},
+	[2]float32{8, 3},
 }
 
 func ExampleAsymGreedy() {
-	solver := AsymSolverf32(AsymGreedyf32)
+	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
+		return exmp1[i]
+	}, nil)
+	SetMetric(am, dist)
 	showMatrix(dist, exmp1)
-	w, l := solver(dist, exmp1)
+	w, l := TspGreedyf32(am)
 	fmt.Printf("%v %.2f", w, l)
 	// Output:
 	// Matrix:
@@ -53,22 +56,24 @@ func ExampleAsymGreedy() {
 }
 
 var exmp2 = []interface{}{
-	[2]float64{0, 0},
-	[2]float64{10, 10},
-	[2]float64{2, 9},
-	[2]float64{4, 5},
-	[2]float64{8, 3},
-	[2]float64{9, 2},
-	[2]float64{5, 4},
-	[2]float64{3, 8},
+	[2]float32{0, 0},
+	[2]float32{10, 10},
+	[2]float32{2, 9},
+	[2]float32{4, 5},
+	[2]float32{8, 3},
+	[2]float32{9, 2},
+	[2]float32{5, 4},
+	[2]float32{3, 8},
 }
 
 func BenchmarkGreedy(b *testing.B) {
-	solver := AsymSolverf32(AsymGreedyf32)
-	solver(dist, exmp2)
+	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
+		return exmp1[i]
+	}, nil)
+	SetMetric(am, dist)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		solver(dist, exmp1)
+		TspGreedyf32(am)
 	}
 }
 

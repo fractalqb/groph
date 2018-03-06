@@ -1,6 +1,7 @@
 package graph
 
-func AsymGreedyf32(size uint, m *AdjMxAf32) (path []uint, plen float64) {
+func TspGreedyf32(m *AdjMxAf32) (path []uint, plen float64) {
+	size := m.VertexNo()
 	switch size {
 	case 0:
 		return nil, 0
