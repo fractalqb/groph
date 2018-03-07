@@ -1,4 +1,4 @@
-package graph
+package groph
 
 type Vertex = interface{}
 
@@ -40,34 +40,12 @@ type RGf32 interface {
 	Edge(fromIdx, toIdx uint) (weight float32)
 }
 
-func SetMetric(g WGraph, d Measure) {
-	if g.Directed() {
-		vno := g.VertexNo()
-		for i := uint(0); i < vno; i++ {
-			v1 := g.Vertex(i)
-			for j := uint(0); j < vno; j++ {
-				v2 := g.Vertex(j)
-				g.SetWeight(i, j, d(v1, v2))
-			}
-		}
-	} else {
-		vno := g.VertexNo()
-		for i := uint(0); i < vno; i++ {
-			v1 := g.Vertex(i)
-			for j := i; j < vno; j++ {
-				v2 := g.Vertex(j)
-				g.SetWeight(i, j, d(v1, v2))
-			}
-		}
-	}
-}
-
 // CpWeights copies the edge weights from one grap to
 // another. Vertices are identified by their index, i.e. the user has
 // to take care of the vertex order. If the number of vertices in the
 // graph differs the smaller graph determines how many edge weights
 // are copied.
-func CpWeights(dst WGraph, src RGraph) {
+func CpWeights(dst WGraph, src RGraph) WGraph {
 	sz := dst.VertexNo()
 	if src.VertexNo() < sz {
 		sz = src.VertexNo()
@@ -87,12 +65,13 @@ func CpWeights(dst WGraph, src RGraph) {
 			}
 		}
 	}
+	return dst
 }
 
 // CpXWeights “transfers” the edge weights from src Graph to dst Graph
 // with the same vertex restirctions as CpWeights. CpXWeights allpies
 // the transformation function xf() to each edge weight.
-func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) {
+func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGraph {
 	sz := dst.VertexNo()
 	if src.VertexNo() < sz {
 		sz = src.VertexNo()
@@ -112,4 +91,5 @@ func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) {
 			}
 		}
 	}
+	return dst
 }

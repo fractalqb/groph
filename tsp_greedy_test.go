@@ -1,4 +1,4 @@
-package graph
+package groph
 
 import (
 	"fmt"
@@ -41,7 +41,11 @@ func ExampleAsymGreedy() {
 	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
 		return exmp1[i]
 	}, nil)
-	SetMetric(am, dist)
+	CpWeights(am, &SliceNMeasure{
+		Vertices: exmp1,
+		Delta:    dist,
+		Dir:      false,
+	})
 	showMatrix(dist, exmp1)
 	w, l := TspGreedyAf32(am)
 	fmt.Printf("%v %.2f", w, l)
@@ -67,10 +71,14 @@ var exmp2 = []interface{}{
 }
 
 func BenchmarkTspGreedyf32(b *testing.B) {
-	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
-		return exmp1[i]
+	am := NewAdjMxAf32(uint(len(exmp2)), func(i uint) interface{} {
+		return exmp2[i]
 	}, nil)
-	SetMetric(am, dist)
+	CpWeights(am, &SliceNMeasure{
+		Vertices: exmp2,
+		Delta:    dist,
+		Dir:      false,
+	})
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TspGreedyAf32(am)
@@ -78,10 +86,14 @@ func BenchmarkTspGreedyf32(b *testing.B) {
 }
 
 func BenchmarkTspGreedyGenf32(b *testing.B) {
-	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
-		return exmp1[i]
+	am := NewAdjMxAf32(uint(len(exmp2)), func(i uint) interface{} {
+		return exmp2[i]
 	}, nil)
-	SetMetric(am, dist)
+	CpWeights(am, &SliceNMeasure{
+		Vertices: exmp2,
+		Delta:    dist,
+		Dir:      false,
+	})
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TspGreedyGenf32(am)
