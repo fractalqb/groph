@@ -88,7 +88,7 @@ func BenchmarkTspGreedyGenf32(b *testing.B) {
 	}
 }
 
-func TspGreedyGenf32(m Gf32) (path []uint, plen float64) {
+func TspGreedyGenf32(m RGf32) (path []uint, plen float64) {
 	size := m.VertexNo()
 	switch size {
 	case 0:

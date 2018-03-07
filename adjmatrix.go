@@ -26,7 +26,7 @@ type AdjMxAint struct {
 	w  []int
 }
 
-var _ Gint = (*AdjMxAint)(nil)
+var _ RGint = (*AdjMxAint)(nil)
 
 func NewAdjMxAint(size uint, notExist int,
 	vertexProvider func(idx uint) Vertex,
@@ -74,7 +74,7 @@ type AdjMxAf32 struct {
 	w []float32
 }
 
-var _ Gf32 = (*AdjMxAf32)(nil)
+var _ RGf32 = (*AdjMxAf32)(nil)
 
 func NewAdjMxAf32(size uint,
 	vertexProvider func(idx uint) Vertex,
@@ -123,7 +123,7 @@ type AdjMxSf32 struct {
 	w []float32
 }
 
-var _ Gf32 = (*AdjMxSf32)(nil)
+var _ RGf32 = (*AdjMxSf32)(nil)
 
 func NewAdjMxSf32(size uint,
 	vertexProvider func(idx uint) Vertex,
