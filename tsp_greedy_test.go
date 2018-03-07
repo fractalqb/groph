@@ -6,15 +6,13 @@ import (
 	"testing"
 )
 
-func dist(o, p interface{}) interface{} {
-	u := o.([2]float32)
-	v := p.([2]float32)
+func dist(u, v [2]float32) float32 {
 	d1, d2 := u[0]-v[0], u[1]-v[1]
 	d := math.Sqrt(float64(d1*d1 + d2*d2))
 	return float32(d)
 }
 
-func showMatrix(dm Measure, ps []interface{}) {
+func showMatrix(ps [][2]float32) {
 	fmt.Println("Matrix:")
 	for i, p := range ps {
 		fmt.Printf("%2d: ", i)
@@ -22,14 +20,14 @@ func showMatrix(dm Measure, ps []interface{}) {
 			if j > 0 {
 				fmt.Print(", ")
 			}
-			d := dm(p.([2]float32), q.([2]float32))
+			d := dist(p, q)
 			fmt.Printf("%5.2f", d)
 		}
 		fmt.Println()
 	}
 }
 
-var exmp1 = []interface{}{
+var exmp1 = [][2]float32{
 	[2]float32{0, 0},
 	[2]float32{10, 10},
 	[2]float32{2, 9},
@@ -41,12 +39,9 @@ func ExampleAsymGreedy() {
 	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
 		return exmp1[i]
 	}, nil)
-	CpWeights(am, &SliceNMeasure{
-		Vertices: exmp1,
-		Delta:    dist,
-		Dir:      false,
-	})
-	showMatrix(dist, exmp1)
+	adp := NewSliceNMeasure(exmp1, dist, false)
+	CpWeights(am, adp)
+	showMatrix(exmp1)
 	w, l := TspGreedyAf32(am)
 	fmt.Printf("%v %.2f", w, l)
 	// Output:
@@ -59,7 +54,7 @@ func ExampleAsymGreedy() {
 	// [0 3 2 1 4] 34.76
 }
 
-var exmp2 = []interface{}{
+var exmp2 = [][2]float32{
 	[2]float32{0, 0},
 	[2]float32{10, 10},
 	[2]float32{2, 9},
@@ -74,11 +69,7 @@ func BenchmarkTspGreedyf32(b *testing.B) {
 	am := NewAdjMxAf32(uint(len(exmp2)), func(i uint) interface{} {
 		return exmp2[i]
 	}, nil)
-	CpWeights(am, &SliceNMeasure{
-		Vertices: exmp2,
-		Delta:    dist,
-		Dir:      false,
-	})
+	CpWeights(am, NewSliceNMeasure(exmp2, dist, false))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TspGreedyAf32(am)
@@ -89,11 +80,7 @@ func BenchmarkTspGreedyGenf32(b *testing.B) {
 	am := NewAdjMxAf32(uint(len(exmp2)), func(i uint) interface{} {
 		return exmp2[i]
 	}, nil)
-	CpWeights(am, &SliceNMeasure{
-		Vertices: exmp2,
-		Delta:    dist,
-		Dir:      false,
-	})
+	CpWeights(am, NewSliceNMeasure(exmp2, dist, false))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TspGreedyGenf32(am)
