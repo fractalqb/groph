@@ -1,0 +1,15 @@
+package groph
+
+func FloydWarshallDf32(g *AdjMxDf32) {
+	vno := g.VertexNo()
+	for k := uint(0); k < vno; k++ {
+		for i := uint(0); i < vno; i++ {
+			for j := uint(0); j < vno; j++ {
+				ds := g.Edge(i, k) + g.Edge(k, j)
+				if g.Edge(i, j) > ds {
+					g.SetEdge(i, j, ds)
+				}
+			}
+		}
+	}
+}

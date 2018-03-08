@@ -1,6 +1,6 @@
 package groph
 
-func TspGreedyAf32(m *AdjMxAf32) (path []uint, plen float64) {
+func TspGreedyAf32(m *AdjMxDf32) (path []uint, plen float64) {
 	size := m.VertexNo()
 	switch size {
 	case 0:

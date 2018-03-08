@@ -19,25 +19,15 @@ type WGraph interface {
 // type Gbool extends a Graph with a specific access method to edge
 // weight. This shall avoid boxing/unboxing of the Graph Weight method
 // for performance reasons.
-type RGbool interface {
-	RGraph
-	Edge(fromIdx, toIdx uint) (exists bool)
-}
-
-// type Gint extends a Graph with a specific access method to edge
-// weight. This shall avoid boxing/unboxing of the Graph Weight method
-// for performance reasons.
-type RGint interface {
-	RGraph
-	Edge(fromIdx, toIdx uint) (weight int)
-}
-
-// type Gbool extends a Graph with a specific access method to edge
-// weight. This shall avoid boxing/unboxing of the Graph Weight method
-// for performance reasons.
 type RGf32 interface {
 	RGraph
 	Edge(fromIdx, toIdx uint) (weight float32)
+}
+
+type WGf32 interface {
+	WGraph
+	Edge(fromIdx, toIdx uint) (weight float32)
+	SetEdge(fromIdx, toIdx uint, weight float32)
 }
 
 // CpWeights copies the edge weights from one grap to

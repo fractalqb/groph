@@ -36,11 +36,15 @@ var exmp1 = [][2]float32{
 }
 
 func ExampleAsymGreedy() {
-	am := NewAdjMxAf32(uint(len(exmp1)), func(i uint) interface{} {
-		return exmp1[i]
-	}, nil)
-	adp := NewSliceNMeasure(exmp1, dist, false)
-	CpWeights(am, adp)
+	adp, err := NewSliceNMeasure(exmp1, dist, false).Check()
+	if err != nil {
+		fmt.Println(err)
+	}
+	am := CpWeights(NewAdjMxDf32(
+		adp.VertexNo(),
+		func(i uint) interface{} { return exmp1[i] },
+		nil),
+		adp).(*AdjMxDf32)
 	showMatrix(exmp1)
 	w, l := TspGreedyAf32(am)
 	fmt.Printf("%v %.2f", w, l)
@@ -66,10 +70,10 @@ var exmp2 = [][2]float32{
 }
 
 func BenchmarkTspGreedyf32(b *testing.B) {
-	am := NewAdjMxAf32(uint(len(exmp2)), func(i uint) interface{} {
+	am := NewAdjMxDf32(uint(len(exmp2)), func(i uint) interface{} {
 		return exmp2[i]
 	}, nil)
-	CpWeights(am, NewSliceNMeasure(exmp2, dist, false))
+	CpWeights(am, NewSliceNMeasure(exmp2, dist, false).Verify())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TspGreedyAf32(am)
@@ -77,10 +81,10 @@ func BenchmarkTspGreedyf32(b *testing.B) {
 }
 
 func BenchmarkTspGreedyGenf32(b *testing.B) {
-	am := NewAdjMxAf32(uint(len(exmp2)), func(i uint) interface{} {
+	am := NewAdjMxDf32(uint(len(exmp2)), func(i uint) interface{} {
 		return exmp2[i]
 	}, nil)
-	CpWeights(am, NewSliceNMeasure(exmp2, dist, false))
+	CpWeights(am, NewSliceNMeasure(exmp2, dist, false).Verify())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TspGreedyGenf32(am)
