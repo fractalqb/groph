@@ -6,14 +6,9 @@ import (
 
 type adjMx struct {
 	sz uint
-	vp func(idx uint) Vertex
 }
 
-func vpId(i uint) Vertex { return i }
-
 func (m *adjMx) VertexNo() uint { return m.sz }
-
-func (m *adjMx) Vertex(idx uint) Vertex { return m.vp(idx) }
 
 type AdjMxDf32 struct {
 	adjMx
@@ -22,15 +17,10 @@ type AdjMxDf32 struct {
 
 var _ WGf32 = (*AdjMxDf32)(nil)
 
-func NewAdjMxDf32(size uint,
-	vertexProvider func(idx uint) Vertex,
-	reuse *AdjMxDf32) *AdjMxDf32 {
-	if vertexProvider == nil {
-		vertexProvider = vpId
-	}
+func NewAdjMxDf32(size uint, reuse *AdjMxDf32) *AdjMxDf32 {
 	if reuse == nil {
 		reuse = &AdjMxDf32{
-			adjMx: adjMx{sz: size, vp: vertexProvider},
+			adjMx: adjMx{sz: size},
 			w:     make([]float32, size*size),
 		}
 	} else if uint(cap(reuse.w)) >= size*size {
@@ -75,15 +65,10 @@ type AdjMxUf32 struct {
 
 var _ WGf32 = (*AdjMxUf32)(nil)
 
-func NewAdjMxUf32(size uint,
-	vertexProvider func(idx uint) Vertex,
-	reuse *AdjMxUf32) *AdjMxUf32 {
-	if vertexProvider == nil {
-		vertexProvider = vpId
-	}
+func NewAdjMxUf32(size uint, reuse *AdjMxUf32) *AdjMxUf32 {
 	if reuse == nil {
 		reuse = &AdjMxUf32{
-			adjMx: adjMx{sz: size, vp: vertexProvider},
+			adjMx: adjMx{sz: size},
 			w:     make([]float32, nSum(size)),
 		}
 	} else if uint(cap(reuse.w)) >= nSum(size) {

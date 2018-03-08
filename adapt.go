@@ -74,11 +74,6 @@ func (g *RSubgraph) VertexNo() uint {
 	return uint(len(g.vls))
 }
 
-func (g *RSubgraph) Vertex(idx uint) Vertex {
-	idx = g.vls[idx]
-	return g.g.Vertex(idx)
-}
-
 func (g *RSubgraph) Directed() bool {
 	return g.g.Directed()
 }
@@ -98,11 +93,6 @@ var _ WGraph = (*WSubgraph)(nil)
 
 func (g *WSubgraph) VertexNo() uint {
 	return uint(len(g.vls))
-}
-
-func (g *WSubgraph) Vertex(idx uint) Vertex {
-	idx = g.vls[idx]
-	return g.g.Vertex(idx)
 }
 
 func (g *WSubgraph) Directed() bool {

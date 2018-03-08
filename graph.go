@@ -6,7 +6,6 @@ type Measure func(from, to Vertex) interface{}
 
 type RGraph interface {
 	VertexNo() uint
-	Vertex(idx uint) Vertex
 	Directed() bool
 	Weight(fromIdx, toIdx uint) interface{}
 }
