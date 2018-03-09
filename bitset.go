@@ -14,21 +14,24 @@ func init() {
 	wordMask = wordBits - 1
 }
 
-type bitset []uint
+func BitSetCap(bs []uint) uint { return uint(len(bs)) * wordBits }
 
-func (bs bitset) size() uint { return uint(len(bs)) * wordBits }
-
-func (bs bitset) get(i uint) bool {
+func BitSetGet(bs []uint, i uint) bool {
 	w, b := i/wordBits, i&wordMask
 	return bs[w]&(1<<b) != 0
 }
 
-func (bs bitset) set(i uint) {
+func BitSetSet(bs []uint, i uint) {
 	w, b := i/wordBits, i&wordMask
 	bs[w] |= 1 << b
 }
 
-func (bs bitset) unset(i uint) {
+func BitSetUnset(bs []uint, i uint) {
 	w, b := i/wordBits, i&wordMask
 	bs[w] &= ^(1 << b)
+}
+
+type BitSet struct {
+	Raw  []uint
+	Size uint
 }

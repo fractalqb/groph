@@ -28,7 +28,7 @@ func NewAdjMxDf32(size uint, reuse *AdjMxDf32) *AdjMxDf32 {
 		reuse.w = reuse.w[:size*size]
 	} else {
 		reuse.sz = size
-		reuse.w = make([]float32, reuse.sz)
+		reuse.w = make([]float32, size*size)
 	}
 	return reuse
 }
