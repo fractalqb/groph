@@ -5,6 +5,9 @@ import (
 	"reflect"
 )
 
+// SliceNMeasure implements a metric RGraph based on a slice of vertices of
+// some type V and a function f(u V, v V) → W that compute the weight of type W
+// for any edge (u, v).
 type SliceNMeasure struct {
 	slc reflect.Value
 	m   reflect.Value

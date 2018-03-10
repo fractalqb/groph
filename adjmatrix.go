@@ -56,6 +56,7 @@ func (m *AdjMxDf32) SetEdge(i, j uint, w float32) {
 	m.w[m.sz*i+j] = w
 }
 
+// uSum computes the sum of the n 1st integers, i.e. 1+2+3+…+n
 func nSum(n uint) uint { return n * (n + 1) / 2 }
 
 type AdjMxUf32 struct {
@@ -92,26 +93,33 @@ func (m *AdjMxUf32) Weight(fromIdx, toIdx uint) interface{} {
 
 func (m *AdjMxUf32) Directed() bool { return false }
 
+// uIdx computes the index into the weight slice of an undirected matrix
+func uIdx(sz, i, j uint) uint {
+	j -= i
+	i = nSum(sz - i - 1)
+	return i + j
+}
+
 func (m *AdjMxUf32) SetWeight(i, j uint, w interface{}) {
 	if i < j {
-		m.w[m.sz*i+j] = w.(float32)
+		m.w[uIdx(m.sz, i, j)] = w.(float32)
 	} else {
-		m.w[m.sz*j+i] = w.(float32)
+		m.w[uIdx(m.sz, j, i)] = w.(float32)
 	}
 }
 
 func (m *AdjMxUf32) Edge(i, j uint) (w float32) {
 	if i <= j {
-		return m.w[m.sz*i+j]
+		return m.w[uIdx(m.sz, i, j)]
 	} else {
-		return m.w[m.sz*j+i]
+		return m.w[uIdx(m.sz, j, i)]
 	}
 }
 
 func (m *AdjMxUf32) SetEdge(i, j uint, w float32) {
 	if i <= j {
-		m.w[m.sz*i+j] = w
+		m.w[uIdx(m.sz, i, j)] = w
 	} else {
-		m.w[m.sz*j+i] = w
+		m.w[uIdx(m.sz, j, i)] = w
 	}
 }
