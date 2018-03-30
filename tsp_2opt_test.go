@@ -22,7 +22,7 @@ func pathEq(p1, p2 []uint) (bool, string) {
 	if s2 >= plen {
 		return false, fmt.Sprintf("no start %d in p2=%v", p1[0], p2)
 	}
-	if p1[1] == p2[s2+1%plen] {
+	if p1[1] == p2[(s2+1)%plen] {
 		if s2 += 2; s2 >= plen {
 			s2 = 0
 		}
@@ -97,7 +97,7 @@ func Test2OptUAgaintsGreedy(t *testing.T) {
 		).(*AdjMxDf32)
 		gPath, gWeight := dm.TspGreedy()
 		tPath, tWeight := Tsp2Optf32(am)
-		if tWeight/gWeight > 1.05 {
+		if tWeight/gWeight > 1.052 {
 			t.Errorf("size %d: different path length: greedy=%f / 2-opt=%f",
 				sz,
 				gWeight,

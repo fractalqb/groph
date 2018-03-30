@@ -108,6 +108,10 @@ func (g *WSubgraph) Weight(fromIdx, toIdx uint) interface{} {
 	return g.Weight(fromIdx, toIdx)
 }
 
+func (g *WSubgraph) Clear(vertexNo uint) {
+	panic("must not clear WSubgraph")
+}
+
 func (g *WSubgraph) SetWeight(fromIdx, toIdx uint, w interface{}) {
 	fromIdx = g.vls[fromIdx]
 	toIdx = g.vls[toIdx]

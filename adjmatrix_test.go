@@ -3,7 +3,18 @@ package groph
 import (
 	"fmt"
 	"math"
+	"testing"
 )
+
+func TestAdjMxDbool_SetUset(t *testing.T) {
+	m := NewAdjMxDbool(66, nil)
+	testSetUnset(m, true, t)
+}
+
+func TestAdjMxDf32_SetUset(t *testing.T) {
+	m := NewAdjMxDf32(7, nil)
+	testSetUnset(m, float32(3.14), t)
+}
 
 func ExampleNaNs() {
 	nan := math.NaN()

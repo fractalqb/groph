@@ -6,6 +6,10 @@ import (
 
 type Vertex = interface{}
 
+type Edge struct {
+	I, J uint
+}
+
 // An RGraph represents a set of graph data that allows read only access to the
 // egde's weight data.
 type RGraph interface {
@@ -37,7 +41,21 @@ func CheckDirected(g RGraph) bool {
 // to the egde's weight data.
 type WGraph interface {
 	RGraph
+	Clear(vertexNo uint)
 	SetWeight(fromIdx, toIdx uint, w interface{})
+}
+
+func Clear(g WGraph) { g.Clear(g.VertexNo()) }
+
+type RGbool interface {
+	RGraph
+	Edge(fromIdx, toIdx uint) bool
+}
+
+type WGbool interface {
+	WGraph
+	Edge(fromIdx, toIdx uint) bool
+	SetEdge(fromIdx, toIdx uint, flag bool)
 }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type
