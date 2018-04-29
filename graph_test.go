@@ -1,6 +1,7 @@
 package groph
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -51,4 +52,13 @@ func testDSetUnset(g WGraph, w interface{}, t *testing.T) {
 			g.SetWeight(wi, wi, nil)
 		}
 	}
+}
+
+func ExampleReorderPath() {
+	data := []string{"a", "b", "c", "d", "e"}
+	path := []uint{1, 3, 0, 4, 3}
+	ReorderPath(data, path)
+	fmt.Println(data)
+	// Output:
+	// [b d a e c]
 }

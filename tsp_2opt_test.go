@@ -22,37 +22,43 @@ func pathEq(p1, p2 []uint) (bool, string) {
 	if s2 >= plen {
 		return false, fmt.Sprintf("no start %d in p2=%v", p1[0], p2)
 	}
-	if p1[1] == p2[(s2+1)%plen] {
-		if s2 += 2; s2 >= plen {
-			s2 = 0
+	pidx, nidx := func(i uint) uint {
+		if i == 0 {
+			return plen - 1
 		}
-		for s1 := uint(2); s1 < plen; s1++ {
+		return i - 1
+	},
+		func(i uint) uint {
+			i++
+			if i >= plen {
+				i = 0
+			}
+			return i
+		}
+	s1 := uint(1)
+	s2 = nidx(s2)
+	if p1[s1] == p2[s2] {
+		s1++
+		s2 = nidx(s2)
+		for s1 < plen {
 			if p1[s1] != p2[s2] {
 				return false, fmt.Sprintf("difference in pos %d / %d: %v %v",
 					s1, s2,
 					p1, p2)
 			}
-			if s2 += 1; s2 >= plen {
-				s2 = 0
-			}
+			s1++
+			s2 = nidx(s2)
 		}
 	} else {
-		if s2 == 0 {
-			s2 = plen - 1
-		} else {
-			s2--
-		}
-		for s1 := uint(1); s1 < plen; s1++ {
+		s2 = pidx(pidx(s2))
+		for s1 < plen {
 			if p1[s1] != p2[s2] {
 				return false, fmt.Sprintf("difference in pos %d / %d: %v %v",
 					s1, s2,
 					p1, p2)
 			}
-			if s2 == 0 {
-				s2 = plen - 1
-			} else {
-				s2--
-			}
+			s1++
+			s2 = pidx(s2)
 		}
 	}
 	return true, ""

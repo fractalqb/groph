@@ -125,3 +125,15 @@ func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGr
 	}
 	return dst
 }
+
+func ReorderPath(slice interface{}, path []uint) {
+	slv := reflect.ValueOf(slice)
+	tmp := slv.Index(0)
+	put := 0
+	for i := 1; i < slv.Len(); i++ {
+		take := int(path[put])
+		slv.Index(put).Set(slv.Index(take))
+		put = take
+	}
+	slv.Index(put).Set(tmp)
+}
