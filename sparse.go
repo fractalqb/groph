@@ -31,10 +31,10 @@ func (g *SpMap) Directed() bool {
 	return true
 }
 
-func (g *SpMap) Weight(fromIdx, toIdx uint) (flag interface{}) {
+func (g *SpMap) Weight(fromIdx, toIdx uint) interface{} {
 	row, ok := g.ws[fromIdx]
 	if !ok {
-		return nan32
+		return nil
 	}
 	return row[toIdx]
 }
@@ -71,6 +71,18 @@ type SpMapf32 struct {
 
 var _ WGf32 = (*SpMapf32)(nil)
 var nan32 = float32(math.NaN())
+
+func NewSpMapf32(vertexNo uint, reuse *SpMapf32) *SpMapf32 {
+	if reuse == nil {
+		return &SpMapf32{
+			sz: vertexNo,
+			ws: make(map[uint]spmrof32),
+		}
+	} else {
+		reuse.Clear(vertexNo)
+		return reuse
+	}
+}
 
 func (g *SpMapf32) VertexNo() uint { return g.sz }
 
