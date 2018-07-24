@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/fractalqb/groph)](https://goreportcard.com/report/github.com/fractalqb/groph)
 [![GoDoc](https://godoc.org/github.com/fractalqb/groph?status.svg)](https://godoc.org/github.com/fractalqb/groph)
 
-`import "git.fractalqb.de/fractalqb/groph"`
+`import "github.com/fractalqb/groph"`
 
 ---
 
