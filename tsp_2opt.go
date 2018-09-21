@@ -1,6 +1,6 @@
 package groph
 
-// d2optU computes the differenc ein weight sum for a specific 2-opt operation
+// d2optU computes the difference in weight sum for a specific 2-opt operation
 // that swaps e0 / e1 for undirected graphs.
 func diff2optU(g RGf32, p []uint, e0, e1 uint) (wdiff float32) {
 	lenp := uint(len(p))
@@ -16,7 +16,7 @@ func diff2optU(g RGf32, p []uint, e0, e1 uint) (wdiff float32) {
 	return wdiff
 }
 
-// d2optU computes the differenc ein weight sum for a specific 2-opt operation
+// d2optD computes the difference in weight sum for a specific 2-opt operation
 // that swaps e0 / e1 for directed graphs.
 func diff2optD(g RGf32, p []uint, e0, e1 uint) (wdiff float32) {
 	wdiff = diff2optU(g, p, e0, e1)
