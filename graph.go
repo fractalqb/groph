@@ -23,6 +23,38 @@ type RGraph interface {
 	Weight(fromIdx, toIdx uint) interface{}
 }
 
+func WeightOr(g RGraph, fromIdx, toIdx uint, or interface{}) interface{} {
+	if res := g.Weight(fromIdx, toIdx); res != nil {
+		return res
+	}
+	return or
+}
+
+type ListNeightbours interface {
+	EachNeighbour(v uint, do func(a, b uint, w interface{}))
+}
+
+func EachNeighbour(g RGraph, v uint, do func(a, b uint, w interface{})) {
+	if ln, ok := g.(ListNeightbours); ok {
+		ln.EachNeighbour(v, do)
+	} else if g.Directed() {
+		for n := uint(0); n < g.VertexNo(); n++ {
+			if w := g.Weight(v, n); w != nil {
+				do(v, n, w)
+			}
+			if w := g.Weight(n, v); w != nil {
+				do(n, v, w)
+			}
+		}
+	} else {
+		for n := uint(0); n < g.VertexNo(); n++ {
+			if w := g.Weight(v, n); w != nil {
+				do(v, n, w)
+			}
+		}
+	}
+}
+
 func CheckDirected(g RGraph) bool {
 	vno := g.VertexNo()
 	for i := uint(0); i < vno; i++ {
@@ -56,6 +88,22 @@ type WGbool interface {
 	WGraph
 	Edge(fromIdx, toIdx uint) bool
 	SetEdge(fromIdx, toIdx uint, flag bool)
+}
+
+// An RGi32 is a RGraph with type safe access to the edge weight of type
+// int32. Besides type safety this avoids boxing/unboxing of the Weight
+// method for performance reasons.
+type RGi32 interface {
+	RGraph
+	Edge(fromIdx, toIdx uint) (weight int32)
+}
+
+// An WGi32 is to WGraph what RGi32 is to RGraph.
+type WGi32 interface {
+	WGraph
+	Edge(fromIdx, toIdx uint) (weight int32, exists bool)
+	SetEdge(fromIdx, toIdx uint, weight int32)
+	DelEdge(fromIdx, toIdx uint)
 }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type
@@ -126,14 +174,18 @@ func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGr
 	return dst
 }
 
+// TODO can this be done in place?
 func ReorderPath(slice interface{}, path []uint) {
 	slv := reflect.ValueOf(slice)
-	tmp := slv.Index(0)
-	put := 0
-	for i := 1; i < slv.Len(); i++ {
-		take := int(path[put])
-		slv.Index(put).Set(slv.Index(take))
-		put = take
+	if slv.Len() == 0 {
+		return
 	}
-	slv.Index(put).Set(tmp)
+	tmp := make([]interface{}, slv.Len())
+	for i := 0; i < slv.Len(); i++ {
+		tmp[i] = slv.Index(i).Interface()
+	}
+	for w, r := range path {
+		v := tmp[r]
+		slv.Index(w).Set(reflect.ValueOf(v))
+	}
 }
