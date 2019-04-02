@@ -31,25 +31,25 @@ func WeightOr(g RGraph, fromIdx, toIdx uint, or interface{}) interface{} {
 }
 
 type ListNeightbours interface {
-	EachNeighbour(v uint, do func(a, b uint, w interface{}))
+	EachNeighbour(v0 uint, do func(v1 uint, fwd bool, w interface{}))
 }
 
-func EachNeighbour(g RGraph, v uint, do func(a, b uint, w interface{})) {
+func EachNeighbour(g RGraph, v uint, do func(uint, bool, interface{})) {
 	if ln, ok := g.(ListNeightbours); ok {
 		ln.EachNeighbour(v, do)
 	} else if g.Directed() {
 		for n := uint(0); n < g.VertexNo(); n++ {
 			if w := g.Weight(v, n); w != nil {
-				do(v, n, w)
+				do(n, true, w)
 			}
 			if w := g.Weight(n, v); w != nil {
-				do(n, v, w)
+				do(n, false, w)
 			}
 		}
 	} else {
 		for n := uint(0); n < g.VertexNo(); n++ {
 			if w := g.Weight(v, n); w != nil {
-				do(v, n, w)
+				do(n, false, w)
 			}
 		}
 	}

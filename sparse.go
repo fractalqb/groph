@@ -66,10 +66,14 @@ func (g *SpMap) Clear(vertexNo uint) {
 	g.ws = make(map[uint]smpro)
 }
 
-func (g *SpMap) EachNeighbour(v uint, do func(a, b uint, w interface{})) {
-	if ns, ok := g.ws[v]; ok {
-		for n, w := range ns {
-			do(v, n, w)
+func (g *SpMap) EachNeighbour(v uint, do func(uint, bool, interface{})) {
+	for a, ns := range g.ws {
+		if a == v {
+			for b, w := range ns {
+				do(b, true, w)
+			}
+		} else if w, ok := ns[v]; ok {
+			do(a, false, w)
 		}
 	}
 }
@@ -157,10 +161,14 @@ func (g *SpMapf32) Clear(vertexNo uint) {
 	g.ws = make(map[uint]spmrof32)
 }
 
-func (g *SpMapf32) EachNeighbour(v uint, do func(a, b uint, w interface{})) {
-	if ns, ok := g.ws[v]; ok {
-		for n, w := range ns {
-			do(v, n, w)
+func (g *SpMapf32) EachNeighbour(v uint, do func(uint, bool, interface{})) {
+	for a, ns := range g.ws {
+		if a == v {
+			for b, w := range ns {
+				do(b, true, w)
+			}
+		} else if w, ok := ns[v]; ok {
+			do(a, false, w)
 		}
 	}
 }
@@ -267,10 +275,14 @@ func (g *SpMapi32) Clear(vertexNo uint) {
 	g.ws = make(map[uint]spmroi32)
 }
 
-func (g *SpMapi32) EachNeighbour(v uint, do func(a, b uint, w interface{})) {
-	if ns, ok := g.ws[v]; ok {
-		for n, w := range ns {
-			do(v, n, w)
+func (g *SpMapi32) EachNeighbour(v uint, do func(uint, bool, interface{})) {
+	for a, ns := range g.ws {
+		if a == v {
+			for b, w := range ns {
+				do(b, true, w)
+			}
+		} else if w, ok := ns[v]; ok {
+			do(a, false, w)
 		}
 	}
 }
