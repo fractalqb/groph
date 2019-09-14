@@ -3,7 +3,6 @@ package groph
 import (
 	"fmt"
 	"testing"
-	//"github.com/yourbasic/graph"
 )
 
 const testSizeSetUnset = 11
