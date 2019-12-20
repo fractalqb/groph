@@ -10,8 +10,8 @@ type Edge struct {
 	I, J uint
 }
 
-// An RGraph represents a set of graph data that allows read only access to the
-// egde's weight data.
+// RGraph represents a set of graph data that allows read only access to the
+// egde weights.
 type RGraph interface {
 	// VertextNo return the numer of vertices in the graph.
 	VertexNo() uint
@@ -19,12 +19,12 @@ type RGraph interface {
 	// otherwiese.
 	Directed() bool
 	// Returns the weight of the edge that connects the vertex with index
-	// fromIdx with the vertex with index toIdx.
-	Weight(fromIdx, toIdx uint) interface{}
+	// edgeFrom with the vertex with index edgeTo.
+	Weight(edgeFrom, edgeTo uint) interface{}
 }
 
-func WeightOr(g RGraph, fromIdx, toIdx uint, or interface{}) interface{} {
-	if res := g.Weight(fromIdx, toIdx); res != nil {
+func WeightOr(g RGraph, edgeFrom, edgeTo uint, or interface{}) interface{} {
+	if res := g.Weight(edgeFrom, edgeTo); res != nil {
 		return res
 	}
 	return or
@@ -69,25 +69,31 @@ func CheckDirected(g RGraph) bool {
 	return false
 }
 
-// An RGraph represents a set of graph data tha allows read and write access
-// to the egde's weight data.
+// WGraph represents a set of graph data tha allows read and write access to
+// the egde weights.
 type WGraph interface {
 	RGraph
+	// Clear resizes the graph to vertexNo and reinitializes it.
 	Clear(vertexNo uint)
-	SetWeight(fromIdx, toIdx uint, w interface{})
+	// SetWeight sets the edge weight for the edge starting at vertex edgeFrom
+	// and ending at vertex edgeTo.
+	SetWeight(edgeFrom, edgeTo uint, w interface{})
 }
 
+// Clear clears a WGraph while keeping the original vertexNo.
 func Clear(g WGraph) { g.Clear(g.VertexNo()) }
 
+// RGbool represents a RGraph with boolean edge weights.
 type RGbool interface {
 	RGraph
-	Edge(fromIdx, toIdx uint) bool
+	Edge(edgeFrom, edgeTo uint) bool
 }
 
+// WGbool represents a WGraph with boolean edge weights.
 type WGbool interface {
 	WGraph
-	Edge(fromIdx, toIdx uint) bool
-	SetEdge(fromIdx, toIdx uint, flag bool)
+	Edge(edgeFrom, edgeTo uint) bool
+	SetEdge(edgeFrom, edgeTo uint, flag bool)
 }
 
 // An RGi32 is a RGraph with type safe access to the edge weight of type
@@ -95,15 +101,15 @@ type WGbool interface {
 // method for performance reasons.
 type RGi32 interface {
 	RGraph
-	Edge(fromIdx, toIdx uint) (weight int32)
+	Edge(edgeFrom, edgeTo uint) (weight int32)
 }
 
 // An WGi32 is to WGraph what RGi32 is to RGraph.
 type WGi32 interface {
 	WGraph
-	Edge(fromIdx, toIdx uint) (weight int32, exists bool)
-	SetEdge(fromIdx, toIdx uint, weight int32)
-	DelEdge(fromIdx, toIdx uint)
+	Edge(edgeFrom, edgeTo uint) (weight int32, exists bool)
+	SetEdge(edgeFrom, edgeTo uint, weight int32)
+	DelEdge(edgeFrom, edgeTo uint)
 }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type
@@ -111,14 +117,14 @@ type WGi32 interface {
 // method for performance reasons.
 type RGf32 interface {
 	RGraph
-	Edge(fromIdx, toIdx uint) (weight float32)
+	Edge(edgeFrom, edgeTo uint) (weight float32)
 }
 
 // An WGf32 is to WGraph what RGf32 is to RGraph.
 type WGf32 interface {
 	WGraph
-	Edge(fromIdx, toIdx uint) (weight float32)
-	SetEdge(fromIdx, toIdx uint, weight float32)
+	Edge(edgeFrom, edgeTo uint) (weight float32)
+	SetEdge(edgeFrom, edgeTo uint, weight float32)
 }
 
 // CpWeights copies the edge weights from one grap to another.

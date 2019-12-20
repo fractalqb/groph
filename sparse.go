@@ -34,30 +34,30 @@ func (g *SpMap) Directed() bool {
 	return true
 }
 
-func (g *SpMap) Weight(fromIdx, toIdx uint) interface{} {
-	row, ok := g.ws[fromIdx]
+func (g *SpMap) Weight(edgeFrom, edgeTo uint) interface{} {
+	row, ok := g.ws[edgeFrom]
 	if !ok {
 		return nil
 	}
-	return row[toIdx]
+	return row[edgeTo]
 }
 
-func (g *SpMap) SetWeight(fromIdx, toIdx uint, w interface{}) {
-	g.sz = maxSize(g.sz, fromIdx, toIdx)
-	row, rok := g.ws[fromIdx]
+func (g *SpMap) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
+	g.sz = maxSize(g.sz, edgeFrom, edgeTo)
+	row, rok := g.ws[edgeFrom]
 	if w == nil {
 		if rok {
-			delete(row, toIdx)
+			delete(row, edgeTo)
 			if len(row) == 0 {
-				delete(g.ws, fromIdx)
+				delete(g.ws, edgeFrom)
 			}
 		}
 	} else {
 		if !rok {
 			row = make(smpro)
-			g.ws[fromIdx] = row
+			g.ws[edgeFrom] = row
 		}
-		row[toIdx] = w
+		row[edgeTo] = w
 	}
 }
 
@@ -108,12 +108,12 @@ func (g *SpMapf32) VertexNo() uint { return g.sz }
 
 func (g *SpMapf32) Directed() bool { return true }
 
-func (g *SpMapf32) Edge(fromIdx, toIdx uint) (weight float32) {
-	row, ok := g.ws[fromIdx]
+func (g *SpMapf32) Edge(edgeFrom, edgeTo uint) (weight float32) {
+	row, ok := g.ws[edgeFrom]
 	if !ok {
 		return nan32
 	}
-	weight, ok = row[toIdx]
+	weight, ok = row[edgeTo]
 	if ok {
 		return weight
 	} else {
@@ -121,38 +121,38 @@ func (g *SpMapf32) Edge(fromIdx, toIdx uint) (weight float32) {
 	}
 }
 
-func (g *SpMapf32) SetEdge(fromIdx, toIdx uint, weight float32) {
-	g.sz = maxSize(g.sz, fromIdx, toIdx)
-	row, rok := g.ws[fromIdx]
+func (g *SpMapf32) SetEdge(edgeFrom, edgeTo uint, weight float32) {
+	g.sz = maxSize(g.sz, edgeFrom, edgeTo)
+	row, rok := g.ws[edgeFrom]
 	if math.IsNaN(float64(weight)) {
 		if rok {
-			delete(row, toIdx)
+			delete(row, edgeTo)
 			if len(row) == 0 {
-				delete(g.ws, fromIdx)
+				delete(g.ws, edgeFrom)
 			}
 		}
 	} else {
 		if !rok {
 			row = make(spmrof32)
-			g.ws[fromIdx] = row
+			g.ws[edgeFrom] = row
 		}
-		row[toIdx] = weight
+		row[edgeTo] = weight
 	}
 }
 
-func (g *SpMapf32) Weight(fromIdx, toIdx uint) interface{} {
-	tmp := g.Edge(fromIdx, toIdx)
+func (g *SpMapf32) Weight(edgeFrom, edgeTo uint) interface{} {
+	tmp := g.Edge(edgeFrom, edgeTo)
 	if math.IsNaN(float64(tmp)) {
 		return nil
 	}
 	return tmp
 }
 
-func (g *SpMapf32) SetWeight(fromIdx, toIdx uint, w interface{}) {
+func (g *SpMapf32) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
 	if w == nil {
-		g.SetEdge(fromIdx, toIdx, nan32)
+		g.SetEdge(edgeFrom, edgeTo, nan32)
 	} else {
-		g.SetEdge(fromIdx, toIdx, w.(float32))
+		g.SetEdge(edgeFrom, edgeTo, w.(float32))
 	}
 }
 
@@ -215,12 +215,12 @@ func (g *SpMapi32) VertexNo() uint { return g.sz }
 
 func (g *SpMapi32) Directed() bool { return true }
 
-func (g *SpMapi32) Edge(fromIdx, toIdx uint) (weight int32, exists bool) {
-	row, ok := g.ws[fromIdx]
+func (g *SpMapi32) Edge(edgeFrom, edgeTo uint) (weight int32, exists bool) {
+	row, ok := g.ws[edgeFrom]
 	if !ok {
 		return 0, false
 	}
-	weight, ok = row[toIdx]
+	weight, ok = row[edgeTo]
 	if ok {
 		return weight, true
 	} else {
@@ -228,45 +228,45 @@ func (g *SpMapi32) Edge(fromIdx, toIdx uint) (weight int32, exists bool) {
 	}
 }
 
-func (g *SpMapi32) SetEdge(fromIdx, toIdx uint, weight int32) {
-	g.sz = maxSize(g.sz, fromIdx, toIdx)
-	row, rok := g.ws[fromIdx]
+func (g *SpMapi32) SetEdge(edgeFrom, edgeTo uint, weight int32) {
+	g.sz = maxSize(g.sz, edgeFrom, edgeTo)
+	row, rok := g.ws[edgeFrom]
 	if math.IsNaN(float64(weight)) {
 		if rok {
-			delete(row, toIdx)
+			delete(row, edgeTo)
 			if len(row) == 0 {
-				delete(g.ws, fromIdx)
+				delete(g.ws, edgeFrom)
 			}
 		}
 	} else {
 		if !rok {
 			row = make(spmroi32)
-			g.ws[fromIdx] = row
+			g.ws[edgeFrom] = row
 		}
-		row[toIdx] = weight
+		row[edgeTo] = weight
 	}
 }
 
-func (g *SpMapi32) DelEdge(fromIdx, toIdx uint) {
-	row, ok := g.ws[fromIdx]
+func (g *SpMapi32) DelEdge(edgeFrom, edgeTo uint) {
+	row, ok := g.ws[edgeFrom]
 	if ok {
-		delete(row, toIdx)
+		delete(row, edgeTo)
 	}
 }
 
-func (g *SpMapi32) Weight(fromIdx, toIdx uint) interface{} {
-	w, ok := g.Edge(fromIdx, toIdx)
+func (g *SpMapi32) Weight(edgeFrom, edgeTo uint) interface{} {
+	w, ok := g.Edge(edgeFrom, edgeTo)
 	if ok {
 		return w
 	}
 	return nil
 }
 
-func (g *SpMapi32) SetWeight(fromIdx, toIdx uint, w interface{}) {
+func (g *SpMapi32) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
 	if w == nil {
-		g.DelEdge(fromIdx, toIdx)
+		g.DelEdge(edgeFrom, edgeTo)
 	} else {
-		g.SetEdge(fromIdx, toIdx, w.(int32))
+		g.SetEdge(edgeFrom, edgeTo, w.(int32))
 	}
 }
 

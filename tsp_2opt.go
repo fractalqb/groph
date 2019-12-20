@@ -72,3 +72,67 @@ func Tsp2Optf32(g RGf32) (path []uint, plen float32) {
 	}
 	return path, plen
 }
+
+// Benchmark showed that the proformance gain is not worth it
+// func (g *AdjMxDf32) Tsp2Opt() (path []uint, plen float32) {
+// 	vno := g.VertexNo()
+// 	path = make([]uint, vno)
+// 	for i := uint(0); i+1 < vno; i++ {
+// 		path[i] = i
+// 		plen += g.Edge(i, i+1)
+// 	}
+// 	path[vno-1] = vno - 1
+// 	plen += g.Edge(vno-1, 0)
+// 	for {
+// 		be0, be1 := vno, vno
+// 		bdiff := float32(0)
+// 		for e0 := uint(0); e0 < vno; e0++ {
+// 			for e1 := e0 + 1; e1 < vno; e1++ {
+// 				diff := diff2optD(g, path, e0, e1)
+// 				if diff < bdiff {
+// 					be0, be1 = e0, e1
+// 					bdiff = diff
+// 				}
+// 			}
+// 		}
+// 		if bdiff < float32(0) {
+// 			apply2opt(path, be0, be1)
+// 			plen += bdiff
+// 		} else {
+// 			break
+// 		}
+// 	}
+// 	return path, plen
+// }
+
+// Benchmark showed that the proformance gain is not worth it
+// func (g *AdjMxUf32) Tsp2Opt() (path []uint, plen float32) {
+// 	vno := g.VertexNo()
+// 	path = make([]uint, vno)
+// 	for i := uint(0); i+1 < vno; i++ {
+// 		path[i] = i
+// 		plen += g.Edge(i, i+1)
+// 	}
+// 	path[vno-1] = vno - 1
+// 	plen += g.Edge(vno-1, 0)
+// 	for {
+// 		be0, be1 := vno, vno
+// 		bdiff := float32(0)
+// 		for e0 := uint(0); e0 < vno; e0++ {
+// 			for e1 := e0 + 1; e1 < vno; e1++ {
+// 				diff := diff2optU(g, path, e0, e1)
+// 				if diff < bdiff {
+// 					be0, be1 = e0, e1
+// 					bdiff = diff
+// 				}
+// 			}
+// 		}
+// 		if bdiff < float32(0) {
+// 			apply2opt(path, be0, be1)
+// 			plen += bdiff
+// 		} else {
+// 			break
+// 		}
+// 	}
+// 	return path, plen
+// }

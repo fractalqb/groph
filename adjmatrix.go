@@ -10,18 +10,20 @@ type adjMx struct {
 
 func (m *adjMx) VertexNo() uint { return m.sz }
 
-type AdjMxDbool struct {
+// AdjMxDbitmap is a directed WGraph with boolean edge weights implemented as
+// bitmap. This sacrifices runtime performance for lesser memory usage.
+type AdjMxDbitmap struct {
 	adjMx
 	bs []uint
 }
 
-var _ WGbool = (*AdjMxDbool)(nil)
+var _ WGbool = (*AdjMxDbitmap)(nil)
 
-func NewAdjMxDbool(vertexNo uint, reuse *AdjMxDbool) *AdjMxDbool {
+func NewAdjMxDbitmap(vertexNo uint, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 	sz := vertexNo * vertexNo
 	sz = (sz + (wordBits - 1)) / wordBits
 	if reuse == nil {
-		reuse = &AdjMxDbool{
+		reuse = &AdjMxDbitmap{
 			adjMx: adjMx{sz: vertexNo},
 			bs:    make([]uint, sz),
 		}
@@ -35,7 +37,7 @@ func NewAdjMxDbool(vertexNo uint, reuse *AdjMxDbool) *AdjMxDbool {
 	return reuse
 }
 
-func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool {
+func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap {
 	if flag {
 		for i := range m.bs {
 			m.bs[i] = ^uint(0)
@@ -48,6 +50,69 @@ func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool {
 	return m
 }
 
+func (m *AdjMxDbitmap) Directed() bool { return true }
+
+func (m *AdjMxDbitmap) Clear(vertexNo uint) {
+	NewAdjMxDbitmap(vertexNo, m)
+	m.Init(false)
+}
+
+func (m *AdjMxDbitmap) Weight(edgeFrom, edgeTo uint) interface{} {
+	return m.Edge(edgeFrom, edgeTo)
+}
+
+func (m *AdjMxDbitmap) SetWeight(i, j uint, w interface{}) {
+	if w == nil {
+		m.SetEdge(i, j, false)
+	} else {
+		m.SetEdge(i, j, w.(bool))
+	}
+}
+
+func (m *AdjMxDbitmap) Edge(i, j uint) (w bool) {
+	w = BitSetGet(m.bs, m.sz*i+j)
+	return w
+}
+
+func (m *AdjMxDbitmap) SetEdge(i, j uint, w bool) {
+	if w {
+		BitSetSet(m.bs, m.sz*i+j)
+	} else {
+		BitSetUnset(m.bs, m.sz*i+j)
+	}
+}
+
+type AdjMxDbool struct {
+	adjMx
+	bs []bool
+}
+
+var _ WGbool = (*AdjMxDbool)(nil)
+
+func NewAdjMxDbool(vertexNo uint, reuse *AdjMxDbool) *AdjMxDbool {
+	sz := vertexNo * vertexNo
+	if reuse == nil {
+		reuse = &AdjMxDbool{
+			adjMx: adjMx{sz: vertexNo},
+			bs:    make([]bool, sz),
+		}
+	} else if uint(cap(reuse.bs)) >= sz {
+		reuse.sz = vertexNo
+		reuse.bs = reuse.bs[:sz]
+	} else {
+		reuse.sz = vertexNo
+		reuse.bs = make([]bool, sz)
+	}
+	return reuse
+}
+
+func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool {
+	for i := range m.bs {
+		m.bs[i] = flag
+	}
+	return m
+}
+
 func (m *AdjMxDbool) Directed() bool { return true }
 
 func (m *AdjMxDbool) Clear(vertexNo uint) {
@@ -55,8 +120,8 @@ func (m *AdjMxDbool) Clear(vertexNo uint) {
 	m.Init(false)
 }
 
-func (m *AdjMxDbool) Weight(fromIdx, toIdx uint) interface{} {
-	return m.Edge(fromIdx, toIdx)
+func (m *AdjMxDbool) Weight(edgeFrom, edgeTo uint) interface{} {
+	return m.Edge(edgeFrom, edgeTo)
 }
 
 func (m *AdjMxDbool) SetWeight(i, j uint, w interface{}) {
@@ -68,16 +133,11 @@ func (m *AdjMxDbool) SetWeight(i, j uint, w interface{}) {
 }
 
 func (m *AdjMxDbool) Edge(i, j uint) (w bool) {
-	w = BitSetGet(m.bs, m.sz*i+j)
-	return w
+	return m.bs[m.sz*i+j]
 }
 
 func (m *AdjMxDbool) SetEdge(i, j uint, w bool) {
-	if w {
-		BitSetSet(m.bs, m.sz*i+j)
-	} else {
-		BitSetUnset(m.bs, m.sz*i+j)
-	}
+	m.bs[m.sz*i+j] = w
 }
 
 type AdjMxDi32 struct {
@@ -123,8 +183,8 @@ func (m *AdjMxDi32) Clear(vertexNo uint) {
 	m.Init(m.Cleared)
 }
 
-func (m *AdjMxDi32) Weight(fromIdx, toIdx uint) interface{} {
-	res, ok := m.Edge(fromIdx, toIdx)
+func (m *AdjMxDi32) Weight(edgeFrom, edgeTo uint) interface{} {
+	res, ok := m.Edge(edgeFrom, edgeTo)
 	if ok {
 		return res
 	}
@@ -189,8 +249,8 @@ func (m *AdjMxDf32) Clear(vertexNo uint) {
 	m.Init(nan32)
 }
 
-func (m *AdjMxDf32) Weight(fromIdx, toIdx uint) interface{} {
-	w := m.Edge(fromIdx, toIdx)
+func (m *AdjMxDf32) Weight(edgeFrom, edgeTo uint) interface{} {
+	w := m.Edge(edgeFrom, edgeTo)
 	if math.IsNaN(float64(w)) {
 		return nil
 	} else {
@@ -247,8 +307,8 @@ func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 {
 	return m
 }
 
-func (m *AdjMxUf32) Weight(fromIdx, toIdx uint) interface{} {
-	w := m.Edge(fromIdx, toIdx)
+func (m *AdjMxUf32) Weight(edgeFrom, edgeTo uint) interface{} {
+	w := m.Edge(edgeFrom, edgeTo)
 	if math.IsNaN(float64(w)) {
 		return nil
 	} else {

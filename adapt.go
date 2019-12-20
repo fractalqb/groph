@@ -8,6 +8,8 @@ import (
 // SliceNMeasure implements a metric RGraph based on a slice of vertices of
 // some type V and a function f(u V, v V) → W that compute the weight of type W
 // for any edge (u, v).
+//
+// E.g. use CpWeights or CpXWeights to initialize an other WGraph.
 type SliceNMeasure struct {
 	slc reflect.Value
 	m   reflect.Value
@@ -60,8 +62,8 @@ func (g *SliceNMeasure) Directed() bool {
 	return g.dir
 }
 
-func (g *SliceNMeasure) Weight(fromIdx, toIdx uint) interface{} {
-	f, t := g.slc.Index(int(fromIdx)), g.slc.Index(int(toIdx))
+func (g *SliceNMeasure) Weight(edgeFrom, edgeTo uint) interface{} {
+	f, t := g.slc.Index(int(edgeFrom)), g.slc.Index(int(edgeTo))
 	d := g.m.Call([]reflect.Value{f, t})
 	return d[0].Interface()
 }
@@ -81,10 +83,10 @@ func (g *RSubgraph) Directed() bool {
 	return g.g.Directed()
 }
 
-func (g *RSubgraph) Weight(fromIdx, toIdx uint) interface{} {
-	fromIdx = g.vls[fromIdx]
-	toIdx = g.vls[toIdx]
-	return g.Weight(fromIdx, toIdx)
+func (g *RSubgraph) Weight(edgeFrom, edgeTo uint) interface{} {
+	edgeFrom = g.vls[edgeFrom]
+	edgeTo = g.vls[edgeTo]
+	return g.Weight(edgeFrom, edgeTo)
 }
 
 type WSubgraph struct {
@@ -102,18 +104,18 @@ func (g *WSubgraph) Directed() bool {
 	return g.g.Directed()
 }
 
-func (g *WSubgraph) Weight(fromIdx, toIdx uint) interface{} {
-	fromIdx = g.vls[fromIdx]
-	toIdx = g.vls[toIdx]
-	return g.Weight(fromIdx, toIdx)
+func (g *WSubgraph) Weight(edgeFrom, edgeTo uint) interface{} {
+	edgeFrom = g.vls[edgeFrom]
+	edgeTo = g.vls[edgeTo]
+	return g.Weight(edgeFrom, edgeTo)
 }
 
 func (g *WSubgraph) Clear(vertexNo uint) {
 	panic("must not clear WSubgraph")
 }
 
-func (g *WSubgraph) SetWeight(fromIdx, toIdx uint, w interface{}) {
-	fromIdx = g.vls[fromIdx]
-	toIdx = g.vls[toIdx]
-	g.SetWeight(fromIdx, toIdx, w)
+func (g *WSubgraph) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
+	edgeFrom = g.vls[edgeFrom]
+	edgeTo = g.vls[edgeTo]
+	g.SetWeight(edgeFrom, edgeTo, w)
 }

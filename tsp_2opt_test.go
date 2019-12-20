@@ -115,11 +115,12 @@ func Test2OptUAgaintsGreedy(t *testing.T) {
 	}
 }
 
+const twoOptBenchSize = 120
+
 func BenchmarkTsp2OptGenf32D(b *testing.B) {
-	sz := uint(120)
-	points := randomPoints(sz, nil)
+	points := randomPoints(twoOptBenchSize, nil)
 	am := CpWeights(
-		NewAdjMxDf32(sz, nil),
+		NewAdjMxDf32(twoOptBenchSize, nil),
 		NewSliceNMeasure(points, dist, false).Verify(),
 	).(*AdjMxDf32)
 	b.ResetTimer()
@@ -129,10 +130,9 @@ func BenchmarkTsp2OptGenf32D(b *testing.B) {
 }
 
 func BenchmarkTsp2OptGenf32U(b *testing.B) {
-	sz := uint(120)
-	points := randomPoints(sz, nil)
+	points := randomPoints(twoOptBenchSize, nil)
 	am := CpWeights(
-		NewAdjMxUf32(sz, nil),
+		NewAdjMxUf32(twoOptBenchSize, nil),
 		NewSliceNMeasure(points, dist, false).Verify(),
 	).(*AdjMxUf32)
 	b.ResetTimer()
@@ -140,3 +140,29 @@ func BenchmarkTsp2OptGenf32U(b *testing.B) {
 		Tsp2Optf32(am)
 	}
 }
+
+// Benchmark showed that the proformance gain is not worth it
+// func BenchmarkTsp2Optf32D(b *testing.B) {
+// 	points := randomPoints(twoOptBenchSize, nil)
+// 	am := CpWeights(
+// 		NewAdjMxDf32(twoOptBenchSize, nil),
+// 		NewSliceNMeasure(points, dist, false).Verify(),
+// 	).(*AdjMxDf32)
+// 	b.ResetTimer()
+// 	for i := 0; i < b.N; i++ {
+// 		am.Tsp2Opt()
+// 	}
+// }
+
+// Benchmark showed that the proformance gain is not worth it
+// func BenchmarkTsp2Optf32U(b *testing.B) {
+// 	points := randomPoints(twoOptBenchSize, nil)
+// 	am := CpWeights(
+// 		NewAdjMxUf32(twoOptBenchSize, nil),
+// 		NewSliceNMeasure(points, dist, false).Verify(),
+// 	).(*AdjMxUf32)
+// 	b.ResetTimer()
+// 	for i := 0; i < b.N; i++ {
+// 		am.Tsp2Opt()
+// 	}
+// }

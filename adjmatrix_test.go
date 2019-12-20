@@ -6,14 +6,58 @@ import (
 	"testing"
 )
 
-func TestAdjMxDbool_SetUset(t *testing.T) {
-	m := NewAdjMxDbool(testSizeSetUnset, nil)
+func TestAdjMxDbitmap_SetUset(t *testing.T) {
+	m := NewAdjMxDbitmap(testSizeSetUnset, nil)
 	testDSetUnset(t, m,
 		func(i, j uint) interface{} { m.SetEdge(i, j, true); return true },
 		func(i, j uint) { m.SetEdge(i, j, false) },
 		func(i, j uint) interface{} { return m.Edge(i, j) },
 		func(w interface{}) bool { return w.(bool) == false },
 	)
+}
+
+func BenchmarkAdjMxDbitmap(b *testing.B) {
+	m := NewAdjMxDbitmap(testSizeSetUnset, nil)
+	max := m.VertexNo()
+	w := false
+	for n := 0; n < b.N; n++ {
+		for i := uint(0); i < max; i++ {
+			for j := uint(0); j < max; j++ {
+				m.SetEdge(i, j, w)
+			}
+		}
+		for i := uint(0); i < max; i++ {
+			for j := uint(0); j < max; j++ {
+				r := m.Edge(i, j)
+				if r != w {
+					b.Fatal("unexpected read", w, r)
+				}
+			}
+		}
+		w = !w
+	}
+}
+
+func BenchmarkAdjMxDbitmap_generic(b *testing.B) {
+	m := NewAdjMxDbitmap(testSizeSetUnset, nil)
+	max := m.VertexNo()
+	w := false
+	for n := 0; n < b.N; n++ {
+		for i := uint(0); i < max; i++ {
+			for j := uint(0); j < max; j++ {
+				m.SetWeight(i, j, w)
+			}
+		}
+		for i := uint(0); i < max; i++ {
+			for j := uint(0); j < max; j++ {
+				r := m.Weight(i, j)
+				if r != w {
+					b.Fatal("unexpected read", w, r)
+				}
+			}
+		}
+		w = !w
+	}
 }
 
 func BenchmarkAdjMxDbool(b *testing.B) {
