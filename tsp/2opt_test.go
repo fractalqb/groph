@@ -1,8 +1,11 @@
-package groph
+package tsp
 
 import (
 	"fmt"
 	"testing"
+
+	"git.fractalqb.de/fractalqb/groph"
+	test "git.fractalqb.de/fractalqb/groph/internal"
 )
 
 func pathEq(p1, p2 []uint) (bool, string) {
@@ -65,16 +68,16 @@ func pathEq(p1, p2 []uint) (bool, string) {
 }
 
 func Test2OptDAgaintsGreedy(t *testing.T) {
-	var points []point
-	var am *AdjMxDf32
+	var points []test.Point
+	var am *groph.AdjMxDf32
 	for sz := uint(4); sz < 12; sz++ {
-		points = randomPoints(sz, points)
-		am = CpWeights(
-			NewAdjMxDf32(sz, am),
-			NewSliceNMeasure(points, dist, false).Verify(),
-		).(*AdjMxDf32)
-		gPath, gWeight := am.TspGreedy()
-		tPath, tWeight := Tsp2Optf32(am)
+		points = test.RandomPoints(sz, points)
+		am = groph.CpWeights(
+			groph.NewAdjMxDf32(sz, am),
+			groph.NewSliceNMeasure(points, test.Dist, false).Verify(),
+		).(*groph.AdjMxDf32)
+		gPath, gWeight := GreedyAdjMxDf32(am)
+		tPath, tWeight := TwoOptf32(am)
 		if tWeight/gWeight > 1.01 {
 			t.Errorf("size %d: different path length: greedy=%f / 2-opt=%f",
 				sz,
@@ -88,21 +91,21 @@ func Test2OptDAgaintsGreedy(t *testing.T) {
 }
 
 func Test2OptUAgaintsGreedy(t *testing.T) {
-	var points []point
-	var am *AdjMxUf32
-	var dm *AdjMxDf32
+	var points []test.Point
+	var am *groph.AdjMxUf32
+	var dm *groph.AdjMxDf32
 	for sz := uint(4); sz < 12; sz++ {
-		points = randomPoints(sz, points)
-		am = CpWeights(
-			NewAdjMxUf32(sz, am),
-			NewSliceNMeasure(points, dist, false).Verify(),
-		).(*AdjMxUf32)
-		dm = CpWeights(
-			NewAdjMxDf32(sz, dm),
-			NewSliceNMeasure(points, dist, false).Verify(),
-		).(*AdjMxDf32)
-		gPath, gWeight := dm.TspGreedy()
-		tPath, tWeight := Tsp2Optf32(am)
+		points = test.RandomPoints(sz, points)
+		am = groph.CpWeights(
+			groph.NewAdjMxUf32(sz, am),
+			groph.NewSliceNMeasure(points, test.Dist, false).Verify(),
+		).(*groph.AdjMxUf32)
+		dm = groph.CpWeights(
+			groph.NewAdjMxDf32(sz, dm),
+			groph.NewSliceNMeasure(points, test.Dist, false).Verify(),
+		).(*groph.AdjMxDf32)
+		gPath, gWeight := GreedyAdjMxDf32(dm)
+		tPath, tWeight := TwoOptf32(am)
 		if tWeight/gWeight > 1.052 {
 			t.Errorf("size %d: different path length: greedy=%f / 2-opt=%f",
 				sz,
@@ -118,26 +121,26 @@ func Test2OptUAgaintsGreedy(t *testing.T) {
 const twoOptBenchSize = 120
 
 func BenchmarkTsp2OptGenf32D(b *testing.B) {
-	points := randomPoints(twoOptBenchSize, nil)
-	am := CpWeights(
-		NewAdjMxDf32(twoOptBenchSize, nil),
-		NewSliceNMeasure(points, dist, false).Verify(),
-	).(*AdjMxDf32)
+	points := test.RandomPoints(twoOptBenchSize, nil)
+	am := groph.CpWeights(
+		groph.NewAdjMxDf32(twoOptBenchSize, nil),
+		groph.NewSliceNMeasure(points, test.Dist, false).Verify(),
+	).(*groph.AdjMxDf32)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Tsp2Optf32(am)
+		TwoOptf32(am)
 	}
 }
 
 func BenchmarkTsp2OptGenf32U(b *testing.B) {
-	points := randomPoints(twoOptBenchSize, nil)
-	am := CpWeights(
-		NewAdjMxUf32(twoOptBenchSize, nil),
-		NewSliceNMeasure(points, dist, false).Verify(),
-	).(*AdjMxUf32)
+	points := test.RandomPoints(twoOptBenchSize, nil)
+	am := groph.CpWeights(
+		groph.NewAdjMxUf32(twoOptBenchSize, nil),
+		groph.NewSliceNMeasure(points, test.Dist, false).Verify(),
+	).(*groph.AdjMxUf32)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Tsp2Optf32(am)
+		TwoOptf32(am)
 	}
 }
 

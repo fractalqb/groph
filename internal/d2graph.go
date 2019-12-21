@@ -5,19 +5,19 @@ import (
 	"math/rand"
 )
 
-type point [2]float32
+type Point [2]float32
 
-func dist(p, q point) float32 {
+func Dist(p, q Point) float32 {
 	d1 := p[0] - q[0]
 	d2 := p[1] - q[1]
 	return float32(math.Sqrt(float64(d1*d1 + d2*d2)))
 }
 
-func randomPoints(n uint, ps []point) []point {
+func RandomPoints(n uint, ps []Point) []Point {
 	if uint(cap(ps)) >= n {
 		ps = ps[:n-1]
 	} else {
-		ps = make([]point, n)
+		ps = make([]Point, n)
 	}
 	for i := range ps {
 		ps[i][0] = rand.Float32()

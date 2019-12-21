@@ -1,14 +1,16 @@
-package groph
+package sp
 
 import (
 	"math/rand"
 	"testing"
+
+	"git.fractalqb.de/fractalqb/groph"
 )
 
 func TestFloydWarshallDirEqUndir(t *testing.T) {
 	const VNO = 7
-	mu := NewAdjMxUf32(VNO, nil)
-	md := NewAdjMxDf32(mu.VertexNo(), nil)
+	mu := groph.NewAdjMxUf32(VNO, nil)
+	md := groph.NewAdjMxDf32(mu.VertexNo(), nil)
 	for i := uint(0); i < VNO; i++ {
 		mu.SetEdge(i, i, 0)
 		for j := i + 1; j < VNO; j++ {
@@ -16,7 +18,7 @@ func TestFloydWarshallDirEqUndir(t *testing.T) {
 			mu.SetEdge(i, j, w)
 		}
 	}
-	CpWeights(md, mu)
+	groph.CpWeights(md, mu)
 	FloydWarshallf32(md)
 	FloydWarshallf32(mu)
 	for i := uint(0); i < VNO; i++ {

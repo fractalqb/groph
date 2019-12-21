@@ -1,8 +1,11 @@
-package groph
+package tsp
 
 import (
 	"fmt"
 	"testing"
+
+	"git.fractalqb.de/fractalqb/groph"
+	test "git.fractalqb.de/fractalqb/groph/internal"
 )
 
 //func dist(u, v [2]float32) float32 {
@@ -19,7 +22,7 @@ func showMatrix(ps [][2]float32) {
 			if j > 0 {
 				fmt.Print(", ")
 			}
-			d := dist(p, q)
+			d := test.Dist(p, q)
 			fmt.Printf("%5.2f", d)
 		}
 		fmt.Println()
@@ -35,13 +38,13 @@ var exmp1 = [][2]float32{
 }
 
 func ExampleAsymGreedy() {
-	adp, err := NewSliceNMeasure(exmp1, dist, false).Check()
+	adp, err := groph.NewSliceNMeasure(exmp1, test.Dist, false).Check()
 	if err != nil {
 		fmt.Println(err)
 	}
-	am := CpWeights(NewAdjMxDf32(adp.VertexNo(), nil), adp).(*AdjMxDf32)
+	am := groph.CpWeights(groph.NewAdjMxDf32(adp.VertexNo(), nil), adp).(*groph.AdjMxDf32)
 	showMatrix(exmp1)
-	w, l := am.TspGreedy()
+	w, l := GreedyAdjMxDf32(am)
 	fmt.Printf("%v %.2f", w, l)
 	// Output:
 	// Matrix:
@@ -65,20 +68,20 @@ var exmp2 = [][2]float32{
 }
 
 func BenchmarkTspGreedyAMf32(b *testing.B) {
-	am := NewAdjMxDf32(uint(len(exmp2)), nil)
-	CpWeights(am, NewSliceNMeasure(exmp2, dist, false).Verify())
+	am := groph.NewAdjMxDf32(uint(len(exmp2)), nil)
+	groph.CpWeights(am, groph.NewSliceNMeasure(exmp2, test.Dist, false).Verify())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		am.TspGreedy()
+		GreedyAdjMxDf32(am)
 	}
 }
 
 func BenchmarkTspGreedyGenf32(b *testing.B) {
-	am := NewAdjMxDf32(uint(len(exmp2)), nil)
-	CpWeights(am, NewSliceNMeasure(exmp2, dist, false).Verify())
+	am := groph.NewAdjMxDf32(uint(len(exmp2)), nil)
+	groph.CpWeights(am, groph.NewSliceNMeasure(exmp2, test.Dist, false).Verify())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		TspGreedyf32(am)
+		Greedyf32(am)
 	}
 }
 

@@ -1,6 +1,8 @@
-package groph
+package tsp
 
-func TspGreedyf32(m RGf32) (path []uint, plen float32) {
+import "git.fractalqb.de/fractalqb/groph"
+
+func Greedyf32(m groph.RGf32) (path []uint, plen float32) {
 	size := m.VertexNo()
 	switch size {
 	case 0:
@@ -47,7 +49,7 @@ func TspGreedyf32(m RGf32) (path []uint, plen float32) {
 	return path, best
 }
 
-func (m *AdjMxDf32) TspGreedy() (path []uint, plen float32) {
+func GreedyAdjMxDf32(m *groph.AdjMxDf32) (path []uint, plen float32) {
 	size := m.VertexNo()
 	switch size {
 	case 0:

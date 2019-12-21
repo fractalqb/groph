@@ -1,6 +1,8 @@
-package groph
+package sp
 
-func FloydWarshallf32(g WGf32) {
+import "git.fractalqb.de/fractalqb/groph"
+
+func FloydWarshallf32(g groph.WGf32) {
 	vno := g.VertexNo()
 	if g.Directed() {
 		for k := uint(0); k < vno; k++ {
@@ -27,7 +29,7 @@ func FloydWarshallf32(g WGf32) {
 	}
 }
 
-func (g *AdjMxDf32) FloydWarshall() {
+func FloydWarshallAdjMxDf32(g *groph.AdjMxDf32) {
 	vno := g.VertexNo()
 	if g.Directed() {
 		for k := uint(0); k < vno; k++ {

@@ -1,13 +1,15 @@
-package groph
+package mst
 
 import (
 	"fmt"
 	"math"
+
+	"git.fractalqb.de/fractalqb/groph"
 )
 
 func ExampleKruskal() {
 	// See https://de.wikipedia.org/wiki/Algorithmus_von_Kruskal
-	g := NewAdjMxUf32(7, nil).Init(float32(math.NaN()))
+	g := groph.NewAdjMxUf32(7, nil).Init(float32(math.NaN()))
 	g.SetEdge(0, 1, 7)
 	g.SetEdge(0, 3, 5)
 	g.SetEdge(1, 2, 8)

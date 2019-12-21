@@ -1,8 +1,10 @@
-package groph
+package tsp
+
+import "git.fractalqb.de/fractalqb/groph"
 
 // d2optU computes the difference in weight sum for a specific 2-opt operation
 // that swaps e0 / e1 for undirected graphs.
-func diff2optU(g RGf32, p []uint, e0, e1 uint) (wdiff float32) {
+func diff2optU(g groph.RGf32, p []uint, e0, e1 uint) (wdiff float32) {
 	lenp := uint(len(p))
 	wdiff = -g.Edge(p[e0], p[e0+1])
 	wdiff += g.Edge(p[e0], p[e1])
@@ -18,7 +20,7 @@ func diff2optU(g RGf32, p []uint, e0, e1 uint) (wdiff float32) {
 
 // d2optD computes the difference in weight sum for a specific 2-opt operation
 // that swaps e0 / e1 for directed graphs.
-func diff2optD(g RGf32, p []uint, e0, e1 uint) (wdiff float32) {
+func diff2optD(g groph.RGf32, p []uint, e0, e1 uint) (wdiff float32) {
 	wdiff = diff2optU(g, p, e0, e1)
 	for i := e0 + 1; i < e1; i++ {
 		wdiff -= g.Edge(p[i], p[i+1])
@@ -36,8 +38,8 @@ func apply2opt(p []uint, e0, e1 uint) {
 	}
 }
 
-func Tsp2Optf32(g RGf32) (path []uint, plen float32) {
-	var diff2opt func(RGf32, []uint, uint, uint) float32
+func TwoOptf32(g groph.RGf32) (path []uint, plen float32) {
+	var diff2opt func(groph.RGf32, []uint, uint, uint) float32
 	if g.Directed() {
 		diff2opt = diff2optD
 	} else {

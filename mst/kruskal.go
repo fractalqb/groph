@@ -1,17 +1,19 @@
-package groph
+package mst
 
 import (
 	"errors"
 	"math"
 	"sort"
+
+	"git.fractalqb.de/fractalqb/groph"
 )
 
-func sortedEdges(g RGf32) (res []Edge) {
+func sortedEdges(g groph.RGf32) (res []groph.Edge) {
 	vno := g.VertexNo()
 	for i := uint(0); i < vno; i++ {
 		for j := i + 1; j < vno; j++ {
 			if !math.IsNaN(float64(g.Edge(i, j))) {
-				res = append(res, Edge{i, j})
+				res = append(res, groph.Edge{i, j})
 			}
 		}
 	}
@@ -31,7 +33,7 @@ func retag(f map[uint]uint, oldTag, newTag uint) {
 	}
 }
 
-func Kruskalf32(g RGf32, mst []Edge) ([]Edge, error) {
+func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) {
 	if g.Directed() {
 		return mst, errors.New("cannot apply Kruskal's algorithm to directed graphs")
 	}
