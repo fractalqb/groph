@@ -2,10 +2,62 @@ package groph
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 )
 
 type Vertex = interface{}
+
+type Slice struct {
+	slc reflect.Value
+	dir bool
+	sz  VIdx
+}
+
+func NewSlice(directed bool, edgeSlice interface{}) *Slice {
+	res := &Slice{
+		slc: reflect.ValueOf(edgeSlice),
+		dir: directed,
+	}
+	if directed {
+		res.sz = VIdx(math.Sqrt(float64(res.slc.Len())))
+	} else {
+		panic("NYI!") // TODO
+	}
+	return res
+}
+
+func (g *Slice) Check() (*Slice, error) {
+	if g.slc.Kind() != reflect.Slice {
+		return g, fmt.Errorf("edges have to be a slice, got %s",
+			g.slc.Type().String())
+	}
+	if g.dir {
+		if g.sz*g.sz != g.slc.Len() {
+			return g, fmt.Errorf("slice len is not quadratic")
+		}
+	} else {
+		panic("NYI!") // TODO
+	}
+	return g, nil
+}
+
+func (g *Slice) Must() *Slice {
+	var err error
+	g, err = g.Check()
+	if err != nil {
+		panic(err)
+	}
+	return g
+}
+
+func (g *Slice) VertexNo() VIdx { return g.sz }
+
+func (g *Slice) Directed() bool { return g.dir }
+
+func (g *Slice) Weight(edgeFrom, edgeTo VIdx) interface{} {
+	return g.slc.Index(g.sz*edgeFrom + edgeTo).Interface()
+}
 
 // SliceNMeasure implements a metric RGraph based on a slice of vertices of
 // some type V and a function f(u V, v V) → W that compute the weight of type W
@@ -45,7 +97,7 @@ func (g *SliceNMeasure) Check() (*SliceNMeasure, error) {
 }
 
 // Verify call Check on g and panics if Check returns an error.
-func (g *SliceNMeasure) Verify() *SliceNMeasure {
+func (g *SliceNMeasure) Must() *SliceNMeasure {
 	if _, err := g.Check(); err != nil {
 		panic(err)
 	}
