@@ -14,13 +14,13 @@ func BenchmarkSpMap(b *testing.B) {
 	max := m.VertexNo()
 	w := 0
 	for n := 0; n < b.N; n++ {
-		for i := uint(0); i < max; i++ {
-			for j := uint(0); j < max; j++ {
+		for i := VIdx(0); i < max; i++ {
+			for j := VIdx(0); j < max; j++ {
 				m.SetWeight(i, j, w)
 			}
 		}
-		for i := uint(0); i < max; i++ {
-			for j := uint(0); j < max; j++ {
+		for i := VIdx(0); i < max; i++ {
+			for j := VIdx(0); j < max; j++ {
 				r := m.Weight(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -41,13 +41,13 @@ func BenchmarkSpMapf32(b *testing.B) {
 	max := m.VertexNo()
 	w := float32(0)
 	for n := 0; n < b.N; n++ {
-		for i := uint(0); i < max; i++ {
-			for j := uint(0); j < max; j++ {
+		for i := VIdx(0); i < max; i++ {
+			for j := VIdx(0); j < max; j++ {
 				m.SetEdge(i, j, w)
 			}
 		}
-		for i := uint(0); i < max; i++ {
-			for j := uint(0); j < max; j++ {
+		for i := VIdx(0); i < max; i++ {
+			for j := VIdx(0); j < max; j++ {
 				r := m.Edge(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)

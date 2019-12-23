@@ -9,9 +9,9 @@ const testSizeSetUnset = 11
 
 func testGenericSetUnset(t *testing.T, g WGraph, w interface{}) {
 	testSetUnset(t, g,
-		func(i, j uint) interface{} { g.SetWeight(i, j, w); return w },
-		func(i, j uint) { g.SetWeight(i, j, nil) },
-		func(i, j uint) interface{} { return g.Weight(i, j) },
+		func(i, j VIdx) interface{} { g.SetWeight(i, j, w); return w },
+		func(i, j VIdx) { g.SetWeight(i, j, nil) },
+		func(i, j VIdx) interface{} { return g.Weight(i, j) },
 		func(w interface{}) bool { return w == nil },
 	)
 }
@@ -19,9 +19,9 @@ func testGenericSetUnset(t *testing.T, g WGraph, w interface{}) {
 func testSetUnset(
 	t *testing.T,
 	g WGraph,
-	set func(i, j uint) interface{},
-	clear func(i, j uint),
-	read func(i, j uint) interface{},
+	set func(i, j VIdx) interface{},
+	clear func(i, j VIdx),
+	read func(i, j VIdx) interface{},
 	isCleared func(w interface{}) bool,
 ) {
 	if g.Directed() {
@@ -34,19 +34,19 @@ func testSetUnset(
 func testDSetUnset(
 	t *testing.T,
 	g WGraph,
-	set func(i, j uint) interface{},
-	clear func(i, j uint),
-	read func(i, j uint) interface{},
+	set func(i, j VIdx) interface{},
+	clear func(i, j VIdx),
+	read func(i, j VIdx) interface{},
 	isCleared func(w interface{}) bool,
 ) {
 	vno := g.VertexNo()
-	for wi := uint(0); wi < vno; wi++ {
-		for wj := uint(0); wj < vno; wj++ {
+	for wi := VIdx(0); wi < vno; wi++ {
+		for wj := VIdx(0); wj < vno; wj++ {
 			clear(wi, wj)
 		}
 	}
-	for ri := uint(0); ri < vno; ri++ {
-		for rj := uint(0); rj < vno; rj++ {
+	for ri := VIdx(0); ri < vno; ri++ {
+		for rj := VIdx(0); rj < vno; rj++ {
 			if w := read(ri, rj); !isCleared(w) {
 				t.Errorf("read non-cleared value [%v] @%d,%d after clear",
 					w,
@@ -54,11 +54,11 @@ func testDSetUnset(
 			}
 		}
 	}
-	for wi := uint(0); wi < vno; wi++ {
-		for wj := uint(0); wj < vno; wj++ {
+	for wi := VIdx(0); wi < vno; wi++ {
+		for wj := VIdx(0); wj < vno; wj++ {
 			w := set(wi, wj)
-			for ri := uint(0); ri < vno; ri++ {
-				for rj := uint(0); rj < vno; rj++ {
+			for ri := VIdx(0); ri < vno; ri++ {
+				for rj := VIdx(0); rj < vno; rj++ {
 					r := read(ri, rj)
 					if ri == wi && rj == wj {
 						if r != w {
@@ -81,7 +81,7 @@ func testDSetUnset(
 
 func ExampleReorderPath() {
 	data := []string{"a", "b", "c", "d", "e"}
-	path := []uint{1, 3, 0, 4, 2}
+	path := []VIdx{1, 3, 0, 4, 2}
 	ReorderPath(data, path)
 	fmt.Println(data)
 	// Output:

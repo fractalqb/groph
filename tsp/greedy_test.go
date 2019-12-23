@@ -68,7 +68,7 @@ var exmp2 = [][2]float32{
 }
 
 func BenchmarkTspGreedyAMf32(b *testing.B) {
-	am := groph.NewAdjMxDf32(uint(len(exmp2)), nil)
+	am := groph.NewAdjMxDf32(groph.VIdx(len(exmp2)), nil)
 	groph.CpWeights(am, groph.NewSliceNMeasure(exmp2, test.Dist, false).Verify())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -77,7 +77,7 @@ func BenchmarkTspGreedyAMf32(b *testing.B) {
 }
 
 func BenchmarkTspGreedyGenf32(b *testing.B) {
-	am := groph.NewAdjMxDf32(uint(len(exmp2)), nil)
+	am := groph.NewAdjMxDf32(groph.VIdx(len(exmp2)), nil)
 	groph.CpWeights(am, groph.NewSliceNMeasure(exmp2, test.Dist, false).Verify())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

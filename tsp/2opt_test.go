@@ -8,14 +8,14 @@ import (
 	test "git.fractalqb.de/fractalqb/groph/internal"
 )
 
-func pathEq(p1, p2 []uint) (bool, string) {
-	plen := uint(len(p1))
-	if plen != uint(len(p2)) {
+func pathEq(p1, p2 []groph.VIdx) (bool, string) {
+	plen := groph.VIdx(len(p1))
+	if plen != groph.VIdx(len(p2)) {
 		return false, fmt.Sprintf("length differs: %d / %d",
 			plen,
-			uint(len(p2)))
+			groph.VIdx(len(p2)))
 	}
-	s2 := uint(0)
+	s2 := groph.VIdx(0)
 	for s2 < plen {
 		if p1[0] == p2[s2] {
 			break
@@ -25,20 +25,20 @@ func pathEq(p1, p2 []uint) (bool, string) {
 	if s2 >= plen {
 		return false, fmt.Sprintf("no start %d in p2=%v", p1[0], p2)
 	}
-	pidx, nidx := func(i uint) uint {
+	pidx, nidx := func(i groph.VIdx) groph.VIdx {
 		if i == 0 {
 			return plen - 1
 		}
 		return i - 1
 	},
-		func(i uint) uint {
+		func(i groph.VIdx) groph.VIdx {
 			i++
 			if i >= plen {
 				i = 0
 			}
 			return i
 		}
-	s1 := uint(1)
+	s1 := groph.VIdx(1)
 	s2 = nidx(s2)
 	if p1[s1] == p2[s2] {
 		s1++
@@ -70,7 +70,7 @@ func pathEq(p1, p2 []uint) (bool, string) {
 func Test2OptDAgaintsGreedy(t *testing.T) {
 	var points []test.Point
 	var am *groph.AdjMxDf32
-	for sz := uint(4); sz < 12; sz++ {
+	for sz := groph.VIdx(4); sz < 12; sz++ {
 		points = test.RandomPoints(sz, points)
 		am = groph.CpWeights(
 			groph.NewAdjMxDf32(sz, am),
@@ -94,7 +94,7 @@ func Test2OptUAgaintsGreedy(t *testing.T) {
 	var points []test.Point
 	var am *groph.AdjMxUf32
 	var dm *groph.AdjMxDf32
-	for sz := uint(4); sz < 12; sz++ {
+	for sz := groph.VIdx(4); sz < 12; sz++ {
 		points = test.RandomPoints(sz, points)
 		am = groph.CpWeights(
 			groph.NewAdjMxUf32(sz, am),

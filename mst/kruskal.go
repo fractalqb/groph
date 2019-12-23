@@ -10,7 +10,7 @@ import (
 
 func sortedEdges(g groph.RGf32) (res []groph.Edge) {
 	vno := g.VertexNo()
-	for i := uint(0); i < vno; i++ {
+	for i := groph.VIdx(0); i < vno; i++ {
 		for j := i + 1; j < vno; j++ {
 			if !math.IsNaN(float64(g.Edge(i, j))) {
 				res = append(res, groph.Edge{i, j})
@@ -25,7 +25,7 @@ func sortedEdges(g groph.RGf32) (res []groph.Edge) {
 }
 
 // TODO more efficient way for bookkeping of connected sets?
-func retag(f map[uint]uint, oldTag, newTag uint) {
+func retag(f map[groph.VIdx]groph.VIdx, oldTag, newTag groph.VIdx) {
 	for v, t := range f {
 		if t == oldTag {
 			f[v] = newTag
@@ -39,8 +39,8 @@ func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) {
 	}
 	mst = mst[:0]
 	ebo := sortedEdges(g)
-	frs := make(map[uint]uint)
-	vc := uint(0)
+	frs := make(map[groph.VIdx]groph.VIdx)
+	vc := groph.VIdx(0)
 	for _, e := range ebo {
 		ti, iOk := frs[e.I]
 		tj, jOk := frs[e.J]

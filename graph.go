@@ -4,26 +4,26 @@ import (
 	"reflect"
 )
 
-type Vertex = interface{}
+type VIdx = int
 
 type Edge struct {
-	I, J uint
+	I, J VIdx
 }
 
 // RGraph represents a set of graph data that allows read only access to the
 // egde weights.
 type RGraph interface {
 	// VertextNo return the numer of vertices in the graph.
-	VertexNo() uint
+	VertexNo() VIdx
 	// Directed returns true if the graph is a directed graph and false
 	// otherwiese.
 	Directed() bool
 	// Returns the weight of the edge that connects the vertex with index
 	// edgeFrom with the vertex with index edgeTo.
-	Weight(edgeFrom, edgeTo uint) interface{}
+	Weight(edgeFrom, edgeTo VIdx) interface{}
 }
 
-func WeightOr(g RGraph, edgeFrom, edgeTo uint, or interface{}) interface{} {
+func WeightOr(g RGraph, edgeFrom, edgeTo VIdx, or interface{}) interface{} {
 	if res := g.Weight(edgeFrom, edgeTo); res != nil {
 		return res
 	}
@@ -31,14 +31,14 @@ func WeightOr(g RGraph, edgeFrom, edgeTo uint, or interface{}) interface{} {
 }
 
 type ListNeightbours interface {
-	EachNeighbour(v0 uint, do func(v1 uint, fwd bool, w interface{}))
+	EachNeighbour(v0 VIdx, do func(v1 VIdx, fwd bool, w interface{}))
 }
 
-func EachNeighbour(g RGraph, v uint, do func(uint, bool, interface{})) {
+func EachNeighbour(g RGraph, v VIdx, do func(VIdx, bool, interface{})) {
 	if ln, ok := g.(ListNeightbours); ok {
 		ln.EachNeighbour(v, do)
 	} else if g.Directed() {
-		for n := uint(0); n < g.VertexNo(); n++ {
+		for n := VIdx(0); n < g.VertexNo(); n++ {
 			if w := g.Weight(v, n); w != nil {
 				do(n, true, w)
 			}
@@ -47,7 +47,7 @@ func EachNeighbour(g RGraph, v uint, do func(uint, bool, interface{})) {
 			}
 		}
 	} else {
-		for n := uint(0); n < g.VertexNo(); n++ {
+		for n := VIdx(0); n < g.VertexNo(); n++ {
 			if w := g.Weight(v, n); w != nil {
 				do(n, false, w)
 			}
@@ -57,7 +57,7 @@ func EachNeighbour(g RGraph, v uint, do func(uint, bool, interface{})) {
 
 func CheckDirected(g RGraph) bool {
 	vno := g.VertexNo()
-	for i := uint(0); i < vno; i++ {
+	for i := VIdx(0); i < vno; i++ {
 		for j := i + 1; j < vno; i++ {
 			w1 := g.Weight(i, j)
 			w2 := g.Weight(j, i)
@@ -74,10 +74,10 @@ func CheckDirected(g RGraph) bool {
 type WGraph interface {
 	RGraph
 	// Clear resizes the graph to vertexNo and reinitializes it.
-	Clear(vertexNo uint)
+	Clear(vertexNo VIdx)
 	// SetWeight sets the edge weight for the edge starting at vertex edgeFrom
 	// and ending at vertex edgeTo.
-	SetWeight(edgeFrom, edgeTo uint, w interface{})
+	SetWeight(edgeFrom, edgeTo VIdx, w interface{})
 }
 
 // Clear clears a WGraph while keeping the original vertexNo.
@@ -86,14 +86,14 @@ func Clear(g WGraph) { g.Clear(g.VertexNo()) }
 // RGbool represents a RGraph with boolean edge weights.
 type RGbool interface {
 	RGraph
-	Edge(edgeFrom, edgeTo uint) bool
+	Edge(edgeFrom, edgeTo VIdx) bool
 }
 
 // WGbool represents a WGraph with boolean edge weights.
 type WGbool interface {
 	WGraph
-	Edge(edgeFrom, edgeTo uint) bool
-	SetEdge(edgeFrom, edgeTo uint, flag bool)
+	Edge(edgeFrom, edgeTo VIdx) bool
+	SetEdge(edgeFrom, edgeTo VIdx, flag bool)
 }
 
 // An RGi32 is a RGraph with type safe access to the edge weight of type
@@ -101,15 +101,15 @@ type WGbool interface {
 // method for performance reasons.
 type RGi32 interface {
 	RGraph
-	Edge(edgeFrom, edgeTo uint) (weight int32)
+	Edge(edgeFrom, edgeTo VIdx) (weight int32)
 }
 
 // An WGi32 is to WGraph what RGi32 is to RGraph.
 type WGi32 interface {
 	WGraph
-	Edge(edgeFrom, edgeTo uint) (weight int32, exists bool)
-	SetEdge(edgeFrom, edgeTo uint, weight int32)
-	DelEdge(edgeFrom, edgeTo uint)
+	Edge(edgeFrom, edgeTo VIdx) (weight int32, exists bool)
+	SetEdge(edgeFrom, edgeTo VIdx, weight int32)
+	DelEdge(edgeFrom, edgeTo VIdx)
 }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type
@@ -117,14 +117,14 @@ type WGi32 interface {
 // method for performance reasons.
 type RGf32 interface {
 	RGraph
-	Edge(edgeFrom, edgeTo uint) (weight float32)
+	Edge(edgeFrom, edgeTo VIdx) (weight float32)
 }
 
 // An WGf32 is to WGraph what RGf32 is to RGraph.
 type WGf32 interface {
 	WGraph
-	Edge(edgeFrom, edgeTo uint) (weight float32)
-	SetEdge(edgeFrom, edgeTo uint, weight float32)
+	Edge(edgeFrom, edgeTo VIdx) (weight float32)
+	SetEdge(edgeFrom, edgeTo VIdx, weight float32)
 }
 
 // CpWeights copies the edge weights from one grap to another.
@@ -137,14 +137,14 @@ func CpWeights(dst WGraph, src RGraph) WGraph {
 		sz = src.VertexNo()
 	}
 	if dst.Directed() {
-		for i := uint(0); i < sz; i++ {
-			for j := uint(0); j < sz; j++ {
+		for i := VIdx(0); i < sz; i++ {
+			for j := VIdx(0); j < sz; j++ {
 				w := src.Weight(i, j)
 				dst.SetWeight(i, j, w)
 			}
 		}
 	} else {
-		for i := uint(0); i < sz; i++ {
+		for i := VIdx(0); i < sz; i++ {
 			for j := i; j < sz; j++ {
 				w := src.Weight(i, j)
 				dst.SetWeight(i, j, w)
@@ -163,14 +163,14 @@ func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGr
 		sz = src.VertexNo()
 	}
 	if dst.Directed() {
-		for i := uint(0); i < sz; i++ {
-			for j := uint(0); j < sz; j++ {
+		for i := VIdx(0); i < sz; i++ {
+			for j := VIdx(0); j < sz; j++ {
 				w := src.Weight(i, j)
 				dst.SetWeight(i, j, xf(w))
 			}
 		}
 	} else {
-		for i := uint(0); i < sz; i++ {
+		for i := VIdx(0); i < sz; i++ {
 			for j := i; j < sz; j++ {
 				w := src.Weight(i, j)
 				dst.SetWeight(i, j, xf(w))
@@ -181,7 +181,7 @@ func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGr
 }
 
 // TODO can this be done in place?
-func ReorderPath(slice interface{}, path []uint) {
+func ReorderPath(slice interface{}, path []VIdx) {
 	slv := reflect.ValueOf(slice)
 	if slv.Len() == 0 {
 		return

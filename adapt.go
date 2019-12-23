@@ -5,6 +5,8 @@ import (
 	"reflect"
 )
 
+type Vertex = interface{}
+
 // SliceNMeasure implements a metric RGraph based on a slice of vertices of
 // some type V and a function f(u V, v V) → W that compute the weight of type W
 // for any edge (u, v).
@@ -50,11 +52,11 @@ func (g *SliceNMeasure) Verify() *SliceNMeasure {
 	return g
 }
 
-func (g *SliceNMeasure) VertexNo() uint {
-	return uint(g.slc.Len())
+func (g *SliceNMeasure) VertexNo() VIdx {
+	return VIdx(g.slc.Len())
 }
 
-func (g *SliceNMeasure) Vertex(idx uint) Vertex {
+func (g *SliceNMeasure) Vertex(idx VIdx) Vertex {
 	return g.slc.Index(int(idx)).Interface()
 }
 
@@ -62,7 +64,7 @@ func (g *SliceNMeasure) Directed() bool {
 	return g.dir
 }
 
-func (g *SliceNMeasure) Weight(edgeFrom, edgeTo uint) interface{} {
+func (g *SliceNMeasure) Weight(edgeFrom, edgeTo VIdx) interface{} {
 	f, t := g.slc.Index(int(edgeFrom)), g.slc.Index(int(edgeTo))
 	d := g.m.Call([]reflect.Value{f, t})
 	return d[0].Interface()
@@ -70,20 +72,20 @@ func (g *SliceNMeasure) Weight(edgeFrom, edgeTo uint) interface{} {
 
 type RSubgraph struct {
 	g   RGraph
-	vls []uint
+	vls []VIdx
 }
 
 var _ RGraph = (*RSubgraph)(nil)
 
-func (g *RSubgraph) VertexNo() uint {
-	return uint(len(g.vls))
+func (g *RSubgraph) VertexNo() VIdx {
+	return VIdx(len(g.vls))
 }
 
 func (g *RSubgraph) Directed() bool {
 	return g.g.Directed()
 }
 
-func (g *RSubgraph) Weight(edgeFrom, edgeTo uint) interface{} {
+func (g *RSubgraph) Weight(edgeFrom, edgeTo VIdx) interface{} {
 	edgeFrom = g.vls[edgeFrom]
 	edgeTo = g.vls[edgeTo]
 	return g.Weight(edgeFrom, edgeTo)
@@ -91,30 +93,30 @@ func (g *RSubgraph) Weight(edgeFrom, edgeTo uint) interface{} {
 
 type WSubgraph struct {
 	g   WGraph
-	vls []uint
+	vls []VIdx
 }
 
 var _ WGraph = (*WSubgraph)(nil)
 
-func (g *WSubgraph) VertexNo() uint {
-	return uint(len(g.vls))
+func (g *WSubgraph) VertexNo() VIdx {
+	return VIdx(len(g.vls))
 }
 
 func (g *WSubgraph) Directed() bool {
 	return g.g.Directed()
 }
 
-func (g *WSubgraph) Weight(edgeFrom, edgeTo uint) interface{} {
+func (g *WSubgraph) Weight(edgeFrom, edgeTo VIdx) interface{} {
 	edgeFrom = g.vls[edgeFrom]
 	edgeTo = g.vls[edgeTo]
 	return g.Weight(edgeFrom, edgeTo)
 }
 
-func (g *WSubgraph) Clear(vertexNo uint) {
+func (g *WSubgraph) Clear(vertexNo VIdx) {
 	panic("must not clear WSubgraph")
 }
 
-func (g *WSubgraph) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
+func (g *WSubgraph) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) {
 	edgeFrom = g.vls[edgeFrom]
 	edgeTo = g.vls[edgeTo]
 	g.SetWeight(edgeFrom, edgeTo, w)

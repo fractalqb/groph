@@ -4,11 +4,11 @@ import (
 	"math"
 )
 
-type smpro = map[uint]interface{}
+type smpro = map[VIdx]interface{}
 
 type SpMap struct {
-	sz uint
-	ws map[uint]smpro
+	sz VIdx
+	ws map[VIdx]smpro
 }
 
 var (
@@ -16,11 +16,11 @@ var (
 	_ ListNeightbours = (*SpMap)(nil)
 )
 
-func NewSpMap(vertexNo uint, reuse *SpMap) *SpMap {
+func NewSpMap(vertexNo VIdx, reuse *SpMap) *SpMap {
 	if reuse == nil {
 		return &SpMap{
 			sz: vertexNo,
-			ws: make(map[uint]smpro),
+			ws: make(map[VIdx]smpro),
 		}
 	} else {
 		reuse.Clear(vertexNo)
@@ -28,13 +28,13 @@ func NewSpMap(vertexNo uint, reuse *SpMap) *SpMap {
 	}
 }
 
-func (g *SpMap) VertexNo() uint { return g.sz }
+func (g *SpMap) VertexNo() VIdx { return g.sz }
 
 func (g *SpMap) Directed() bool {
 	return true
 }
 
-func (g *SpMap) Weight(edgeFrom, edgeTo uint) interface{} {
+func (g *SpMap) Weight(edgeFrom, edgeTo VIdx) interface{} {
 	row, ok := g.ws[edgeFrom]
 	if !ok {
 		return nil
@@ -42,7 +42,7 @@ func (g *SpMap) Weight(edgeFrom, edgeTo uint) interface{} {
 	return row[edgeTo]
 }
 
-func (g *SpMap) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
+func (g *SpMap) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) {
 	g.sz = maxSize(g.sz, edgeFrom, edgeTo)
 	row, rok := g.ws[edgeFrom]
 	if w == nil {
@@ -61,12 +61,12 @@ func (g *SpMap) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
 	}
 }
 
-func (g *SpMap) Clear(vertexNo uint) {
+func (g *SpMap) Clear(vertexNo VIdx) {
 	g.sz = vertexNo
-	g.ws = make(map[uint]smpro)
+	g.ws = make(map[VIdx]smpro)
 }
 
-func (g *SpMap) EachNeighbour(v uint, do func(uint, bool, interface{})) {
+func (g *SpMap) EachNeighbour(v VIdx, do func(VIdx, bool, interface{})) {
 	for a, ns := range g.ws {
 		if a == v {
 			for b, w := range ns {
@@ -78,11 +78,11 @@ func (g *SpMap) EachNeighbour(v uint, do func(uint, bool, interface{})) {
 	}
 }
 
-type spmrof32 = map[uint]float32
+type spmrof32 = map[VIdx]float32
 
 type SpMapf32 struct {
-	sz uint
-	ws map[uint]spmrof32
+	sz VIdx
+	ws map[VIdx]spmrof32
 }
 
 var (
@@ -92,11 +92,11 @@ var (
 
 var nan32 = float32(math.NaN())
 
-func NewSpMapf32(vertexNo uint, reuse *SpMapf32) *SpMapf32 {
+func NewSpMapf32(vertexNo VIdx, reuse *SpMapf32) *SpMapf32 {
 	if reuse == nil {
 		return &SpMapf32{
 			sz: vertexNo,
-			ws: make(map[uint]spmrof32),
+			ws: make(map[VIdx]spmrof32),
 		}
 	} else {
 		reuse.Clear(vertexNo)
@@ -104,11 +104,11 @@ func NewSpMapf32(vertexNo uint, reuse *SpMapf32) *SpMapf32 {
 	}
 }
 
-func (g *SpMapf32) VertexNo() uint { return g.sz }
+func (g *SpMapf32) VertexNo() VIdx { return g.sz }
 
 func (g *SpMapf32) Directed() bool { return true }
 
-func (g *SpMapf32) Edge(edgeFrom, edgeTo uint) (weight float32) {
+func (g *SpMapf32) Edge(edgeFrom, edgeTo VIdx) (weight float32) {
 	row, ok := g.ws[edgeFrom]
 	if !ok {
 		return nan32
@@ -121,7 +121,7 @@ func (g *SpMapf32) Edge(edgeFrom, edgeTo uint) (weight float32) {
 	}
 }
 
-func (g *SpMapf32) SetEdge(edgeFrom, edgeTo uint, weight float32) {
+func (g *SpMapf32) SetEdge(edgeFrom, edgeTo VIdx, weight float32) {
 	g.sz = maxSize(g.sz, edgeFrom, edgeTo)
 	row, rok := g.ws[edgeFrom]
 	if math.IsNaN(float64(weight)) {
@@ -140,7 +140,7 @@ func (g *SpMapf32) SetEdge(edgeFrom, edgeTo uint, weight float32) {
 	}
 }
 
-func (g *SpMapf32) Weight(edgeFrom, edgeTo uint) interface{} {
+func (g *SpMapf32) Weight(edgeFrom, edgeTo VIdx) interface{} {
 	tmp := g.Edge(edgeFrom, edgeTo)
 	if math.IsNaN(float64(tmp)) {
 		return nil
@@ -148,7 +148,7 @@ func (g *SpMapf32) Weight(edgeFrom, edgeTo uint) interface{} {
 	return tmp
 }
 
-func (g *SpMapf32) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
+func (g *SpMapf32) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) {
 	if w == nil {
 		g.SetEdge(edgeFrom, edgeTo, nan32)
 	} else {
@@ -156,12 +156,12 @@ func (g *SpMapf32) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
 	}
 }
 
-func (g *SpMapf32) Clear(vertexNo uint) {
+func (g *SpMapf32) Clear(vertexNo VIdx) {
 	g.sz = vertexNo
-	g.ws = make(map[uint]spmrof32)
+	g.ws = make(map[VIdx]spmrof32)
 }
 
-func (g *SpMapf32) EachNeighbour(v uint, do func(uint, bool, interface{})) {
+func (g *SpMapf32) EachNeighbour(v VIdx, do func(VIdx, bool, interface{})) {
 	for a, ns := range g.ws {
 		if a == v {
 			for b, w := range ns {
@@ -173,7 +173,7 @@ func (g *SpMapf32) EachNeighbour(v uint, do func(uint, bool, interface{})) {
 	}
 }
 
-func maxSize(currentSize, newIdx1, newIdx2 uint) uint {
+func maxSize(currentSize, newIdx1, newIdx2 VIdx) VIdx {
 	if s := newIdx1 + 1; s > currentSize {
 		if newIdx2 > newIdx1 {
 			return newIdx2 + 1
@@ -187,11 +187,11 @@ func maxSize(currentSize, newIdx1, newIdx2 uint) uint {
 	return currentSize
 }
 
-type spmroi32 = map[uint]int32
+type spmroi32 = map[VIdx]int32
 
 type SpMapi32 struct {
-	sz uint
-	ws map[uint]spmroi32
+	sz VIdx
+	ws map[VIdx]spmroi32
 }
 
 var (
@@ -199,11 +199,11 @@ var (
 	_ ListNeightbours = (*SpMapi32)(nil)
 )
 
-func NewSpMapi32(vertexNo uint, reuse *SpMapi32) *SpMapi32 {
+func NewSpMapi32(vertexNo VIdx, reuse *SpMapi32) *SpMapi32 {
 	if reuse == nil {
 		return &SpMapi32{
 			sz: vertexNo,
-			ws: make(map[uint]spmroi32),
+			ws: make(map[VIdx]spmroi32),
 		}
 	} else {
 		reuse.Clear(vertexNo)
@@ -211,11 +211,11 @@ func NewSpMapi32(vertexNo uint, reuse *SpMapi32) *SpMapi32 {
 	}
 }
 
-func (g *SpMapi32) VertexNo() uint { return g.sz }
+func (g *SpMapi32) VertexNo() VIdx { return g.sz }
 
 func (g *SpMapi32) Directed() bool { return true }
 
-func (g *SpMapi32) Edge(edgeFrom, edgeTo uint) (weight int32, exists bool) {
+func (g *SpMapi32) Edge(edgeFrom, edgeTo VIdx) (weight int32, exists bool) {
 	row, ok := g.ws[edgeFrom]
 	if !ok {
 		return 0, false
@@ -228,7 +228,7 @@ func (g *SpMapi32) Edge(edgeFrom, edgeTo uint) (weight int32, exists bool) {
 	}
 }
 
-func (g *SpMapi32) SetEdge(edgeFrom, edgeTo uint, weight int32) {
+func (g *SpMapi32) SetEdge(edgeFrom, edgeTo VIdx, weight int32) {
 	g.sz = maxSize(g.sz, edgeFrom, edgeTo)
 	row, rok := g.ws[edgeFrom]
 	if math.IsNaN(float64(weight)) {
@@ -247,14 +247,14 @@ func (g *SpMapi32) SetEdge(edgeFrom, edgeTo uint, weight int32) {
 	}
 }
 
-func (g *SpMapi32) DelEdge(edgeFrom, edgeTo uint) {
+func (g *SpMapi32) DelEdge(edgeFrom, edgeTo VIdx) {
 	row, ok := g.ws[edgeFrom]
 	if ok {
 		delete(row, edgeTo)
 	}
 }
 
-func (g *SpMapi32) Weight(edgeFrom, edgeTo uint) interface{} {
+func (g *SpMapi32) Weight(edgeFrom, edgeTo VIdx) interface{} {
 	w, ok := g.Edge(edgeFrom, edgeTo)
 	if ok {
 		return w
@@ -262,7 +262,7 @@ func (g *SpMapi32) Weight(edgeFrom, edgeTo uint) interface{} {
 	return nil
 }
 
-func (g *SpMapi32) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
+func (g *SpMapi32) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) {
 	if w == nil {
 		g.DelEdge(edgeFrom, edgeTo)
 	} else {
@@ -270,12 +270,12 @@ func (g *SpMapi32) SetWeight(edgeFrom, edgeTo uint, w interface{}) {
 	}
 }
 
-func (g *SpMapi32) Clear(vertexNo uint) {
+func (g *SpMapi32) Clear(vertexNo VIdx) {
 	g.sz = vertexNo
-	g.ws = make(map[uint]spmroi32)
+	g.ws = make(map[VIdx]spmroi32)
 }
 
-func (g *SpMapi32) EachNeighbour(v uint, do func(uint, bool, interface{})) {
+func (g *SpMapi32) EachNeighbour(v VIdx, do func(VIdx, bool, interface{})) {
 	for a, ns := range g.ws {
 		if a == v {
 			for b, w := range ns {

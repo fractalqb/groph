@@ -10,13 +10,13 @@ func TestSliceNMeasure(t *testing.T) {
 	a := NewSliceNMeasure(slc, func(a, b float64) float64 {
 		return b - a
 	}, true)
-	if vn := a.VertexNo(); vn != uint(len(slc)) {
+	if vn := a.VertexNo(); vn != VIdx(len(slc)) {
 		t.Fatalf("unexpected vertex no: %d (expected %d)", vn, len(slc))
 	}
 	for i := 0; i < len(slc); i++ {
-		v, ok := a.Vertex(uint(i)).(float64)
+		v, ok := a.Vertex(VIdx(i)).(float64)
 		if !ok {
-			t.Fatalf("unexpected vertex type[%d]: %s", i, reflect.TypeOf(a.Vertex(uint(i))))
+			t.Fatalf("unexpected vertex type[%d]: %s", i, reflect.TypeOf(a.Vertex(VIdx(i))))
 		}
 		if v != slc[i] {
 			t.Fatalf("unexpected vertex value[%d]: %f", i, v)

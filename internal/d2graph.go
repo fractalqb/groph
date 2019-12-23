@@ -3,6 +3,8 @@ package groph
 import (
 	"math"
 	"math/rand"
+
+	"git.fractalqb.de/fractalqb/groph"
 )
 
 type Point [2]float32
@@ -13,8 +15,8 @@ func Dist(p, q Point) float32 {
 	return float32(math.Sqrt(float64(d1*d1 + d2*d2)))
 }
 
-func RandomPoints(n uint, ps []Point) []Point {
-	if uint(cap(ps)) >= n {
+func RandomPoints(n groph.VIdx, ps []Point) []Point {
+	if groph.VIdx(cap(ps)) >= n {
 		ps = ps[:n-1]
 	} else {
 		ps = make([]Point, n)
