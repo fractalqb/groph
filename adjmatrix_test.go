@@ -6,6 +6,12 @@ import (
 	"testing"
 )
 
+var _ WGbool = (*AdjMxDbitmap)(nil)
+var _ WGbool = (*AdjMxDbool)(nil)
+var _ WGi32 = (*AdjMxDi32)(nil)
+var _ WGf32 = (*AdjMxDf32)(nil)
+var _ WGf32 = (*AdjMxUf32)(nil)
+
 func TestAdjMxDbitmap_SetUset(t *testing.T) {
 	m := NewAdjMxDbitmap(testSizeSetUnset, nil)
 	testDSetUnset(t, m,
@@ -58,6 +64,16 @@ func BenchmarkAdjMxDbitmap_generic(b *testing.B) {
 		}
 		w = !w
 	}
+}
+
+func TestAdjMxDbool_SetUset(t *testing.T) {
+	m := NewAdjMxDbool(testSizeSetUnset, nil)
+	testDSetUnset(t, m,
+		func(i, j VIdx) interface{} { m.SetEdge(i, j, true); return true },
+		func(i, j VIdx) { m.SetEdge(i, j, false) },
+		func(i, j VIdx) interface{} { return m.Edge(i, j) },
+		func(w interface{}) bool { return w.(bool) == false },
+	)
 }
 
 func BenchmarkAdjMxDbool(b *testing.B) {
@@ -212,6 +228,17 @@ func BenchmarkAdjMxDf32_generic(b *testing.B) {
 		}
 		w += 0.1
 	}
+}
+
+func TestAdjMxUf32_SetUset(t *testing.T) {
+	m := NewAdjMxUf32(testSizeSetUnset, nil)
+	const w32 = float32(3.1415)
+	testUSetUnset(t, m,
+		func(i, j VIdx) interface{} { m.SetEdge(i, j, w32); return w32 },
+		func(i, j VIdx) { m.SetEdge(i, j, nan32) },
+		func(i, j VIdx) interface{} { return m.Edge(i, j) },
+		func(w interface{}) bool { return math.IsNaN(float64(w.(float32))) },
+	)
 }
 
 func ExampleNaNs() {

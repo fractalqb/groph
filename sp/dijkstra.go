@@ -68,12 +68,12 @@ func Dijkstraf32(g groph.RGf32, start groph.VIdx) (dist []float32, prev []groph.
 	}
 	for q.Len() != 0 {
 		u := heap.Pop(&q).(pqItemf32).v
-		groph.EachNeighbour(g, u, func(v groph.VIdx, _ bool, w interface{}) {
+		groph.EachNeighbour(g, u, func(n groph.VIdx, _ bool, w interface{}) {
 			alt := dist[u] + w.(float32)
-			if alt < dist[v] {
-				dist[v] = alt
-				prev[v] = u
-				q.update(v, alt)
+			if alt < dist[n] {
+				dist[n] = alt
+				prev[n] = u
+				q.update(n, alt)
 			}
 		})
 	}

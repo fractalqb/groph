@@ -22,7 +22,7 @@ func NewSlice(directed bool, edgeSlice interface{}) *Slice {
 	if directed {
 		res.sz = VIdx(math.Sqrt(float64(res.slc.Len())))
 	} else {
-		panic("NYI!") // TODO
+		res.sz = VIdx(nSumRev(res.slc.Len()))
 	}
 	return res
 }
@@ -36,8 +36,8 @@ func (g *Slice) Check() (*Slice, error) {
 		if g.sz*g.sz != g.slc.Len() {
 			return g, fmt.Errorf("slice len is not quadratic")
 		}
-	} else {
-		panic("NYI!") // TODO
+	} else if nSum(g.sz) != g.slc.Len() {
+		return g, fmt.Errorf("slice len is not Sum(1, ..., n)")
 	}
 	return g, nil
 }
@@ -56,7 +56,12 @@ func (g *Slice) VertexNo() VIdx { return g.sz }
 func (g *Slice) Directed() bool { return g.dir }
 
 func (g *Slice) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	return g.slc.Index(g.sz*edgeFrom + edgeTo).Interface()
+	if g.dir {
+		return g.slc.Index(g.sz*edgeFrom + edgeTo).Interface()
+	} else if edgeFrom < edgeTo {
+		return g.slc.Index(uIdx(g.sz, edgeFrom, edgeTo)).Interface()
+	}
+	return g.slc.Index(uIdx(g.sz, edgeTo, edgeFrom)).Interface()
 }
 
 // SliceNMeasure implements a metric RGraph based on a slice of vertices of

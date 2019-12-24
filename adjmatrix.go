@@ -17,8 +17,6 @@ type AdjMxDbitmap struct {
 	bs []uint
 }
 
-var _ WGbool = (*AdjMxDbitmap)(nil)
-
 func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 	sz := uint(vertexNo * vertexNo)
 	sz = (sz + (wordBits - 1)) / wordBits
@@ -87,8 +85,6 @@ type AdjMxDbool struct {
 	bs []bool
 }
 
-var _ WGbool = (*AdjMxDbool)(nil)
-
 func NewAdjMxDbool(vertexNo VIdx, reuse *AdjMxDbool) *AdjMxDbool {
 	sz := vertexNo * vertexNo
 	if reuse == nil {
@@ -145,8 +141,6 @@ type AdjMxDi32 struct {
 	w       []int32
 	Cleared int32
 }
-
-var _ WGi32 = (*AdjMxDi32)(nil)
 
 const I32cleared = -2147483648
 
@@ -217,8 +211,6 @@ type AdjMxDf32 struct {
 	w []float32
 }
 
-var _ WGf32 = (*AdjMxDf32)(nil)
-
 func NewAdjMxDf32(vertexNo VIdx, reuse *AdjMxDf32) *AdjMxDf32 {
 	if reuse == nil {
 		reuse = &AdjMxDf32{
@@ -277,12 +269,15 @@ func (m *AdjMxDf32) SetEdge(i, j VIdx, w float32) {
 // uSum computes the sum of the n 1st integers, i.e. 1+2+3+…+n
 func nSum(n VIdx) VIdx { return n * (n + 1) / 2 }
 
+func nSumRev(n VIdx) float64 {
+	r := math.Sqrt(0.25 + 2*float64(n))
+	return r - 0.5
+}
+
 type AdjMxUf32 struct {
 	adjMx
 	w []float32
 }
-
-var _ WGf32 = (*AdjMxUf32)(nil)
 
 func NewAdjMxUf32(vertexNo VIdx, reuse *AdjMxUf32) *AdjMxUf32 {
 	if reuse == nil {

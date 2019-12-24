@@ -54,23 +54,27 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">git.fractalqb.de/fractalqb/groph/adapt.go (40.0%)</option>
+				<option value="file0">git.fractalqb.de/fractalqb/groph/adapt.go (12.7%)</option>
 				
-				<option value="file1">git.fractalqb.de/fractalqb/groph/adjmatrix.go (51.8%)</option>
+				<option value="file1">git.fractalqb.de/fractalqb/groph/adjmatrix.go (37.6%)</option>
 				
 				<option value="file2">git.fractalqb.de/fractalqb/groph/bitset.go (100.0%)</option>
 				
-				<option value="file3">git.fractalqb.de/fractalqb/groph/floyd_warshall.go (50.0%)</option>
+				<option value="file3">git.fractalqb.de/fractalqb/groph/graph.go (13.8%)</option>
 				
-				<option value="file4">git.fractalqb.de/fractalqb/groph/graph.go (34.5%)</option>
+				<option value="file4">git.fractalqb.de/fractalqb/groph/internal/d2graph.go (0.0%)</option>
 				
-				<option value="file5">git.fractalqb.de/fractalqb/groph/kruskal.go (81.8%)</option>
+				<option value="file5">git.fractalqb.de/fractalqb/groph/mst/kruskal.go (81.8%)</option>
 				
-				<option value="file6">git.fractalqb.de/fractalqb/groph/sparse.go (73.1%)</option>
+				<option value="file6">git.fractalqb.de/fractalqb/groph/sp/dijkstra.go (100.0%)</option>
 				
-				<option value="file7">git.fractalqb.de/fractalqb/groph/tsp_2opt.go (100.0%)</option>
+				<option value="file7">git.fractalqb.de/fractalqb/groph/sp/floyd_warshall.go (59.6%)</option>
 				
-				<option value="file8">git.fractalqb.de/fractalqb/groph/tsp_greedy.go (46.9%)</option>
+				<option value="file8">git.fractalqb.de/fractalqb/groph/sparse.go (67.5%)</option>
+				
+				<option value="file9">git.fractalqb.de/fractalqb/groph/tsp/2opt.go (100.0%)</option>
+				
+				<option value="file10">git.fractalqb.de/fractalqb/groph/tsp/greedy.go (46.9%)</option>
 				
 				</select>
 			</div>
@@ -88,12 +92,73 @@
 
 import (
         "fmt"
+        "math"
         "reflect"
 )
+
+type Vertex = interface{}
+
+type Slice struct {
+        slc reflect.Value
+        dir bool
+        sz  VIdx
+}
+
+func NewSlice(directed bool, edgeSlice interface{}) *Slice <span class="cov0" title="0">{
+        res := &amp;Slice{
+                slc: reflect.ValueOf(edgeSlice),
+                dir: directed,
+        }
+        if directed </span><span class="cov0" title="0">{
+                res.sz = VIdx(math.Sqrt(float64(res.slc.Len())))
+        }</span> else<span class="cov0" title="0"> {
+                res.sz = VIdx(nSumRev(res.slc.Len()))
+        }</span>
+        <span class="cov0" title="0">return res</span>
+}
+
+func (g *Slice) Check() (*Slice, error) <span class="cov0" title="0">{
+        if g.slc.Kind() != reflect.Slice </span><span class="cov0" title="0">{
+                return g, fmt.Errorf("edges have to be a slice, got %s",
+                        g.slc.Type().String())
+        }</span>
+        <span class="cov0" title="0">if g.dir </span><span class="cov0" title="0">{
+                if g.sz*g.sz != g.slc.Len() </span><span class="cov0" title="0">{
+                        return g, fmt.Errorf("slice len is not quadratic")
+                }</span>
+        } else<span class="cov0" title="0"> if nSum(g.sz) != g.slc.Len() </span><span class="cov0" title="0">{
+                return g, fmt.Errorf("slice len is not Sum(1, ..., n)")
+        }</span>
+        <span class="cov0" title="0">return g, nil</span>
+}
+
+func (g *Slice) Must() *Slice <span class="cov0" title="0">{
+        var err error
+        g, err = g.Check()
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">return g</span>
+}
+
+func (g *Slice) VertexNo() VIdx <span class="cov0" title="0">{ return g.sz }</span>
+
+func (g *Slice) Directed() bool <span class="cov0" title="0">{ return g.dir }</span>
+
+func (g *Slice) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov0" title="0">{
+        if g.dir </span><span class="cov0" title="0">{
+                return g.slc.Index(g.sz*edgeFrom + edgeTo).Interface()
+        }</span> else<span class="cov0" title="0"> if edgeFrom &lt; edgeTo </span><span class="cov0" title="0">{
+                return g.slc.Index(uIdx(g.sz, edgeFrom, edgeTo)).Interface()
+        }</span>
+        <span class="cov0" title="0">return g.slc.Index(uIdx(g.sz, edgeTo, edgeFrom)).Interface()</span>
+}
 
 // SliceNMeasure implements a metric RGraph based on a slice of vertices of
 // some type V and a function f(u V, v V) → W that compute the weight of type W
 // for any edge (u, v).
+//
+// E.g. use CpWeights or CpXWeights to initialize an other WGraph.
 type SliceNMeasure struct {
         slc reflect.Value
         m   reflect.Value
@@ -114,31 +179,31 @@ func NewSliceNMeasure(
 
 // Check does type checking on g. It always returns g. Only if everything is OK
 // the returned error is nil.
-func (g *SliceNMeasure) Check() (*SliceNMeasure, error) <span class="cov8" title="1">{
+func (g *SliceNMeasure) Check() (*SliceNMeasure, error) <span class="cov0" title="0">{
         if g.slc.Kind() != reflect.Slice </span><span class="cov0" title="0">{
                 return g, fmt.Errorf("vertex set has to be a slice, got %s",
                         g.slc.Type().String())
         }</span>
-        <span class="cov8" title="1">if g.m.Kind() != reflect.Func </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">if g.m.Kind() != reflect.Func </span><span class="cov0" title="0">{
                 return g, fmt.Errorf("edge weight measure must be a function, got: %s",
                         g.m.Type().String())
         }</span> // TODO more precise checking
-        <span class="cov8" title="1">return g, nil</span>
+        <span class="cov0" title="0">return g, nil</span>
 }
 
 // Verify call Check on g and panics if Check returns an error.
-func (g *SliceNMeasure) Verify() *SliceNMeasure <span class="cov8" title="1">{
+func (g *SliceNMeasure) Must() *SliceNMeasure <span class="cov0" title="0">{
         if _, err := g.Check(); err != nil </span><span class="cov0" title="0">{
                 panic(err)</span>
         }
-        <span class="cov8" title="1">return g</span>
+        <span class="cov0" title="0">return g</span>
 }
 
-func (g *SliceNMeasure) VertexNo() uint <span class="cov8" title="1">{
-        return uint(g.slc.Len())
+func (g *SliceNMeasure) VertexNo() VIdx <span class="cov8" title="1">{
+        return VIdx(g.slc.Len())
 }</span>
 
-func (g *SliceNMeasure) Vertex(idx uint) Vertex <span class="cov8" title="1">{
+func (g *SliceNMeasure) Vertex(idx VIdx) Vertex <span class="cov8" title="1">{
         return g.slc.Index(int(idx)).Interface()
 }</span>
 
@@ -146,62 +211,62 @@ func (g *SliceNMeasure) Directed() bool <span class="cov0" title="0">{
         return g.dir
 }</span>
 
-func (g *SliceNMeasure) Weight(fromIdx, toIdx uint) interface{} <span class="cov8" title="1">{
-        f, t := g.slc.Index(int(fromIdx)), g.slc.Index(int(toIdx))
+func (g *SliceNMeasure) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov8" title="1">{
+        f, t := g.slc.Index(int(edgeFrom)), g.slc.Index(int(edgeTo))
         d := g.m.Call([]reflect.Value{f, t})
         return d[0].Interface()
 }</span>
 
 type RSubgraph struct {
         g   RGraph
-        vls []uint
+        vls []VIdx
 }
 
 var _ RGraph = (*RSubgraph)(nil)
 
-func (g *RSubgraph) VertexNo() uint <span class="cov0" title="0">{
-        return uint(len(g.vls))
+func (g *RSubgraph) VertexNo() VIdx <span class="cov0" title="0">{
+        return VIdx(len(g.vls))
 }</span>
 
 func (g *RSubgraph) Directed() bool <span class="cov0" title="0">{
         return g.g.Directed()
 }</span>
 
-func (g *RSubgraph) Weight(fromIdx, toIdx uint) interface{} <span class="cov0" title="0">{
-        fromIdx = g.vls[fromIdx]
-        toIdx = g.vls[toIdx]
-        return g.Weight(fromIdx, toIdx)
+func (g *RSubgraph) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov0" title="0">{
+        edgeFrom = g.vls[edgeFrom]
+        edgeTo = g.vls[edgeTo]
+        return g.Weight(edgeFrom, edgeTo)
 }</span>
 
 type WSubgraph struct {
         g   WGraph
-        vls []uint
+        vls []VIdx
 }
 
 var _ WGraph = (*WSubgraph)(nil)
 
-func (g *WSubgraph) VertexNo() uint <span class="cov0" title="0">{
-        return uint(len(g.vls))
+func (g *WSubgraph) VertexNo() VIdx <span class="cov0" title="0">{
+        return VIdx(len(g.vls))
 }</span>
 
 func (g *WSubgraph) Directed() bool <span class="cov0" title="0">{
         return g.g.Directed()
 }</span>
 
-func (g *WSubgraph) Weight(fromIdx, toIdx uint) interface{} <span class="cov0" title="0">{
-        fromIdx = g.vls[fromIdx]
-        toIdx = g.vls[toIdx]
-        return g.Weight(fromIdx, toIdx)
+func (g *WSubgraph) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov0" title="0">{
+        edgeFrom = g.vls[edgeFrom]
+        edgeTo = g.vls[edgeTo]
+        return g.Weight(edgeFrom, edgeTo)
 }</span>
 
-func (g *WSubgraph) Clear(vertexNo uint) <span class="cov0" title="0">{
+func (g *WSubgraph) Clear(vertexNo VIdx) <span class="cov0" title="0">{
         panic("must not clear WSubgraph")</span>
 }
 
-func (g *WSubgraph) SetWeight(fromIdx, toIdx uint, w interface{}) <span class="cov0" title="0">{
-        fromIdx = g.vls[fromIdx]
-        toIdx = g.vls[toIdx]
-        g.SetWeight(fromIdx, toIdx, w)
+func (g *WSubgraph) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) <span class="cov0" title="0">{
+        edgeFrom = g.vls[edgeFrom]
+        edgeTo = g.vls[edgeTo]
+        g.SetWeight(edgeFrom, edgeTo, w)
 }</span>
 </pre>
 		
@@ -212,23 +277,25 @@ import (
 )
 
 type adjMx struct {
-        sz uint
+        sz VIdx
 }
 
-func (m *adjMx) VertexNo() uint <span class="cov8" title="1">{ return m.sz }</span>
+func (m *adjMx) VertexNo() VIdx <span class="cov8" title="1">{ return m.sz }</span>
 
-type AdjMxDbool struct {
+// AdjMxDbitmap is a directed WGraph with boolean edge weights implemented as
+// bitmap. This sacrifices runtime performance for lesser memory usage.
+type AdjMxDbitmap struct {
         adjMx
         bs []uint
 }
 
-var _ WGbool = (*AdjMxDbool)(nil)
+var _ WGbool = (*AdjMxDbitmap)(nil)
 
-func NewAdjMxDbool(vertexNo uint, reuse *AdjMxDbool) *AdjMxDbool <span class="cov8" title="1">{
-        sz := vertexNo * vertexNo
+func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap <span class="cov8" title="1">{
+        sz := uint(vertexNo * vertexNo)
         sz = (sz + (wordBits - 1)) / wordBits
         if reuse == nil </span><span class="cov8" title="1">{
-                reuse = &amp;AdjMxDbool{
+                reuse = &amp;AdjMxDbitmap{
                         adjMx: adjMx{sz: vertexNo},
                         bs:    make([]uint, sz),
                 }
@@ -242,7 +309,7 @@ func NewAdjMxDbool(vertexNo uint, reuse *AdjMxDbool) *AdjMxDbool <span class="co
         <span class="cov8" title="1">return reuse</span>
 }
 
-func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool <span class="cov0" title="0">{
+func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap <span class="cov0" title="0">{
         if flag </span><span class="cov0" title="0">{
                 for i := range m.bs </span><span class="cov0" title="0">{
                         m.bs[i] = ^uint(0)
@@ -255,18 +322,18 @@ func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool <span class="cov0" title="0">{
         <span class="cov0" title="0">return m</span>
 }
 
-func (m *AdjMxDbool) Directed() bool <span class="cov0" title="0">{ return true }</span>
+func (m *AdjMxDbitmap) Directed() bool <span class="cov8" title="1">{ return true }</span>
 
-func (m *AdjMxDbool) Clear(vertexNo uint) <span class="cov0" title="0">{
-        NewAdjMxDbool(vertexNo, m)
+func (m *AdjMxDbitmap) Clear(vertexNo VIdx) <span class="cov0" title="0">{
+        NewAdjMxDbitmap(vertexNo, m)
         m.Init(false)
 }</span>
 
-func (m *AdjMxDbool) Weight(fromIdx, toIdx uint) interface{} <span class="cov0" title="0">{
-        return m.Edge(fromIdx, toIdx)
+func (m *AdjMxDbitmap) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov0" title="0">{
+        return m.Edge(edgeFrom, edgeTo)
 }</span>
 
-func (m *AdjMxDbool) SetWeight(i, j uint, w interface{}) <span class="cov0" title="0">{
+func (m *AdjMxDbitmap) SetWeight(i, j VIdx, w interface{}) <span class="cov0" title="0">{
         if w == nil </span><span class="cov0" title="0">{
                 m.SetEdge(i, j, false)
         }</span> else<span class="cov0" title="0"> {
@@ -274,18 +341,76 @@ func (m *AdjMxDbool) SetWeight(i, j uint, w interface{}) <span class="cov0" titl
         }</span>
 }
 
-func (m *AdjMxDbool) Edge(i, j uint) (w bool) <span class="cov8" title="1">{
-        w = BitSetGet(m.bs, m.sz*i+j)
+func (m *AdjMxDbitmap) Edge(i, j VIdx) (w bool) <span class="cov8" title="1">{
+        w = BitSetGet(m.bs, uint(m.sz*i+j))
         return w
 }</span>
 
-func (m *AdjMxDbool) SetEdge(i, j uint, w bool) <span class="cov8" title="1">{
+func (m *AdjMxDbitmap) SetEdge(i, j VIdx, w bool) <span class="cov8" title="1">{
         if w </span><span class="cov8" title="1">{
-                BitSetSet(m.bs, m.sz*i+j)
+                BitSetSet(m.bs, uint(m.sz*i+j))
         }</span> else<span class="cov8" title="1"> {
-                BitSetUnset(m.bs, m.sz*i+j)
+                BitSetUnset(m.bs, uint(m.sz*i+j))
         }</span>
 }
+
+type AdjMxDbool struct {
+        adjMx
+        bs []bool
+}
+
+var _ WGbool = (*AdjMxDbool)(nil)
+
+func NewAdjMxDbool(vertexNo VIdx, reuse *AdjMxDbool) *AdjMxDbool <span class="cov8" title="1">{
+        sz := vertexNo * vertexNo
+        if reuse == nil </span><span class="cov8" title="1">{
+                reuse = &amp;AdjMxDbool{
+                        adjMx: adjMx{sz: vertexNo},
+                        bs:    make([]bool, sz),
+                }
+        }</span> else<span class="cov0" title="0"> if VIdx(cap(reuse.bs)) &gt;= sz </span><span class="cov0" title="0">{
+                reuse.sz = vertexNo
+                reuse.bs = reuse.bs[:sz]
+        }</span> else<span class="cov0" title="0"> {
+                reuse.sz = vertexNo
+                reuse.bs = make([]bool, sz)
+        }</span>
+        <span class="cov8" title="1">return reuse</span>
+}
+
+func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool <span class="cov0" title="0">{
+        for i := range m.bs </span><span class="cov0" title="0">{
+                m.bs[i] = flag
+        }</span>
+        <span class="cov0" title="0">return m</span>
+}
+
+func (m *AdjMxDbool) Directed() bool <span class="cov8" title="1">{ return true }</span>
+
+func (m *AdjMxDbool) Clear(vertexNo VIdx) <span class="cov0" title="0">{
+        NewAdjMxDbool(vertexNo, m)
+        m.Init(false)
+}</span>
+
+func (m *AdjMxDbool) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov0" title="0">{
+        return m.Edge(edgeFrom, edgeTo)
+}</span>
+
+func (m *AdjMxDbool) SetWeight(i, j VIdx, w interface{}) <span class="cov0" title="0">{
+        if w == nil </span><span class="cov0" title="0">{
+                m.SetEdge(i, j, false)
+        }</span> else<span class="cov0" title="0"> {
+                m.SetEdge(i, j, w.(bool))
+        }</span>
+}
+
+func (m *AdjMxDbool) Edge(i, j VIdx) (w bool) <span class="cov8" title="1">{
+        return m.bs[m.sz*i+j]
+}</span>
+
+func (m *AdjMxDbool) SetEdge(i, j VIdx, w bool) <span class="cov8" title="1">{
+        m.bs[m.sz*i+j] = w
+}</span>
 
 type AdjMxDi32 struct {
         adjMx
@@ -297,14 +422,14 @@ var _ WGi32 = (*AdjMxDi32)(nil)
 
 const I32cleared = -2147483648
 
-func NewAdjMxDi32(vertexNo uint, reuse *AdjMxDi32) *AdjMxDi32 <span class="cov8" title="1">{
+func NewAdjMxDi32(vertexNo VIdx, reuse *AdjMxDi32) *AdjMxDi32 <span class="cov8" title="1">{
         if reuse == nil </span><span class="cov8" title="1">{
                 reuse = &amp;AdjMxDi32{
                         adjMx:   adjMx{sz: vertexNo},
                         w:       make([]int32, vertexNo*vertexNo),
                         Cleared: I32cleared,
                 }
-        }</span> else<span class="cov0" title="0"> if uint(cap(reuse.w)) &gt;= vertexNo*vertexNo </span><span class="cov0" title="0">{
+        }</span> else<span class="cov0" title="0"> if VIdx(cap(reuse.w)) &gt;= vertexNo*vertexNo </span><span class="cov0" title="0">{
                 reuse.sz = vertexNo
                 reuse.w = reuse.w[:vertexNo*vertexNo]
         }</span> else<span class="cov0" title="0"> {
@@ -321,24 +446,24 @@ func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 <span class="cov0" title="0">{
         <span class="cov0" title="0">return m</span>
 }
 
-func (m *AdjMxDi32) Directed() bool <span class="cov0" title="0">{ return true }</span>
+func (m *AdjMxDi32) Directed() bool <span class="cov8" title="1">{ return true }</span>
 
-func (m *AdjMxDi32) Clear(vertexNo uint) <span class="cov0" title="0">{
+func (m *AdjMxDi32) Clear(vertexNo VIdx) <span class="cov0" title="0">{
         c := m.Cleared
         NewAdjMxDi32(vertexNo, m)
         m.Cleared = c
         m.Init(m.Cleared)
 }</span>
 
-func (m *AdjMxDi32) Weight(fromIdx, toIdx uint) interface{} <span class="cov8" title="1">{
-        res, ok := m.Edge(fromIdx, toIdx)
+func (m *AdjMxDi32) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov8" title="1">{
+        res, ok := m.Edge(edgeFrom, edgeTo)
         if ok </span><span class="cov8" title="1">{
                 return res
         }</span>
         <span class="cov8" title="1">return nil</span>
 }
 
-func (m *AdjMxDi32) SetWeight(i, j uint, w interface{}) <span class="cov0" title="0">{
+func (m *AdjMxDi32) SetWeight(i, j VIdx, w interface{}) <span class="cov0" title="0">{
         if w == nil </span><span class="cov0" title="0">{
                 m.DelEdge(i, j)
         }</span> else<span class="cov0" title="0"> {
@@ -346,16 +471,16 @@ func (m *AdjMxDi32) SetWeight(i, j uint, w interface{}) <span class="cov0" title
         }</span>
 }
 
-func (m *AdjMxDi32) Edge(i, j uint) (w int32, exists bool) <span class="cov8" title="1">{
+func (m *AdjMxDi32) Edge(i, j VIdx) (w int32, exists bool) <span class="cov8" title="1">{
         w = m.w[m.sz*i+j]
         return w, w != m.Cleared
 }</span>
 
-func (m *AdjMxDi32) SetEdge(i, j uint, w int32) <span class="cov8" title="1">{
+func (m *AdjMxDi32) SetEdge(i, j VIdx, w int32) <span class="cov8" title="1">{
         m.w[m.sz*i+j] = w
 }</span>
 
-func (m *AdjMxDi32) DelEdge(i, j uint) <span class="cov0" title="0">{
+func (m *AdjMxDi32) DelEdge(i, j VIdx) <span class="cov0" title="0">{
         m.SetEdge(i, j, m.Cleared)
 }</span>
 
@@ -366,16 +491,16 @@ type AdjMxDf32 struct {
 
 var _ WGf32 = (*AdjMxDf32)(nil)
 
-func NewAdjMxDf32(vertexNo uint, reuse *AdjMxDf32) *AdjMxDf32 <span class="cov8" title="1">{
+func NewAdjMxDf32(vertexNo VIdx, reuse *AdjMxDf32) *AdjMxDf32 <span class="cov8" title="1">{
         if reuse == nil </span><span class="cov8" title="1">{
                 reuse = &amp;AdjMxDf32{
                         adjMx: adjMx{sz: vertexNo},
                         w:     make([]float32, vertexNo*vertexNo),
                 }
-        }</span> else<span class="cov8" title="1"> if uint(cap(reuse.w)) &gt;= vertexNo*vertexNo </span><span class="cov0" title="0">{
+        }</span> else<span class="cov0" title="0"> if VIdx(cap(reuse.w)) &gt;= vertexNo*vertexNo </span><span class="cov0" title="0">{
                 reuse.sz = vertexNo
                 reuse.w = reuse.w[:vertexNo*vertexNo]
-        }</span> else<span class="cov8" title="1"> {
+        }</span> else<span class="cov0" title="0"> {
                 reuse.sz = vertexNo
                 reuse.w = make([]float32, vertexNo*vertexNo)
         }</span>
@@ -391,13 +516,13 @@ func (m *AdjMxDf32) Init(w float32) *AdjMxDf32 <span class="cov0" title="0">{
 
 func (m *AdjMxDf32) Directed() bool <span class="cov8" title="1">{ return true }</span>
 
-func (m *AdjMxDf32) Clear(vertexNo uint) <span class="cov0" title="0">{
+func (m *AdjMxDf32) Clear(vertexNo VIdx) <span class="cov0" title="0">{
         NewAdjMxDf32(vertexNo, m)
         m.Init(nan32)
 }</span>
 
-func (m *AdjMxDf32) Weight(fromIdx, toIdx uint) interface{} <span class="cov0" title="0">{
-        w := m.Edge(fromIdx, toIdx)
+func (m *AdjMxDf32) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov0" title="0">{
+        w := m.Edge(edgeFrom, edgeTo)
         if math.IsNaN(float64(w)) </span><span class="cov0" title="0">{
                 return nil
         }</span> else<span class="cov0" title="0"> {
@@ -405,24 +530,29 @@ func (m *AdjMxDf32) Weight(fromIdx, toIdx uint) interface{} <span class="cov0" t
         }</span>
 }
 
-func (m *AdjMxDf32) SetWeight(i, j uint, w interface{}) <span class="cov8" title="1">{
+func (m *AdjMxDf32) SetWeight(i, j VIdx, w interface{}) <span class="cov0" title="0">{
         if w == nil </span><span class="cov0" title="0">{
                 m.w[m.sz*i+j] = nan32
-        }</span> else<span class="cov8" title="1"> {
+        }</span> else<span class="cov0" title="0"> {
                 m.w[m.sz*i+j] = w.(float32)
         }</span>
 }
 
-func (m *AdjMxDf32) Edge(i, j uint) (w float32) <span class="cov8" title="1">{
+func (m *AdjMxDf32) Edge(i, j VIdx) (w float32) <span class="cov8" title="1">{
         return m.w[m.sz*i+j]
 }</span>
 
-func (m *AdjMxDf32) SetEdge(i, j uint, w float32) <span class="cov8" title="1">{
+func (m *AdjMxDf32) SetEdge(i, j VIdx, w float32) <span class="cov8" title="1">{
         m.w[m.sz*i+j] = w
 }</span>
 
 // uSum computes the sum of the n 1st integers, i.e. 1+2+3+…+n
-func nSum(n uint) uint <span class="cov8" title="1">{ return n * (n + 1) / 2 }</span>
+func nSum(n VIdx) VIdx <span class="cov8" title="1">{ return n * (n + 1) / 2 }</span>
+
+func nSumRev(n VIdx) float64 <span class="cov0" title="0">{
+        r := math.Sqrt(0.25 + 2*float64(n))
+        return r - 0.5
+}</span>
 
 type AdjMxUf32 struct {
         adjMx
@@ -431,61 +561,61 @@ type AdjMxUf32 struct {
 
 var _ WGf32 = (*AdjMxUf32)(nil)
 
-func NewAdjMxUf32(vertexNo uint, reuse *AdjMxUf32) *AdjMxUf32 <span class="cov8" title="1">{
+func NewAdjMxUf32(vertexNo VIdx, reuse *AdjMxUf32) *AdjMxUf32 <span class="cov8" title="1">{
         if reuse == nil </span><span class="cov8" title="1">{
                 reuse = &amp;AdjMxUf32{
                         adjMx: adjMx{sz: vertexNo},
                         w:     make([]float32, nSum(vertexNo)),
                 }
-        }</span> else<span class="cov8" title="1"> if uint(cap(reuse.w)) &gt;= nSum(vertexNo) </span><span class="cov0" title="0">{
+        }</span> else<span class="cov0" title="0"> if VIdx(cap(reuse.w)) &gt;= nSum(vertexNo) </span><span class="cov0" title="0">{
                 reuse.sz = vertexNo
                 reuse.w = reuse.w[:nSum(vertexNo)]
-        }</span> else<span class="cov8" title="1"> {
+        }</span> else<span class="cov0" title="0"> {
                 reuse.sz = vertexNo
                 reuse.w = make([]float32, nSum(vertexNo))
         }</span>
         <span class="cov8" title="1">return reuse</span>
 }
 
-func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 <span class="cov8" title="1">{
-        for i := range m.w </span><span class="cov8" title="1">{
+func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 <span class="cov0" title="0">{
+        for i := range m.w </span><span class="cov0" title="0">{
                 m.w[i] = w
         }</span>
-        <span class="cov8" title="1">return m</span>
+        <span class="cov0" title="0">return m</span>
 }
 
-func (m *AdjMxUf32) Weight(fromIdx, toIdx uint) interface{} <span class="cov8" title="1">{
-        w := m.Edge(fromIdx, toIdx)
+func (m *AdjMxUf32) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov0" title="0">{
+        w := m.Edge(edgeFrom, edgeTo)
         if math.IsNaN(float64(w)) </span><span class="cov0" title="0">{
                 return nil
-        }</span> else<span class="cov8" title="1"> {
+        }</span> else<span class="cov0" title="0"> {
                 return w
         }</span>
 }
 
 func (m *AdjMxUf32) Directed() bool <span class="cov8" title="1">{ return false }</span>
 
-func (m *AdjMxUf32) Clear(vertexNo uint) <span class="cov0" title="0">{
+func (m *AdjMxUf32) Clear(vertexNo VIdx) <span class="cov0" title="0">{
         NewAdjMxUf32(vertexNo, m)
         m.Init(nan32)
 }</span>
 
 // uIdx computes the index into the weight slice of an undirected matrix
-func uIdx(sz, i, j uint) uint <span class="cov8" title="1">{
+func uIdx(sz, i, j VIdx) VIdx <span class="cov8" title="1">{
         j -= i
         i = nSum(sz - i - 1)
         return i + j
 }</span>
 
-func (m *AdjMxUf32) SetWeight(i, j uint, w interface{}) <span class="cov8" title="1">{
-        if i &lt; j </span><span class="cov8" title="1">{
+func (m *AdjMxUf32) SetWeight(i, j VIdx, w interface{}) <span class="cov0" title="0">{
+        if i &lt; j </span><span class="cov0" title="0">{
                 m.w[uIdx(m.sz, i, j)] = w.(float32)
-        }</span> else<span class="cov8" title="1"> {
+        }</span> else<span class="cov0" title="0"> {
                 m.w[uIdx(m.sz, j, i)] = w.(float32)
         }</span>
 }
 
-func (m *AdjMxUf32) Edge(i, j uint) (w float32) <span class="cov8" title="1">{
+func (m *AdjMxUf32) Edge(i, j VIdx) (w float32) <span class="cov8" title="1">{
         if i &lt;= j </span><span class="cov8" title="1">{
                 return m.w[uIdx(m.sz, i, j)]
         }</span> else<span class="cov8" title="1"> {
@@ -493,10 +623,10 @@ func (m *AdjMxUf32) Edge(i, j uint) (w float32) <span class="cov8" title="1">{
         }</span>
 }
 
-func (m *AdjMxUf32) SetEdge(i, j uint, w float32) <span class="cov8" title="1">{
+func (m *AdjMxUf32) SetEdge(i, j VIdx, w float32) <span class="cov8" title="1">{
         if i &lt;= j </span><span class="cov8" title="1">{
                 m.w[uIdx(m.sz, i, j)] = w
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 m.w[uIdx(m.sz, j, i)] = w
         }</span>
 }
@@ -543,113 +673,56 @@ type BitSet struct {
 		
 		<pre class="file" id="file3" style="display: none">package groph
 
-func FloydWarshallf32(g WGf32) <span class="cov8" title="1">{
-        vno := g.VertexNo()
-        if g.Directed() </span><span class="cov8" title="1">{
-                for k := uint(0); k &lt; vno; k++ </span><span class="cov8" title="1">{
-                        for i := uint(0); i &lt; vno; i++ </span><span class="cov8" title="1">{
-                                for j := uint(0); j &lt; vno; j++ </span><span class="cov8" title="1">{
-                                        ds := g.Edge(i, k) + g.Edge(k, j)
-                                        if g.Edge(i, j) &gt; ds </span><span class="cov8" title="1">{
-                                                g.SetEdge(i, j, ds)
-                                        }</span>
-                                }
-                        }
-                }
-        } else<span class="cov8" title="1"> {
-                for k := uint(0); k &lt; vno; k++ </span><span class="cov8" title="1">{
-                        for i := uint(0); i+1 &lt;= vno; i++ </span><span class="cov8" title="1">{
-                                for j := i + 1; j &lt; vno; j++ </span><span class="cov8" title="1">{
-                                        ds := g.Edge(i, k) + g.Edge(k, j)
-                                        if g.Edge(i, j) &gt; ds </span><span class="cov8" title="1">{
-                                                g.SetEdge(i, j, ds)
-                                        }</span>
-                                }
-                        }
-                }
-        }
-}
-
-func (g *AdjMxDf32) FloydWarshall() <span class="cov0" title="0">{
-        vno := g.VertexNo()
-        if g.Directed() </span><span class="cov0" title="0">{
-                for k := uint(0); k &lt; vno; k++ </span><span class="cov0" title="0">{
-                        for i := uint(0); i &lt; vno; i++ </span><span class="cov0" title="0">{
-                                for j := uint(0); j &lt; vno; j++ </span><span class="cov0" title="0">{
-                                        ds := g.Edge(i, k) + g.Edge(k, j)
-                                        if g.Edge(i, j) &gt; ds </span><span class="cov0" title="0">{
-                                                g.SetEdge(i, j, ds)
-                                        }</span>
-                                }
-                        }
-                }
-        } else<span class="cov0" title="0"> {
-                for k := uint(0); k &lt; vno; k++ </span><span class="cov0" title="0">{
-                        for i := uint(0); i+1 &lt;= vno; i++ </span><span class="cov0" title="0">{
-                                for j := i + 1; j &lt; vno; j++ </span><span class="cov0" title="0">{
-                                        ds := g.Edge(i, k) + g.Edge(k, j)
-                                        if g.Edge(i, j) &gt; ds </span><span class="cov0" title="0">{
-                                                g.SetEdge(i, j, ds)
-                                        }</span>
-                                }
-                        }
-                }
-        }
-}
-</pre>
-		
-		<pre class="file" id="file4" style="display: none">package groph
-
 import (
         "reflect"
 )
 
-type Vertex = interface{}
+type VIdx = int
 
 type Edge struct {
-        I, J uint
+        I, J VIdx
 }
 
-// An RGraph represents a set of graph data that allows read only access to the
-// egde's weight data.
+// RGraph represents a set of graph data that allows read only access to the
+// egde weights.
 type RGraph interface {
         // VertextNo return the numer of vertices in the graph.
-        VertexNo() uint
+        VertexNo() VIdx
         // Directed returns true if the graph is a directed graph and false
         // otherwiese.
         Directed() bool
         // Returns the weight of the edge that connects the vertex with index
-        // fromIdx with the vertex with index toIdx.
-        Weight(fromIdx, toIdx uint) interface{}
+        // edgeFrom with the vertex with index edgeTo.
+        Weight(edgeFrom, edgeTo VIdx) interface{}
 }
 
-func WeightOr(g RGraph, fromIdx, toIdx uint, or interface{}) interface{} <span class="cov0" title="0">{
-        if res := g.Weight(fromIdx, toIdx); res != nil </span><span class="cov0" title="0">{
+func WeightOr(g RGraph, edgeFrom, edgeTo VIdx, or interface{}) interface{} <span class="cov0" title="0">{
+        if res := g.Weight(edgeFrom, edgeTo); res != nil </span><span class="cov0" title="0">{
                 return res
         }</span>
         <span class="cov0" title="0">return or</span>
 }
 
 type ListNeightbours interface {
-        EachNeighbour(v uint, do func(a, b uint, w interface{}))
+        EachNeighbour(v0 VIdx, do func(v1 VIdx, fwd bool, w interface{}))
 }
 
-func EachNeighbour(g RGraph, v uint, do func(a, b uint, w interface{})) <span class="cov0" title="0">{
+func EachNeighbour(g RGraph, v VIdx, do func(VIdx, bool, interface{})) <span class="cov0" title="0">{
         if ln, ok := g.(ListNeightbours); ok </span><span class="cov0" title="0">{
                 ln.EachNeighbour(v, do)
         }</span> else<span class="cov0" title="0"> if g.Directed() </span><span class="cov0" title="0">{
-                for n := uint(0); n &lt; g.VertexNo(); n++ </span><span class="cov0" title="0">{
+                for n := VIdx(0); n &lt; g.VertexNo(); n++ </span><span class="cov0" title="0">{
                         if w := g.Weight(v, n); w != nil </span><span class="cov0" title="0">{
-                                do(v, n, w)
+                                do(n, true, w)
                         }</span>
                         <span class="cov0" title="0">if w := g.Weight(n, v); w != nil </span><span class="cov0" title="0">{
-                                do(n, v, w)
+                                do(n, false, w)
                         }</span>
                 }
         } else<span class="cov0" title="0"> {
-                for n := uint(0); n &lt; g.VertexNo(); n++ </span><span class="cov0" title="0">{
+                for n := VIdx(0); n &lt; g.VertexNo(); n++ </span><span class="cov0" title="0">{
                         if w := g.Weight(v, n); w != nil </span><span class="cov0" title="0">{
-                                do(v, n, w)
+                                do(n, false, w)
                         }</span>
                 }
         }
@@ -657,7 +730,7 @@ func EachNeighbour(g RGraph, v uint, do func(a, b uint, w interface{})) <span cl
 
 func CheckDirected(g RGraph) bool <span class="cov0" title="0">{
         vno := g.VertexNo()
-        for i := uint(0); i &lt; vno; i++ </span><span class="cov0" title="0">{
+        for i := VIdx(0); i &lt; vno; i++ </span><span class="cov0" title="0">{
                 for j := i + 1; j &lt; vno; i++ </span><span class="cov0" title="0">{
                         w1 := g.Weight(i, j)
                         w2 := g.Weight(j, i)
@@ -669,25 +742,31 @@ func CheckDirected(g RGraph) bool <span class="cov0" title="0">{
         <span class="cov0" title="0">return false</span>
 }
 
-// An RGraph represents a set of graph data tha allows read and write access
-// to the egde's weight data.
+// WGraph represents a set of graph data tha allows read and write access to
+// the egde weights.
 type WGraph interface {
         RGraph
-        Clear(vertexNo uint)
-        SetWeight(fromIdx, toIdx uint, w interface{})
+        // Clear resizes the graph to vertexNo and reinitializes it.
+        Clear(vertexNo VIdx)
+        // SetWeight sets the edge weight for the edge starting at vertex edgeFrom
+        // and ending at vertex edgeTo.
+        SetWeight(edgeFrom, edgeTo VIdx, w interface{})
 }
 
+// Clear clears a WGraph while keeping the original vertexNo.
 func Clear(g WGraph) <span class="cov0" title="0">{ g.Clear(g.VertexNo()) }</span>
 
+// RGbool represents a RGraph with boolean edge weights.
 type RGbool interface {
         RGraph
-        Edge(fromIdx, toIdx uint) bool
+        Edge(edgeFrom, edgeTo VIdx) bool
 }
 
+// WGbool represents a WGraph with boolean edge weights.
 type WGbool interface {
         WGraph
-        Edge(fromIdx, toIdx uint) bool
-        SetEdge(fromIdx, toIdx uint, flag bool)
+        Edge(edgeFrom, edgeTo VIdx) bool
+        SetEdge(edgeFrom, edgeTo VIdx, flag bool)
 }
 
 // An RGi32 is a RGraph with type safe access to the edge weight of type
@@ -695,15 +774,15 @@ type WGbool interface {
 // method for performance reasons.
 type RGi32 interface {
         RGraph
-        Edge(fromIdx, toIdx uint) (weight int32)
+        Edge(edgeFrom, edgeTo VIdx) (weight int32)
 }
 
 // An WGi32 is to WGraph what RGi32 is to RGraph.
 type WGi32 interface {
         WGraph
-        Edge(fromIdx, toIdx uint) (weight int32, exists bool)
-        SetEdge(fromIdx, toIdx uint, weight int32)
-        DelEdge(fromIdx, toIdx uint)
+        Edge(edgeFrom, edgeTo VIdx) (weight int32, exists bool)
+        SetEdge(edgeFrom, edgeTo VIdx, weight int32)
+        DelEdge(edgeFrom, edgeTo VIdx)
 }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type
@@ -711,41 +790,41 @@ type WGi32 interface {
 // method for performance reasons.
 type RGf32 interface {
         RGraph
-        Edge(fromIdx, toIdx uint) (weight float32)
+        Edge(edgeFrom, edgeTo VIdx) (weight float32)
 }
 
 // An WGf32 is to WGraph what RGf32 is to RGraph.
 type WGf32 interface {
         WGraph
-        Edge(fromIdx, toIdx uint) (weight float32)
-        SetEdge(fromIdx, toIdx uint, weight float32)
+        Edge(edgeFrom, edgeTo VIdx) (weight float32)
+        SetEdge(edgeFrom, edgeTo VIdx, weight float32)
 }
 
 // CpWeights copies the edge weights from one grap to another.
 // Vertices are identified by their index, i.e. the user has to take care of
 // the vertex order. If the number of vertices in the graph differs the smaller
 // graph determines how many edge weights are copied.
-func CpWeights(dst WGraph, src RGraph) WGraph <span class="cov8" title="1">{
+func CpWeights(dst WGraph, src RGraph) WGraph <span class="cov0" title="0">{
         sz := dst.VertexNo()
         if src.VertexNo() &lt; sz </span><span class="cov0" title="0">{
                 sz = src.VertexNo()
         }</span>
-        <span class="cov8" title="1">if dst.Directed() </span><span class="cov8" title="1">{
-                for i := uint(0); i &lt; sz; i++ </span><span class="cov8" title="1">{
-                        for j := uint(0); j &lt; sz; j++ </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">if dst.Directed() </span><span class="cov0" title="0">{
+                for i := VIdx(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
+                        for j := VIdx(0); j &lt; sz; j++ </span><span class="cov0" title="0">{
                                 w := src.Weight(i, j)
                                 dst.SetWeight(i, j, w)
                         }</span>
                 }
-        } else<span class="cov8" title="1"> {
-                for i := uint(0); i &lt; sz; i++ </span><span class="cov8" title="1">{
-                        for j := i; j &lt; sz; j++ </span><span class="cov8" title="1">{
+        } else<span class="cov0" title="0"> {
+                for i := VIdx(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
+                        for j := i; j &lt; sz; j++ </span><span class="cov0" title="0">{
                                 w := src.Weight(i, j)
                                 dst.SetWeight(i, j, w)
                         }</span>
                 }
         }
-        <span class="cov8" title="1">return dst</span>
+        <span class="cov0" title="0">return dst</span>
 }
 
 // CpXWeights “transfers” the edge weights from src Graph to dst Graph
@@ -757,14 +836,14 @@ func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGr
                 sz = src.VertexNo()
         }</span>
         <span class="cov0" title="0">if dst.Directed() </span><span class="cov0" title="0">{
-                for i := uint(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
-                        for j := uint(0); j &lt; sz; j++ </span><span class="cov0" title="0">{
+                for i := VIdx(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
+                        for j := VIdx(0); j &lt; sz; j++ </span><span class="cov0" title="0">{
                                 w := src.Weight(i, j)
                                 dst.SetWeight(i, j, xf(w))
                         }</span>
                 }
         } else<span class="cov0" title="0"> {
-                for i := uint(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
+                for i := VIdx(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
                         for j := i; j &lt; sz; j++ </span><span class="cov0" title="0">{
                                 w := src.Weight(i, j)
                                 dst.SetWeight(i, j, xf(w))
@@ -775,7 +854,7 @@ func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGr
 }
 
 // TODO can this be done in place?
-func ReorderPath(slice interface{}, path []uint) <span class="cov8" title="1">{
+func ReorderPath(slice interface{}, path []VIdx) <span class="cov8" title="1">{
         slv := reflect.ValueOf(slice)
         if slv.Len() == 0 </span><span class="cov0" title="0">{
                 return
@@ -791,20 +870,53 @@ func ReorderPath(slice interface{}, path []uint) <span class="cov8" title="1">{
 }
 </pre>
 		
-		<pre class="file" id="file5" style="display: none">package groph
+		<pre class="file" id="file4" style="display: none">package groph
+
+import (
+        "math"
+        "math/rand"
+
+        "git.fractalqb.de/fractalqb/groph"
+)
+
+type Point [2]float32
+
+func Dist(p, q Point) float32 <span class="cov0" title="0">{
+        d1 := p[0] - q[0]
+        d2 := p[1] - q[1]
+        return float32(math.Sqrt(float64(d1*d1 + d2*d2)))
+}</span>
+
+func RandomPoints(n groph.VIdx, ps []Point) []Point <span class="cov0" title="0">{
+        if groph.VIdx(cap(ps)) &gt;= n </span><span class="cov0" title="0">{
+                ps = ps[:n-1]
+        }</span> else<span class="cov0" title="0"> {
+                ps = make([]Point, n)
+        }</span>
+        <span class="cov0" title="0">for i := range ps </span><span class="cov0" title="0">{
+                ps[i][0] = rand.Float32()
+                ps[i][1] = rand.Float32()
+        }</span>
+        <span class="cov0" title="0">return ps</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package mst
 
 import (
         "errors"
         "math"
         "sort"
+
+        "git.fractalqb.de/fractalqb/groph"
 )
 
-func sortedEdges(g RGf32) (res []Edge) <span class="cov8" title="1">{
+func sortedEdges(g groph.RGf32) (res []groph.Edge) <span class="cov8" title="1">{
         vno := g.VertexNo()
-        for i := uint(0); i &lt; vno; i++ </span><span class="cov8" title="1">{
+        for i := groph.VIdx(0); i &lt; vno; i++ </span><span class="cov8" title="1">{
                 for j := i + 1; j &lt; vno; j++ </span><span class="cov8" title="1">{
                         if !math.IsNaN(float64(g.Edge(i, j))) </span><span class="cov8" title="1">{
-                                res = append(res, Edge{i, j})
+                                res = append(res, groph.Edge{i, j})
                         }</span>
                 }
         }
@@ -816,7 +928,7 @@ func sortedEdges(g RGf32) (res []Edge) <span class="cov8" title="1">{
 }
 
 // TODO more efficient way for bookkeping of connected sets?
-func retag(f map[uint]uint, oldTag, newTag uint) <span class="cov8" title="1">{
+func retag(f map[groph.VIdx]groph.VIdx, oldTag, newTag groph.VIdx) <span class="cov8" title="1">{
         for v, t := range f </span><span class="cov8" title="1">{
                 if t == oldTag </span><span class="cov8" title="1">{
                         f[v] = newTag
@@ -824,14 +936,14 @@ func retag(f map[uint]uint, oldTag, newTag uint) <span class="cov8" title="1">{
         }
 }
 
-func Kruskalf32(g RGf32, mst []Edge) ([]Edge, error) <span class="cov8" title="1">{
+func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) <span class="cov8" title="1">{
         if g.Directed() </span><span class="cov0" title="0">{
                 return mst, errors.New("cannot apply Kruskal's algorithm to directed graphs")
         }</span>
         <span class="cov8" title="1">mst = mst[:0]
         ebo := sortedEdges(g)
-        frs := make(map[uint]uint)
-        vc := uint(0)
+        frs := make(map[groph.VIdx]groph.VIdx)
+        vc := groph.VIdx(0)
         for _, e := range ebo </span><span class="cov8" title="1">{
                 ti, iOk := frs[e.I]
                 tj, jOk := frs[e.J]
@@ -870,17 +982,211 @@ func Kruskalf32(g RGf32, mst []Edge) ([]Edge, error) <span class="cov8" title="1
 }
 </pre>
 		
-		<pre class="file" id="file6" style="display: none">package groph
+		<pre class="file" id="file6" style="display: none">package sp
+
+import (
+        "container/heap"
+        "math"
+
+        "git.fractalqb.de/fractalqb/groph"
+)
+
+type pqItemf32 struct {
+        v groph.VIdx
+        p float32
+}
+
+type prioQf32 struct {
+        v2i []int
+        is  []pqItemf32
+}
+
+func newPrioQf32(size groph.VIdx) *prioQf32 <span class="cov8" title="1">{
+        res := &amp;prioQf32{
+                v2i: make([]int, size),
+                is:  make([]pqItemf32, 0, size),
+        }
+        return res
+}</span>
+
+func (pq *prioQf32) Len() int <span class="cov8" title="1">{ return len(pq.is) }</span>
+
+func (pq *prioQf32) Less(i, j int) bool <span class="cov8" title="1">{ return pq.is[i].p &lt; pq.is[j].p }</span>
+
+func (pq *prioQf32) Swap(i, j int) <span class="cov8" title="1">{
+        ii, ij := pq.is[i], pq.is[j]
+        pq.v2i[ii.v], pq.v2i[ij.v] = j, i
+        pq.is[i], pq.is[j] = ij, ii
+}</span>
+
+func (pq *prioQf32) Push(x interface{}) <span class="cov8" title="1">{
+        item := x.(pqItemf32)
+        pq.v2i[item.v] = len(pq.is)
+        pq.is = append(pq.is, item)
+}</span>
+
+func (pq *prioQf32) Pop() interface{} <span class="cov8" title="1">{
+        n := len(pq.is) - 1
+        res := pq.is[n]
+        pq.is = pq.is[:n]
+        return res
+}</span>
+
+func (pq *prioQf32) update(v groph.VIdx, priority float32) <span class="cov8" title="1">{
+        i := pq.v2i[v]
+        pq.is[i].p = priority
+        heap.Fix(pq, i)
+}</span>
+
+func Dijkstraf32(g groph.RGf32, start groph.VIdx) (dist []float32, prev []groph.VIdx) <span class="cov8" title="1">{
+        vertexNo := g.VertexNo()
+        dist = make([]float32, vertexNo)
+        prev = make([]groph.VIdx, vertexNo)
+        q := *newPrioQf32(vertexNo)
+        for v := groph.VIdx(0); v &lt; g.VertexNo(); v++ </span><span class="cov8" title="1">{
+                if v != start </span><span class="cov8" title="1">{
+                        dist[v] = float32(math.Inf(1))
+                }</span>
+                <span class="cov8" title="1">prev[v] = -1
+                heap.Push(&amp;q, pqItemf32{v, dist[v]})</span>
+        }
+        <span class="cov8" title="1">for q.Len() != 0 </span><span class="cov8" title="1">{
+                u := heap.Pop(&amp;q).(pqItemf32).v
+                groph.EachNeighbour(g, u, func(n groph.VIdx, _ bool, w interface{}) </span><span class="cov8" title="1">{
+                        alt := dist[u] + w.(float32)
+                        if alt &lt; dist[n] </span><span class="cov8" title="1">{
+                                dist[n] = alt
+                                prev[n] = u
+                                q.update(n, alt)
+                        }</span>
+                })
+        }
+        <span class="cov8" title="1">return dist, prev</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package sp
+
+import "git.fractalqb.de/fractalqb/groph"
+
+func FloydWarshallf32(g groph.WGf32) <span class="cov8" title="1">{
+        vno := g.VertexNo()
+        if g.Directed() </span><span class="cov8" title="1">{
+                for k := groph.VIdx(0); k &lt; vno; k++ </span><span class="cov8" title="1">{
+                        for i := groph.VIdx(0); i &lt; vno; i++ </span><span class="cov8" title="1">{
+                                for j := groph.VIdx(0); j &lt; vno; j++ </span><span class="cov8" title="1">{
+                                        ds := g.Edge(i, k) + g.Edge(k, j)
+                                        if g.Edge(i, j) &gt; ds </span><span class="cov8" title="1">{
+                                                g.SetEdge(i, j, ds)
+                                        }</span>
+                                }
+                        }
+                }
+        } else<span class="cov8" title="1"> {
+                for k := groph.VIdx(0); k &lt; vno; k++ </span><span class="cov8" title="1">{
+                        for i := groph.VIdx(0); i+1 &lt;= vno; i++ </span><span class="cov8" title="1">{
+                                for j := i + 1; j &lt; vno; j++ </span><span class="cov8" title="1">{
+                                        ds := g.Edge(i, k) + g.Edge(k, j)
+                                        if g.Edge(i, j) &gt; ds </span><span class="cov8" title="1">{
+                                                g.SetEdge(i, j, ds)
+                                        }</span>
+                                }
+                        }
+                }
+        }
+}
+
+func FloydWarshalli32(g groph.WGi32) <span class="cov8" title="1">{
+        vno := g.VertexNo()
+        if g.Directed() </span><span class="cov8" title="1">{
+                for k := groph.VIdx(0); k &lt; vno; k++ </span><span class="cov8" title="1">{
+                        for i := groph.VIdx(0); i &lt; vno; i++ </span><span class="cov8" title="1">{
+                                for j := groph.VIdx(0); j &lt; vno; j++ </span><span class="cov8" title="1">{
+                                        ds, ok := g.Edge(i, k)
+                                        if !ok </span><span class="cov8" title="1">{
+                                                continue</span>
+                                        }
+                                        <span class="cov8" title="1">if tmp, ok := g.Edge(k, j); ok </span><span class="cov8" title="1">{
+                                                ds += tmp
+                                        }</span> else<span class="cov8" title="1"> {
+                                                continue</span>
+                                        }
+                                        <span class="cov8" title="1">if d, ok := g.Edge(i, j); !ok || d &gt; ds </span><span class="cov8" title="1">{
+                                                g.SetEdge(i, j, ds)
+                                        }</span>
+                                }
+                        }
+                }
+        } else<span class="cov0" title="0"> {
+                for k := groph.VIdx(0); k &lt; vno; k++ </span><span class="cov0" title="0">{
+                        for i := groph.VIdx(0); i+1 &lt;= vno; i++ </span><span class="cov0" title="0">{
+                                for j := i + 1; j &lt; vno; j++ </span><span class="cov0" title="0">{
+                                        ds, ok := g.Edge(i, k)
+                                        if !ok </span><span class="cov0" title="0">{
+                                                continue</span>
+                                        }
+                                        <span class="cov0" title="0">if tmp, ok := g.Edge(k, j); ok </span><span class="cov0" title="0">{
+                                                ds += tmp
+                                        }</span> else<span class="cov0" title="0"> {
+                                                continue</span>
+                                        }
+                                        <span class="cov0" title="0">if d, ok := g.Edge(i, j); !ok || d &gt; ds </span><span class="cov0" title="0">{
+                                                g.SetEdge(i, j, ds)
+                                        }</span>
+                                }
+                        }
+                }
+        }
+}
+
+func FloydWarshallAdjMxDf32(g *groph.AdjMxDf32) <span class="cov8" title="1">{
+        vno := g.VertexNo()
+        for k := groph.VIdx(0); k &lt; vno; k++ </span><span class="cov8" title="1">{
+                for i := groph.VIdx(0); i &lt; vno; i++ </span><span class="cov8" title="1">{
+                        for j := groph.VIdx(0); j &lt; vno; j++ </span><span class="cov8" title="1">{
+                                ds := g.Edge(i, k) + g.Edge(k, j)
+                                if g.Edge(i, j) &gt; ds </span><span class="cov8" title="1">{
+                                        g.SetEdge(i, j, ds)
+                                }</span>
+                        }
+                }
+        }
+}
+
+func FloydWarshallAdjMxDi32(g *groph.AdjMxDi32) <span class="cov0" title="0">{
+        vno := g.VertexNo()
+        for k := groph.VIdx(0); k &lt; vno; k++ </span><span class="cov0" title="0">{
+                for i := groph.VIdx(0); i &lt; vno; i++ </span><span class="cov0" title="0">{
+                        for j := groph.VIdx(0); j &lt; vno; j++ </span><span class="cov0" title="0">{
+                                ds, ok := g.Edge(i, k)
+                                if !ok </span><span class="cov0" title="0">{
+                                        continue</span>
+                                }
+                                <span class="cov0" title="0">if tmp, ok := g.Edge(k, j); ok </span><span class="cov0" title="0">{
+                                        ds += tmp
+                                }</span> else<span class="cov0" title="0"> {
+                                        continue</span>
+                                }
+                                <span class="cov0" title="0">if d, ok := g.Edge(i, j); !ok || d &gt; ds </span><span class="cov0" title="0">{
+                                        g.SetEdge(i, j, ds)
+                                }</span>
+                        }
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package groph
 
 import (
         "math"
 )
 
-type smpro = map[uint]interface{}
+type smpro = map[VIdx]interface{}
 
 type SpMap struct {
-        sz uint
-        ws map[uint]smpro
+        sz VIdx
+        ws map[VIdx]smpro
 }
 
 var (
@@ -888,11 +1194,11 @@ var (
         _ ListNeightbours = (*SpMap)(nil)
 )
 
-func NewSpMap(vertexNo uint, reuse *SpMap) *SpMap <span class="cov8" title="1">{
+func NewSpMap(vertexNo VIdx, reuse *SpMap) *SpMap <span class="cov8" title="1">{
         if reuse == nil </span><span class="cov8" title="1">{
                 return &amp;SpMap{
                         sz: vertexNo,
-                        ws: make(map[uint]smpro),
+                        ws: make(map[VIdx]smpro),
                 }
         }</span> else<span class="cov0" title="0"> {
                 reuse.Clear(vertexNo)
@@ -900,57 +1206,61 @@ func NewSpMap(vertexNo uint, reuse *SpMap) *SpMap <span class="cov8" title="1">{
         }</span>
 }
 
-func (g *SpMap) VertexNo() uint <span class="cov8" title="1">{ return g.sz }</span>
+func (g *SpMap) VertexNo() VIdx <span class="cov8" title="1">{ return g.sz }</span>
 
 func (g *SpMap) Directed() bool <span class="cov8" title="1">{
         return true
 }</span>
 
-func (g *SpMap) Weight(fromIdx, toIdx uint) interface{} <span class="cov8" title="1">{
-        row, ok := g.ws[fromIdx]
+func (g *SpMap) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov8" title="1">{
+        row, ok := g.ws[edgeFrom]
         if !ok </span><span class="cov8" title="1">{
                 return nil
         }</span>
-        <span class="cov8" title="1">return row[toIdx]</span>
+        <span class="cov8" title="1">return row[edgeTo]</span>
 }
 
-func (g *SpMap) SetWeight(fromIdx, toIdx uint, w interface{}) <span class="cov8" title="1">{
-        g.sz = maxSize(g.sz, fromIdx, toIdx)
-        row, rok := g.ws[fromIdx]
+func (g *SpMap) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) <span class="cov8" title="1">{
+        g.sz = maxSize(g.sz, edgeFrom, edgeTo)
+        row, rok := g.ws[edgeFrom]
         if w == nil </span><span class="cov8" title="1">{
                 if rok </span><span class="cov8" title="1">{
-                        delete(row, toIdx)
+                        delete(row, edgeTo)
                         if len(row) == 0 </span><span class="cov8" title="1">{
-                                delete(g.ws, fromIdx)
+                                delete(g.ws, edgeFrom)
                         }</span>
                 }
         } else<span class="cov8" title="1"> {
                 if !rok </span><span class="cov8" title="1">{
                         row = make(smpro)
-                        g.ws[fromIdx] = row
+                        g.ws[edgeFrom] = row
                 }</span>
-                <span class="cov8" title="1">row[toIdx] = w</span>
+                <span class="cov8" title="1">row[edgeTo] = w</span>
         }
 }
 
-func (g *SpMap) Clear(vertexNo uint) <span class="cov0" title="0">{
+func (g *SpMap) Clear(vertexNo VIdx) <span class="cov0" title="0">{
         g.sz = vertexNo
-        g.ws = make(map[uint]smpro)
+        g.ws = make(map[VIdx]smpro)
 }</span>
 
-func (g *SpMap) EachNeighbour(v uint, do func(a, b uint, w interface{})) <span class="cov0" title="0">{
-        if ns, ok := g.ws[v]; ok </span><span class="cov0" title="0">{
-                for n, w := range ns </span><span class="cov0" title="0">{
-                        do(v, n, w)
+func (g *SpMap) EachNeighbour(v VIdx, do func(VIdx, bool, interface{})) <span class="cov0" title="0">{
+        for a, ns := range g.ws </span><span class="cov0" title="0">{
+                if a == v </span><span class="cov0" title="0">{
+                        for b, w := range ns </span><span class="cov0" title="0">{
+                                do(b, true, w)
+                        }</span>
+                } else<span class="cov0" title="0"> if w, ok := ns[v]; ok </span><span class="cov0" title="0">{
+                        do(a, false, w)
                 }</span>
         }
 }
 
-type spmrof32 = map[uint]float32
+type spmrof32 = map[VIdx]float32
 
 type SpMapf32 struct {
-        sz uint
-        ws map[uint]spmrof32
+        sz VIdx
+        ws map[VIdx]spmrof32
 }
 
 var (
@@ -960,11 +1270,11 @@ var (
 
 var nan32 = float32(math.NaN())
 
-func NewSpMapf32(vertexNo uint, reuse *SpMapf32) *SpMapf32 <span class="cov8" title="1">{
+func NewSpMapf32(vertexNo VIdx, reuse *SpMapf32) *SpMapf32 <span class="cov8" title="1">{
         if reuse == nil </span><span class="cov8" title="1">{
                 return &amp;SpMapf32{
                         sz: vertexNo,
-                        ws: make(map[uint]spmrof32),
+                        ws: make(map[VIdx]spmrof32),
                 }
         }</span> else<span class="cov0" title="0"> {
                 reuse.Clear(vertexNo)
@@ -972,16 +1282,16 @@ func NewSpMapf32(vertexNo uint, reuse *SpMapf32) *SpMapf32 <span class="cov8" ti
         }</span>
 }
 
-func (g *SpMapf32) VertexNo() uint <span class="cov8" title="1">{ return g.sz }</span>
+func (g *SpMapf32) VertexNo() VIdx <span class="cov8" title="1">{ return g.sz }</span>
 
 func (g *SpMapf32) Directed() bool <span class="cov8" title="1">{ return true }</span>
 
-func (g *SpMapf32) Edge(fromIdx, toIdx uint) (weight float32) <span class="cov8" title="1">{
-        row, ok := g.ws[fromIdx]
+func (g *SpMapf32) Edge(edgeFrom, edgeTo VIdx) (weight float32) <span class="cov8" title="1">{
+        row, ok := g.ws[edgeFrom]
         if !ok </span><span class="cov8" title="1">{
                 return nan32
         }</span>
-        <span class="cov8" title="1">weight, ok = row[toIdx]
+        <span class="cov8" title="1">weight, ok = row[edgeTo]
         if ok </span><span class="cov8" title="1">{
                 return weight
         }</span> else<span class="cov8" title="1"> {
@@ -989,55 +1299,59 @@ func (g *SpMapf32) Edge(fromIdx, toIdx uint) (weight float32) <span class="cov8"
         }</span>
 }
 
-func (g *SpMapf32) SetEdge(fromIdx, toIdx uint, weight float32) <span class="cov8" title="1">{
-        g.sz = maxSize(g.sz, fromIdx, toIdx)
-        row, rok := g.ws[fromIdx]
+func (g *SpMapf32) SetEdge(edgeFrom, edgeTo VIdx, weight float32) <span class="cov8" title="1">{
+        g.sz = maxSize(g.sz, edgeFrom, edgeTo)
+        row, rok := g.ws[edgeFrom]
         if math.IsNaN(float64(weight)) </span><span class="cov8" title="1">{
                 if rok </span><span class="cov8" title="1">{
-                        delete(row, toIdx)
+                        delete(row, edgeTo)
                         if len(row) == 0 </span><span class="cov8" title="1">{
-                                delete(g.ws, fromIdx)
+                                delete(g.ws, edgeFrom)
                         }</span>
                 }
         } else<span class="cov8" title="1"> {
                 if !rok </span><span class="cov8" title="1">{
                         row = make(spmrof32)
-                        g.ws[fromIdx] = row
+                        g.ws[edgeFrom] = row
                 }</span>
-                <span class="cov8" title="1">row[toIdx] = weight</span>
+                <span class="cov8" title="1">row[edgeTo] = weight</span>
         }
 }
 
-func (g *SpMapf32) Weight(fromIdx, toIdx uint) interface{} <span class="cov8" title="1">{
-        tmp := g.Edge(fromIdx, toIdx)
+func (g *SpMapf32) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov8" title="1">{
+        tmp := g.Edge(edgeFrom, edgeTo)
         if math.IsNaN(float64(tmp)) </span><span class="cov8" title="1">{
                 return nil
         }</span>
         <span class="cov8" title="1">return tmp</span>
 }
 
-func (g *SpMapf32) SetWeight(fromIdx, toIdx uint, w interface{}) <span class="cov8" title="1">{
+func (g *SpMapf32) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) <span class="cov8" title="1">{
         if w == nil </span><span class="cov8" title="1">{
-                g.SetEdge(fromIdx, toIdx, nan32)
+                g.SetEdge(edgeFrom, edgeTo, nan32)
         }</span> else<span class="cov8" title="1"> {
-                g.SetEdge(fromIdx, toIdx, w.(float32))
+                g.SetEdge(edgeFrom, edgeTo, w.(float32))
         }</span>
 }
 
-func (g *SpMapf32) Clear(vertexNo uint) <span class="cov0" title="0">{
+func (g *SpMapf32) Clear(vertexNo VIdx) <span class="cov0" title="0">{
         g.sz = vertexNo
-        g.ws = make(map[uint]spmrof32)
+        g.ws = make(map[VIdx]spmrof32)
 }</span>
 
-func (g *SpMapf32) EachNeighbour(v uint, do func(a, b uint, w interface{})) <span class="cov0" title="0">{
-        if ns, ok := g.ws[v]; ok </span><span class="cov0" title="0">{
-                for n, w := range ns </span><span class="cov0" title="0">{
-                        do(v, n, w)
+func (g *SpMapf32) EachNeighbour(v VIdx, do func(VIdx, bool, interface{})) <span class="cov0" title="0">{
+        for a, ns := range g.ws </span><span class="cov0" title="0">{
+                if a == v </span><span class="cov0" title="0">{
+                        for b, w := range ns </span><span class="cov0" title="0">{
+                                do(b, true, w)
+                        }</span>
+                } else<span class="cov0" title="0"> if w, ok := ns[v]; ok </span><span class="cov0" title="0">{
+                        do(a, false, w)
                 }</span>
         }
 }
 
-func maxSize(currentSize, newIdx1, newIdx2 uint) uint <span class="cov8" title="1">{
+func maxSize(currentSize, newIdx1, newIdx2 VIdx) VIdx <span class="cov8" title="1">{
         if s := newIdx1 + 1; s &gt; currentSize </span><span class="cov0" title="0">{
                 if newIdx2 &gt; newIdx1 </span><span class="cov0" title="0">{
                         return newIdx2 + 1
@@ -1051,11 +1365,11 @@ func maxSize(currentSize, newIdx1, newIdx2 uint) uint <span class="cov8" title="
         <span class="cov8" title="1">return currentSize</span>
 }
 
-type spmroi32 = map[uint]int32
+type spmroi32 = map[VIdx]int32
 
 type SpMapi32 struct {
-        sz uint
-        ws map[uint]spmroi32
+        sz VIdx
+        ws map[VIdx]spmroi32
 }
 
 var (
@@ -1063,11 +1377,11 @@ var (
         _ ListNeightbours = (*SpMapi32)(nil)
 )
 
-func NewSpMapi32(vertexNo uint, reuse *SpMapi32) *SpMapi32 <span class="cov8" title="1">{
+func NewSpMapi32(vertexNo VIdx, reuse *SpMapi32) *SpMapi32 <span class="cov8" title="1">{
         if reuse == nil </span><span class="cov8" title="1">{
                 return &amp;SpMapi32{
                         sz: vertexNo,
-                        ws: make(map[uint]spmroi32),
+                        ws: make(map[VIdx]spmroi32),
                 }
         }</span> else<span class="cov0" title="0"> {
                 reuse.Clear(vertexNo)
@@ -1075,16 +1389,16 @@ func NewSpMapi32(vertexNo uint, reuse *SpMapi32) *SpMapi32 <span class="cov8" ti
         }</span>
 }
 
-func (g *SpMapi32) VertexNo() uint <span class="cov8" title="1">{ return g.sz }</span>
+func (g *SpMapi32) VertexNo() VIdx <span class="cov8" title="1">{ return g.sz }</span>
 
 func (g *SpMapi32) Directed() bool <span class="cov8" title="1">{ return true }</span>
 
-func (g *SpMapi32) Edge(fromIdx, toIdx uint) (weight int32, exists bool) <span class="cov8" title="1">{
-        row, ok := g.ws[fromIdx]
+func (g *SpMapi32) Edge(edgeFrom, edgeTo VIdx) (weight int32, exists bool) <span class="cov8" title="1">{
+        row, ok := g.ws[edgeFrom]
         if !ok </span><span class="cov8" title="1">{
                 return 0, false
         }</span>
-        <span class="cov8" title="1">weight, ok = row[toIdx]
+        <span class="cov8" title="1">weight, ok = row[edgeTo]
         if ok </span><span class="cov8" title="1">{
                 return weight, true
         }</span> else<span class="cov8" title="1"> {
@@ -1092,68 +1406,74 @@ func (g *SpMapi32) Edge(fromIdx, toIdx uint) (weight int32, exists bool) <span c
         }</span>
 }
 
-func (g *SpMapi32) SetEdge(fromIdx, toIdx uint, weight int32) <span class="cov8" title="1">{
-        g.sz = maxSize(g.sz, fromIdx, toIdx)
-        row, rok := g.ws[fromIdx]
+func (g *SpMapi32) SetEdge(edgeFrom, edgeTo VIdx, weight int32) <span class="cov8" title="1">{
+        g.sz = maxSize(g.sz, edgeFrom, edgeTo)
+        row, rok := g.ws[edgeFrom]
         if math.IsNaN(float64(weight)) </span><span class="cov0" title="0">{
                 if rok </span><span class="cov0" title="0">{
-                        delete(row, toIdx)
+                        delete(row, edgeTo)
                         if len(row) == 0 </span><span class="cov0" title="0">{
-                                delete(g.ws, fromIdx)
+                                delete(g.ws, edgeFrom)
                         }</span>
                 }
         } else<span class="cov8" title="1"> {
                 if !rok </span><span class="cov8" title="1">{
                         row = make(spmroi32)
-                        g.ws[fromIdx] = row
+                        g.ws[edgeFrom] = row
                 }</span>
-                <span class="cov8" title="1">row[toIdx] = weight</span>
+                <span class="cov8" title="1">row[edgeTo] = weight</span>
         }
 }
 
-func (g *SpMapi32) DelEdge(fromIdx, toIdx uint) <span class="cov8" title="1">{
-        row, ok := g.ws[fromIdx]
+func (g *SpMapi32) DelEdge(edgeFrom, edgeTo VIdx) <span class="cov8" title="1">{
+        row, ok := g.ws[edgeFrom]
         if ok </span><span class="cov8" title="1">{
-                delete(row, toIdx)
+                delete(row, edgeTo)
         }</span>
 }
 
-func (g *SpMapi32) Weight(fromIdx, toIdx uint) interface{} <span class="cov8" title="1">{
-        w, ok := g.Edge(fromIdx, toIdx)
+func (g *SpMapi32) Weight(edgeFrom, edgeTo VIdx) interface{} <span class="cov8" title="1">{
+        w, ok := g.Edge(edgeFrom, edgeTo)
         if ok </span><span class="cov8" title="1">{
                 return w
         }</span>
         <span class="cov8" title="1">return nil</span>
 }
 
-func (g *SpMapi32) SetWeight(fromIdx, toIdx uint, w interface{}) <span class="cov8" title="1">{
+func (g *SpMapi32) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) <span class="cov8" title="1">{
         if w == nil </span><span class="cov8" title="1">{
-                g.DelEdge(fromIdx, toIdx)
+                g.DelEdge(edgeFrom, edgeTo)
         }</span> else<span class="cov8" title="1"> {
-                g.SetEdge(fromIdx, toIdx, w.(int32))
+                g.SetEdge(edgeFrom, edgeTo, w.(int32))
         }</span>
 }
 
-func (g *SpMapi32) Clear(vertexNo uint) <span class="cov0" title="0">{
+func (g *SpMapi32) Clear(vertexNo VIdx) <span class="cov0" title="0">{
         g.sz = vertexNo
-        g.ws = make(map[uint]spmroi32)
+        g.ws = make(map[VIdx]spmroi32)
 }</span>
 
-func (g *SpMapi32) EachNeighbour(v uint, do func(a, b uint, w interface{})) <span class="cov0" title="0">{
-        if ns, ok := g.ws[v]; ok </span><span class="cov0" title="0">{
-                for n, w := range ns </span><span class="cov0" title="0">{
-                        do(v, n, w)
+func (g *SpMapi32) EachNeighbour(v VIdx, do func(VIdx, bool, interface{})) <span class="cov0" title="0">{
+        for a, ns := range g.ws </span><span class="cov0" title="0">{
+                if a == v </span><span class="cov0" title="0">{
+                        for b, w := range ns </span><span class="cov0" title="0">{
+                                do(b, true, w)
+                        }</span>
+                } else<span class="cov0" title="0"> if w, ok := ns[v]; ok </span><span class="cov0" title="0">{
+                        do(a, false, w)
                 }</span>
         }
 }
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">package groph
+		<pre class="file" id="file9" style="display: none">package tsp
+
+import "git.fractalqb.de/fractalqb/groph"
 
 // d2optU computes the difference in weight sum for a specific 2-opt operation
 // that swaps e0 / e1 for undirected graphs.
-func diff2optU(g RGf32, p []uint, e0, e1 uint) (wdiff float32) <span class="cov8" title="1">{
-        lenp := uint(len(p))
+func diff2optU(g groph.RGf32, p []groph.VIdx, e0, e1 groph.VIdx) (wdiff float32) <span class="cov8" title="1">{
+        lenp := groph.VIdx(len(p))
         wdiff = -g.Edge(p[e0], p[e0+1])
         wdiff += g.Edge(p[e0], p[e1])
         if e1+1 == lenp </span><span class="cov8" title="1">{
@@ -1168,7 +1488,7 @@ func diff2optU(g RGf32, p []uint, e0, e1 uint) (wdiff float32) <span class="cov8
 
 // d2optD computes the difference in weight sum for a specific 2-opt operation
 // that swaps e0 / e1 for directed graphs.
-func diff2optD(g RGf32, p []uint, e0, e1 uint) (wdiff float32) <span class="cov8" title="1">{
+func diff2optD(g groph.RGf32, p []groph.VIdx, e0, e1 groph.VIdx) (wdiff float32) <span class="cov8" title="1">{
         wdiff = diff2optU(g, p, e0, e1)
         for i := e0 + 1; i &lt; e1; i++ </span><span class="cov8" title="1">{
                 wdiff -= g.Edge(p[i], p[i+1])
@@ -1177,7 +1497,7 @@ func diff2optD(g RGf32, p []uint, e0, e1 uint) (wdiff float32) <span class="cov8
         <span class="cov8" title="1">return wdiff</span>
 }
 
-func apply2opt(p []uint, e0, e1 uint) <span class="cov8" title="1">{
+func apply2opt(p []groph.VIdx, e0, e1 groph.VIdx) <span class="cov8" title="1">{
         e0++
         for e0 &lt; e1 </span><span class="cov8" title="1">{
                 p[e0], p[e1] = p[e1], p[e0]
@@ -1186,16 +1506,16 @@ func apply2opt(p []uint, e0, e1 uint) <span class="cov8" title="1">{
         }</span>
 }
 
-func Tsp2Optf32(g RGf32) (path []uint, plen float32) <span class="cov8" title="1">{
-        var diff2opt func(RGf32, []uint, uint, uint) float32
+func TwoOptf32(g groph.RGf32) (path []groph.VIdx, plen float32) <span class="cov8" title="1">{
+        var diff2opt func(groph.RGf32, []groph.VIdx, groph.VIdx, groph.VIdx) float32
         if g.Directed() </span><span class="cov8" title="1">{
                 diff2opt = diff2optD
         }</span> else<span class="cov8" title="1"> {
                 diff2opt = diff2optU
         }</span>
         <span class="cov8" title="1">vno := g.VertexNo()
-        path = make([]uint, vno)
-        for i := uint(0); i+1 &lt; vno; i++ </span><span class="cov8" title="1">{
+        path = make([]groph.VIdx, vno)
+        for i := groph.VIdx(0); i+1 &lt; vno; i++ </span><span class="cov8" title="1">{
                 path[i] = i
                 plen += g.Edge(i, i+1)
         }</span>
@@ -1204,7 +1524,7 @@ func Tsp2Optf32(g RGf32) (path []uint, plen float32) <span class="cov8" title="1
         for </span><span class="cov8" title="1">{
                 be0, be1 := vno, vno
                 bdiff := float32(0)
-                for e0 := uint(0); e0 &lt; vno; e0++ </span><span class="cov8" title="1">{
+                for e0 := groph.VIdx(0); e0 &lt; vno; e0++ </span><span class="cov8" title="1">{
                         for e1 := e0 + 1; e1 &lt; vno; e1++ </span><span class="cov8" title="1">{
                                 diff := diff2opt(g, path, e0, e1)
                                 if diff &lt; bdiff </span><span class="cov8" title="1">{
@@ -1222,31 +1542,97 @@ func Tsp2Optf32(g RGf32) (path []uint, plen float32) <span class="cov8" title="1
         }
         <span class="cov8" title="1">return path, plen</span>
 }
+
+// Benchmark showed that the proformance gain is not worth it
+// func (g *AdjMxDf32) Tsp2Opt() (path []uint, plen float32) {
+//         vno := g.VertexNo()
+//         path = make([]uint, vno)
+//         for i := uint(0); i+1 &lt; vno; i++ {
+//                 path[i] = i
+//                 plen += g.Edge(i, i+1)
+//         }
+//         path[vno-1] = vno - 1
+//         plen += g.Edge(vno-1, 0)
+//         for {
+//                 be0, be1 := vno, vno
+//                 bdiff := float32(0)
+//                 for e0 := uint(0); e0 &lt; vno; e0++ {
+//                         for e1 := e0 + 1; e1 &lt; vno; e1++ {
+//                                 diff := diff2optD(g, path, e0, e1)
+//                                 if diff &lt; bdiff {
+//                                         be0, be1 = e0, e1
+//                                         bdiff = diff
+//                                 }
+//                         }
+//                 }
+//                 if bdiff &lt; float32(0) {
+//                         apply2opt(path, be0, be1)
+//                         plen += bdiff
+//                 } else {
+//                         break
+//                 }
+//         }
+//         return path, plen
+// }
+
+// Benchmark showed that the proformance gain is not worth it
+// func (g *AdjMxUf32) Tsp2Opt() (path []uint, plen float32) {
+//         vno := g.VertexNo()
+//         path = make([]uint, vno)
+//         for i := uint(0); i+1 &lt; vno; i++ {
+//                 path[i] = i
+//                 plen += g.Edge(i, i+1)
+//         }
+//         path[vno-1] = vno - 1
+//         plen += g.Edge(vno-1, 0)
+//         for {
+//                 be0, be1 := vno, vno
+//                 bdiff := float32(0)
+//                 for e0 := uint(0); e0 &lt; vno; e0++ {
+//                         for e1 := e0 + 1; e1 &lt; vno; e1++ {
+//                                 diff := diff2optU(g, path, e0, e1)
+//                                 if diff &lt; bdiff {
+//                                         be0, be1 = e0, e1
+//                                         bdiff = diff
+//                                 }
+//                         }
+//                 }
+//                 if bdiff &lt; float32(0) {
+//                         apply2opt(path, be0, be1)
+//                         plen += bdiff
+//                 } else {
+//                         break
+//                 }
+//         }
+//         return path, plen
+// }
 </pre>
 		
-		<pre class="file" id="file8" style="display: none">package groph
+		<pre class="file" id="file10" style="display: none">package tsp
 
-func TspGreedyf32(m RGf32) (path []uint, plen float32) <span class="cov0" title="0">{
+import "git.fractalqb.de/fractalqb/groph"
+
+func Greedyf32(m groph.RGf32) (path []groph.VIdx, plen float32) <span class="cov0" title="0">{
         size := m.VertexNo()
         switch size </span>{
         case 0:<span class="cov0" title="0">
                 return nil, 0</span>
         case 1:<span class="cov0" title="0">
-                return []uint{0}, 0</span>
+                return []groph.VIdx{0}, 0</span>
         }
         <span class="cov0" title="0">L := size - 1
-        path = make([]uint, size)
+        path = make([]groph.VIdx, size)
         // start with L → 0 → 1 → … → L
         path[L] = L
         best := m.Edge(L, 0)
-        for k := uint(0); k &lt; L; k++ </span><span class="cov0" title="0">{
+        for k := groph.VIdx(0); k &lt; L; k++ </span><span class="cov0" title="0">{
                 path[k] = k
                 best += m.Edge(k, k+1)
         }</span>
-        <span class="cov0" title="0">perm := make([]uint, L)
+        <span class="cov0" title="0">perm := make([]groph.VIdx, L)
         copy(perm, path)
-        c := make([]uint, L) // automatic set to 0 (go!)
-        i := uint(0)
+        c := make([]groph.VIdx, L) // automatic set to 0 (go!)
+        i := groph.VIdx(0)
         for i &lt; L </span><span class="cov0" title="0">{
                 if c[i] &lt; i </span><span class="cov0" title="0">{
                         if (i &amp; 1) == 0 </span><span class="cov0" title="0">{
@@ -1256,7 +1642,7 @@ func TspGreedyf32(m RGf32) (path []uint, plen float32) <span class="cov0" title=
                         }</span>
                         <span class="cov0" title="0">curl := m.Edge(L, perm[0])
                         curl += m.Edge(perm[L-1], L)
-                        for i := uint(0); i+1 &lt; L; i++ </span><span class="cov0" title="0">{
+                        for i := groph.VIdx(0); i+1 &lt; L; i++ </span><span class="cov0" title="0">{
                                 curl += m.Edge(perm[i], perm[i+1])
                         }</span>
                         <span class="cov0" title="0">if curl &lt; best </span><span class="cov0" title="0">{
@@ -1273,27 +1659,27 @@ func TspGreedyf32(m RGf32) (path []uint, plen float32) <span class="cov0" title=
         <span class="cov0" title="0">return path, best</span>
 }
 
-func (m *AdjMxDf32) TspGreedy() (path []uint, plen float32) <span class="cov8" title="1">{
+func GreedyAdjMxDf32(m *groph.AdjMxDf32) (path []groph.VIdx, plen float32) <span class="cov8" title="1">{
         size := m.VertexNo()
         switch size </span>{
         case 0:<span class="cov0" title="0">
                 return nil, 0</span>
         case 1:<span class="cov0" title="0">
-                return []uint{0}, 0</span>
+                return []groph.VIdx{0}, 0</span>
         }
         <span class="cov8" title="1">L := size - 1
-        path = make([]uint, size)
+        path = make([]groph.VIdx, size)
         // start with L → 0 → 1 → … → L
         path[L] = L
         best := m.Edge(L, 0)
-        for k := uint(0); k &lt; L; k++ </span><span class="cov8" title="1">{
+        for k := groph.VIdx(0); k &lt; L; k++ </span><span class="cov8" title="1">{
                 path[k] = k
                 best += m.Edge(k, k+1)
         }</span>
-        <span class="cov8" title="1">perm := make([]uint, L)
+        <span class="cov8" title="1">perm := make([]groph.VIdx, L)
         copy(perm, path)
-        c := make([]uint, L) // automatic set to 0 (go!)
-        i := uint(0)
+        c := make([]groph.VIdx, L) // automatic set to 0 (go!)
+        i := groph.VIdx(0)
         for i &lt; L </span><span class="cov8" title="1">{
                 if c[i] &lt; i </span><span class="cov8" title="1">{
                         if (i &amp; 1) == 0 </span><span class="cov8" title="1">{
@@ -1303,7 +1689,7 @@ func (m *AdjMxDf32) TspGreedy() (path []uint, plen float32) <span class="cov8" t
                         }</span>
                         <span class="cov8" title="1">curl := m.Edge(L, perm[0])
                         curl += m.Edge(perm[L-1], L)
-                        for i := uint(0); i+1 &lt; L; i++ </span><span class="cov8" title="1">{
+                        for i := groph.VIdx(0); i+1 &lt; L; i++ </span><span class="cov8" title="1">{
                                 curl += m.Edge(perm[i], perm[i+1])
                         }</span>
                         <span class="cov8" title="1">if curl &lt; best </span><span class="cov8" title="1">{

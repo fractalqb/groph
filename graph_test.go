@@ -39,6 +39,9 @@ func testDSetUnset(
 	read func(i, j VIdx) interface{},
 	isCleared func(w interface{}) bool,
 ) {
+	if !g.Directed() {
+		t.Fatal("graph is not directed")
+	}
 	vno := g.VertexNo()
 	for wi := VIdx(0); wi < vno; wi++ {
 		for wj := VIdx(0); wj < vno; wj++ {
@@ -65,6 +68,57 @@ func testDSetUnset(
 							t.Fatalf("read wrong value [%v] (expect [%v]) @%d,%d",
 								r, w,
 								wi, wj)
+						}
+					} else if !isCleared(r) {
+						t.Fatalf("read non-cleared value [%v] @%d,%d after write @%d,%d",
+							w,
+							ri, rj,
+							wi, wj)
+					}
+				}
+			}
+			clear(wi, wj)
+		}
+	}
+}
+
+func testUSetUnset(
+	t *testing.T,
+	g WGraph,
+	set func(i, j VIdx) interface{},
+	clear func(i, j VIdx),
+	read func(i, j VIdx) interface{},
+	isCleared func(w interface{}) bool,
+) {
+	if g.Directed() {
+		t.Fatal("graph is directed")
+	}
+	vno := g.VertexNo()
+	for wi := VIdx(0); wi < vno; wi++ {
+		for wj := wi; wj < vno; wj++ {
+			clear(wi, wj)
+		}
+	}
+	for ri := VIdx(0); ri < vno; ri++ {
+		for rj := ri; rj < vno; rj++ {
+			if w := read(ri, rj); !isCleared(w) {
+				t.Errorf("read non-cleared value [%v] @%d,%d after clear",
+					w,
+					ri, rj)
+			}
+		}
+	}
+	for wi := VIdx(0); wi < vno; wi++ {
+		for wj := VIdx(0); wj < vno; wj++ {
+			w := set(wi, wj)
+			for ri := VIdx(0); ri < vno; ri++ {
+				for rj := VIdx(0); rj < vno; rj++ {
+					r := read(ri, rj)
+					if (ri == wi && rj == wj) || (ri == wj && rj == wi) {
+						if r != w {
+							t.Fatalf("read wrong value [%v] (expect [%v]) @%d,%d",
+								r, w,
+								ri, rj)
 						}
 					} else if !isCleared(r) {
 						t.Fatalf("read non-cleared value [%v] @%d,%d after write @%d,%d",

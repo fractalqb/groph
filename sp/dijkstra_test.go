@@ -9,9 +9,10 @@ import (
 
 func TestDijkstraf32_toFW(t *testing.T) {
 	const VNo = 5
-	g := groph.NewAdjMxDf32(VNo, nil)
+	g := groph.NewAdjMxUf32(VNo, nil)
 	for i := 0; i < VNo; i++ {
-		for j := 0; j < VNo; j++ {
+		g.SetEdge(i, i, 0)
+		for j := i + 1; j < VNo; j++ {
 			g.SetEdge(i, j, 1+20*rand.Float32())
 		}
 	}
