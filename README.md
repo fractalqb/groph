@@ -1,6 +1,6 @@
 # groph
 
-[![Test Coverage](https://img.shields.io/badge/coverage-53%25-orange.svg)](file:coverage.html)
+[![Test Coverage](https://img.shields.io/badge/coverage-58%25-orange.svg)](file:coverage.html)
 [![Go Report Card](https://goreportcard.com/badge/codeberg.org/fractalqb/groph)](https://goreportcard.com/report/codeberg.org/fractalqb/groph)
 [![GoDoc](https://godoc.org/codeberg.org/fractalqb/groph?status.svg)](https://godoc.org/codeberg.org/fractalqb/groph)
 
@@ -8,4 +8,4 @@
 
 ---
 
-Yet another graph library
+Yet another graph library. More info at [godoc.org](https://godoc.org/codeberg.org/fractalqb/groph).

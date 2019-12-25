@@ -13,7 +13,7 @@ type SpMap struct {
 
 var (
 	_ WGraph          = (*SpMap)(nil)
-	_ ListNeightbours = (*SpMap)(nil)
+	_ NeighbourLister = (*SpMap)(nil)
 )
 
 func NewSpMap(vertexNo VIdx, reuse *SpMap) *SpMap {
@@ -87,7 +87,7 @@ type SpMapf32 struct {
 
 var (
 	_ WGf32           = (*SpMapf32)(nil)
-	_ ListNeightbours = (*SpMapf32)(nil)
+	_ NeighbourLister = (*SpMapf32)(nil)
 )
 
 var nan32 = float32(math.NaN())
@@ -196,7 +196,7 @@ type SpMapi32 struct {
 
 var (
 	_ WGi32           = (*SpMapi32)(nil)
-	_ ListNeightbours = (*SpMapi32)(nil)
+	_ NeighbourLister = (*SpMapi32)(nil)
 )
 
 func NewSpMapi32(vertexNo VIdx, reuse *SpMapi32) *SpMapi32 {

@@ -6,8 +6,6 @@ import (
 	"reflect"
 )
 
-type Vertex = interface{}
-
 type Slice struct {
 	slc reflect.Value
 	dir bool
@@ -22,7 +20,7 @@ func NewSlice(directed bool, edgeSlice interface{}) *Slice {
 	if directed {
 		res.sz = VIdx(math.Sqrt(float64(res.slc.Len())))
 	} else {
-		res.sz = VIdx(nSumRev(res.slc.Len()))
+		res.sz = VIdx(nSumRev(VIdx(res.slc.Len())))
 	}
 	return res
 }
@@ -33,10 +31,10 @@ func (g *Slice) Check() (*Slice, error) {
 			g.slc.Type().String())
 	}
 	if g.dir {
-		if g.sz*g.sz != g.slc.Len() {
+		if g.sz*g.sz != VIdx(g.slc.Len()) {
 			return g, fmt.Errorf("slice len is not quadratic")
 		}
-	} else if nSum(g.sz) != g.slc.Len() {
+	} else if nSum(g.sz) != VIdx(g.slc.Len()) {
 		return g, fmt.Errorf("slice len is not Sum(1, ..., n)")
 	}
 	return g, nil
@@ -57,18 +55,18 @@ func (g *Slice) Directed() bool { return g.dir }
 
 func (g *Slice) Weight(edgeFrom, edgeTo VIdx) interface{} {
 	if g.dir {
-		return g.slc.Index(g.sz*edgeFrom + edgeTo).Interface()
+		return g.slc.Index(int(g.sz*edgeFrom + edgeTo)).Interface()
 	} else if edgeFrom < edgeTo {
-		return g.slc.Index(uIdx(g.sz, edgeFrom, edgeTo)).Interface()
+		return g.slc.Index(int(uIdx(g.sz, edgeFrom, edgeTo))).Interface()
 	}
-	return g.slc.Index(uIdx(g.sz, edgeTo, edgeFrom)).Interface()
+	return g.slc.Index(int(uIdx(g.sz, edgeTo, edgeFrom))).Interface()
 }
 
 // SliceNMeasure implements a metric RGraph based on a slice of vertices of
-// some type V and a function f(u V, v V) → W that compute the weight of type W
-// for any edge (u, v).
+// some type V and a function f(u V, v V) → W that computes the weight of type
+// W for any edge (u, v).
 //
-// E.g. use CpWeights or CpXWeights to initialize an other WGraph.
+// From this use e.g. CpWeights or CpXWeights to initialize an other WGraph.
 type SliceNMeasure struct {
 	slc reflect.Value
 	m   reflect.Value
@@ -113,7 +111,7 @@ func (g *SliceNMeasure) VertexNo() VIdx {
 	return VIdx(g.slc.Len())
 }
 
-func (g *SliceNMeasure) Vertex(idx VIdx) Vertex {
+func (g *SliceNMeasure) Vertex(idx VIdx) interface{} {
 	return g.slc.Index(int(idx)).Interface()
 }
 

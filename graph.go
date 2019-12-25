@@ -4,14 +4,20 @@ import (
 	"reflect"
 )
 
+// VIdx is the type used to represent vertices in the graph implementations
+// provided by the groph package.
 type VIdx = int
 
+// Edge represents a graphs edge between vertices I and J. For directed graphs
+// its the edge from I to J.
 type Edge struct {
 	I, J VIdx
 }
 
 // RGraph represents a set of graph data that allows read only access to the
 // egde weights.
+//
+// For graphs that can change edged see WGraph.
 type RGraph interface {
 	// VertextNo return the numer of vertices in the graph.
 	VertexNo() VIdx
@@ -19,7 +25,8 @@ type RGraph interface {
 	// otherwiese.
 	Directed() bool
 	// Returns the weight of the edge that connects the vertex with index
-	// edgeFrom with the vertex with index edgeTo.
+	// edgeFrom with the vertex with index edgeTo. If there is no such edge
+	// it returns nil.
 	Weight(edgeFrom, edgeTo VIdx) interface{}
 }
 
@@ -30,15 +37,20 @@ func WeightOr(g RGraph, edgeFrom, edgeTo VIdx, or interface{}) interface{} {
 	return or
 }
 
-type ListNeightbours interface {
-	EachNeighbour(v0 VIdx, do func(v1 VIdx, fwd bool, w interface{}))
+type VisitNeighbour = func(n VIdx, fwd bool, w interface{})
+
+// NeighbourLister is implemented by graph implementations that can easily
+// iterate over all neighbous of one node.
+type NeighbourLister interface {
+	EachNeighbour(v0 VIdx, do VisitNeighbour)
 }
 
-func EachNeighbour(g RGraph, v VIdx, do func(VIdx, bool, interface{})) {
-	if ln, ok := g.(ListNeightbours); ok {
+func EachNeighbour(g RGraph, v VIdx, do VisitNeighbour) {
+	if ln, ok := g.(NeighbourLister); ok {
 		ln.EachNeighbour(v, do)
 	} else if g.Directed() {
-		for n := VIdx(0); n < g.VertexNo(); n++ {
+		vno := g.VertexNo()
+		for n := VIdx(0); n < vno; n++ {
 			if w := g.Weight(v, n); w != nil {
 				do(n, true, w)
 			}
@@ -47,7 +59,8 @@ func EachNeighbour(g RGraph, v VIdx, do func(VIdx, bool, interface{})) {
 			}
 		}
 	} else {
-		for n := VIdx(0); n < g.VertexNo(); n++ {
+		vno := g.VertexNo()
+		for n := VIdx(0); n < vno; n++ {
 			if w := g.Weight(v, n); w != nil {
 				do(n, false, w)
 			}
@@ -73,10 +86,11 @@ func CheckDirected(g RGraph) bool {
 // the egde weights.
 type WGraph interface {
 	RGraph
-	// Clear resizes the graph to vertexNo and reinitializes it.
+	// Clear resizes the graph to vertexNo and reinitializes it. Implementations
+	// are expected to reuse memory.
 	Clear(vertexNo VIdx)
 	// SetWeight sets the edge weight for the edge starting at vertex edgeFrom
-	// and ending at vertex edgeTo.
+	// and ending at vertex edgeTo. Passing w==nil removes the edge.
 	SetWeight(edgeFrom, edgeTo VIdx, w interface{})
 }
 
@@ -155,7 +169,7 @@ func CpWeights(dst WGraph, src RGraph) WGraph {
 }
 
 // CpXWeights “transfers” the edge weights from src Graph to dst Graph
-// with the same vertex restirctions as CpWeights. CpXWeights allpies
+// with the same vertex restirctions as CpWeights. CpXWeights applies
 // the transformation function xf() to each edge weight.
 func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGraph {
 	sz := dst.VertexNo()

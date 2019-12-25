@@ -241,6 +241,17 @@ func TestAdjMxUf32_SetUset(t *testing.T) {
 	)
 }
 
+func TestAdjMxUi32_SetUset(t *testing.T) {
+	m := NewAdjMxUi32(testSizeSetUnset, nil)
+	const w32 int32 = 31415
+	testUSetUnset(t, m,
+		func(i, j VIdx) interface{} { m.SetEdge(i, j, w32); return w32 },
+		func(i, j VIdx) { m.SetEdge(i, j, m.Cleared) },
+		func(i, j VIdx) interface{} { return m.Edge(i, j) },
+		func(w interface{}) bool { return w.(int32) == m.Cleared },
+	)
+}
+
 func ExampleNaNs() {
 	nan := math.NaN()
 	fmt.Printf("0 < NaN: %t\n", 0 < nan)

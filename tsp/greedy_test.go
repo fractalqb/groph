@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
-	test "git.fractalqb.de/fractalqb/groph/internal"
+	"git.fractalqb.de/fractalqb/groph/internal/test"
 )
 
 //func dist(u, v [2]float32) float32 {

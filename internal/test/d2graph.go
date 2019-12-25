@@ -1,4 +1,4 @@
-package groph
+package test
 
 import (
 	"math"

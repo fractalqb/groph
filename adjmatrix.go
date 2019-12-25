@@ -2,6 +2,8 @@ package groph
 
 import (
 	"math"
+
+	"git.fractalqb.de/fractalqb/groph/internal/util"
 )
 
 type adjMx struct {
@@ -25,12 +27,9 @@ func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 			adjMx: adjMx{sz: vertexNo},
 			bs:    make([]uint, sz),
 		}
-	} else if uint(cap(reuse.bs)) >= sz {
-		reuse.sz = vertexNo
-		reuse.bs = reuse.bs[:sz]
 	} else {
 		reuse.sz = vertexNo
-		reuse.bs = make([]uint, sz)
+		reuse.bs = util.UIntSlice(reuse.bs, int(sz))
 	}
 	return reuse
 }
@@ -92,12 +91,9 @@ func NewAdjMxDbool(vertexNo VIdx, reuse *AdjMxDbool) *AdjMxDbool {
 			adjMx: adjMx{sz: vertexNo},
 			bs:    make([]bool, sz),
 		}
-	} else if VIdx(cap(reuse.bs)) >= sz {
-		reuse.sz = vertexNo
-		reuse.bs = reuse.bs[:sz]
 	} else {
 		reuse.sz = vertexNo
-		reuse.bs = make([]bool, sz)
+		reuse.bs = util.BoolSlice(reuse.bs, int(sz))
 	}
 	return reuse
 }
@@ -142,21 +138,18 @@ type AdjMxDi32 struct {
 	Cleared int32
 }
 
-const I32cleared = -2147483648
+const i32cleared = -2147483648 // min{ int32 }
 
 func NewAdjMxDi32(vertexNo VIdx, reuse *AdjMxDi32) *AdjMxDi32 {
 	if reuse == nil {
 		reuse = &AdjMxDi32{
 			adjMx:   adjMx{sz: vertexNo},
 			w:       make([]int32, vertexNo*vertexNo),
-			Cleared: I32cleared,
+			Cleared: i32cleared,
 		}
-	} else if VIdx(cap(reuse.w)) >= vertexNo*vertexNo {
-		reuse.sz = vertexNo
-		reuse.w = reuse.w[:vertexNo*vertexNo]
 	} else {
 		reuse.sz = vertexNo
-		reuse.w = make([]int32, vertexNo*vertexNo)
+		reuse.w = util.I32Slice(reuse.w, int(vertexNo*vertexNo))
 	}
 	return reuse
 }
@@ -217,12 +210,9 @@ func NewAdjMxDf32(vertexNo VIdx, reuse *AdjMxDf32) *AdjMxDf32 {
 			adjMx: adjMx{sz: vertexNo},
 			w:     make([]float32, vertexNo*vertexNo),
 		}
-	} else if VIdx(cap(reuse.w)) >= vertexNo*vertexNo {
-		reuse.sz = vertexNo
-		reuse.w = reuse.w[:vertexNo*vertexNo]
 	} else {
 		reuse.sz = vertexNo
-		reuse.w = make([]float32, vertexNo*vertexNo)
+		reuse.w = util.F32Slice(reuse.w, int(vertexNo*vertexNo))
 	}
 	return reuse
 }
@@ -285,12 +275,9 @@ func NewAdjMxUf32(vertexNo VIdx, reuse *AdjMxUf32) *AdjMxUf32 {
 			adjMx: adjMx{sz: vertexNo},
 			w:     make([]float32, nSum(vertexNo)),
 		}
-	} else if VIdx(cap(reuse.w)) >= nSum(vertexNo) {
-		reuse.sz = vertexNo
-		reuse.w = reuse.w[:nSum(vertexNo)]
 	} else {
 		reuse.sz = vertexNo
-		reuse.w = make([]float32, nSum(vertexNo))
+		reuse.w = util.F32Slice(reuse.w, int(nSum(vertexNo)))
 	}
 	return reuse
 }
@@ -300,15 +287,6 @@ func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 {
 		m.w[i] = w
 	}
 	return m
-}
-
-func (m *AdjMxUf32) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	w := m.Edge(edgeFrom, edgeTo)
-	if math.IsNaN(float64(w)) {
-		return nil
-	} else {
-		return w
-	}
 }
 
 func (m *AdjMxUf32) Directed() bool { return false }
@@ -325,12 +303,17 @@ func uIdx(sz, i, j VIdx) VIdx {
 	return i + j
 }
 
-func (m *AdjMxUf32) SetWeight(i, j VIdx, w interface{}) {
-	if i < j {
-		m.w[uIdx(m.sz, i, j)] = w.(float32)
+func (m *AdjMxUf32) Weight(i, j VIdx) interface{} {
+	w := m.Edge(i, j)
+	if math.IsNaN(float64(w)) {
+		return nil
 	} else {
-		m.w[uIdx(m.sz, j, i)] = w.(float32)
+		return w
 	}
+}
+
+func (m *AdjMxUf32) SetWeight(i, j VIdx, w interface{}) {
+	m.SetEdge(i, j, w.(float32))
 }
 
 func (m *AdjMxUf32) Edge(i, j VIdx) (w float32) {
@@ -341,10 +324,93 @@ func (m *AdjMxUf32) Edge(i, j VIdx) (w float32) {
 	}
 }
 
+// EdgeD is used iff i <= j
+func (m *AdjMxUf32) EdgeD(i, j VIdx) (w float32) {
+	return m.w[uIdx(m.sz, i, j)]
+}
+
 func (m *AdjMxUf32) SetEdge(i, j VIdx, w float32) {
 	if i <= j {
 		m.w[uIdx(m.sz, i, j)] = w
 	} else {
 		m.w[uIdx(m.sz, j, i)] = w
 	}
+}
+
+// SetEdgeD is used iff i <= j
+func (m *AdjMxUf32) SetEdgeD(i, j VIdx, w float32) {
+	m.w[uIdx(m.sz, i, j)] = w
+}
+
+type AdjMxUi32 struct {
+	adjMx
+	w       []int32
+	Cleared int32
+}
+
+func NewAdjMxUi32(vertexNo VIdx, reuse *AdjMxUi32) *AdjMxUi32 {
+	if reuse == nil {
+		reuse = &AdjMxUi32{
+			adjMx:   adjMx{sz: vertexNo},
+			w:       make([]int32, nSum(vertexNo)),
+			Cleared: i32cleared,
+		}
+	} else {
+		reuse.sz = vertexNo
+		reuse.w = util.I32Slice(reuse.w, int(nSum(vertexNo)))
+	}
+	return reuse
+}
+
+func (m *AdjMxUi32) Init(w int32) *AdjMxUi32 {
+	for i := range m.w {
+		m.w[i] = w
+	}
+	return m
+}
+
+func (m *AdjMxUi32) Directed() bool { return false }
+
+func (m *AdjMxUi32) Clear(vertexNo VIdx) {
+	NewAdjMxUi32(vertexNo, m)
+	m.Init(m.Cleared)
+}
+
+func (m *AdjMxUi32) Weight(i, j VIdx) interface{} {
+	w := m.Edge(i, j)
+	if w == m.Cleared {
+		return nil
+	} else {
+		return w
+	}
+}
+
+func (m *AdjMxUi32) SetWeight(i, j VIdx, w interface{}) {
+	m.SetEdge(i, j, w.(int32))
+}
+
+func (m *AdjMxUi32) Edge(i, j VIdx) (w int32) {
+	if i <= j {
+		return m.w[uIdx(m.sz, i, j)]
+	} else {
+		return m.w[uIdx(m.sz, j, i)]
+	}
+}
+
+// EdgeD is used iff i <= j
+func (m *AdjMxUi32) EdgeD(i, j VIdx) (w int32) {
+	return m.w[uIdx(m.sz, i, j)]
+}
+
+func (m *AdjMxUi32) SetEdge(i, j VIdx, w int32) {
+	if i <= j {
+		m.w[uIdx(m.sz, i, j)] = w
+	} else {
+		m.w[uIdx(m.sz, j, i)] = w
+	}
+}
+
+// SetEdgeD is used iff i <= j
+func (m *AdjMxUi32) SetEdgeD(i, j VIdx, w int32) {
+	m.w[uIdx(m.sz, i, j)] = w
 }

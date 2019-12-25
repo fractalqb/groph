@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
-	test "git.fractalqb.de/fractalqb/groph/internal"
+	"git.fractalqb.de/fractalqb/groph/internal/test"
 )
 
 func pathEq(p1, p2 []groph.VIdx) (bool, string) {
