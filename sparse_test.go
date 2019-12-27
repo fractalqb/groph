@@ -9,7 +9,7 @@ func TestSpMap_SetUset(t *testing.T) {
 	testGenericSetUnset(t, m, 4)
 }
 
-func BenchmarkSpMap(b *testing.B) {
+func BenchmarkSpMap_generic(b *testing.B) {
 	m := NewSpMap(testSizeSetUnset, nil)
 	max := m.VertexNo()
 	w := 0
