@@ -1,6 +1,4 @@
-package groph
-
-// http://graphics.stanford.edu/~seander/bithacks.html
+package util
 
 type bitsWord = uint64
 
@@ -10,21 +8,25 @@ const (
 	wordShift = 6
 )
 
-func bitSetWords(size VIdx) VIdx {
+type BitSet []bitsWord
+
+func BitSetWords(size int) int {
 	return (size + (wordBits - 1)) / wordBits
 }
 
-func bitSetGet(bs []bitsWord, i uint) bool {
+func BitSetCap(bs []bitsWord) int { return len(bs) * wordBits }
+
+func BitSetGet(bs BitSet, i int) bool {
 	w, b := i>>wordShift, i&wordMask
 	return bs[w]&(1<<b) != 0
 }
 
-func bitSetSet(bs []bitsWord, i uint) {
+func BitSetSet(bs BitSet, i int) {
 	w, b := i>>wordShift, i&wordMask
 	bs[w] |= 1 << b
 }
 
-func bitSetUnset(bs []bitsWord, i uint) {
+func BitSetUnset(bs BitSet, i int) {
 	w, b := i>>wordShift, i&wordMask
 	bs[w] &= ^(1 << b)
 }

@@ -49,4 +49,4 @@ Comparison benchmarks can be found in the separate project [groph-cmpbench](http
 |---------|------|-------:|
 | groph   | access directed int32 | 1 |
 | [yourbasic graph](https://github.com/yourbasic/graph) | access directed int64 | 43.56 |
-_Factor: smaller is better_
+_t-Factor: smaller is better_

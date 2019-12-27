@@ -3,7 +3,8 @@ package groph
 import (
 	"math"
 
-	"git.fractalqb.de/fractalqb/groph/internal/util"
+	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
+	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 type adjMx struct {
@@ -16,20 +17,20 @@ func (m *adjMx) VertexNo() VIdx { return m.sz }
 // bitmap. This sacrifices runtime performance for lesser memory usage.
 type AdjMxDbitmap struct {
 	adjMx
-	bs []bitsWord
+	bs util.BitSet
 }
 
 func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 	sz := vertexNo * vertexNo
-	sz = bitSetWords(sz)
+	sz = util.BitSetWords(sz)
 	if reuse == nil {
 		reuse = &AdjMxDbitmap{
 			adjMx: adjMx{sz: vertexNo},
-			bs:    make([]bitsWord, sz),
+			bs:    make(util.BitSet, sz),
 		}
 	} else {
 		reuse.sz = vertexNo
-		reuse.bs = util.U64Slice(reuse.bs, int(sz))
+		reuse.bs = iutil.U64Slice(reuse.bs, int(sz))
 	}
 	return reuse
 }
@@ -37,7 +38,7 @@ func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap {
 	if flag {
 		for i := range m.bs {
-			m.bs[i] = ^bitsWord(0)
+			m.bs[i] = ^uint64(0)
 		}
 	} else {
 		for i := range m.bs {
@@ -67,15 +68,15 @@ func (m *AdjMxDbitmap) SetWeight(i, j VIdx, w interface{}) {
 }
 
 func (m *AdjMxDbitmap) Edge(i, j VIdx) (w bool) {
-	w = bitSetGet(m.bs, uint(m.sz*i+j))
+	w = util.BitSetGet(m.bs, m.sz*i+j)
 	return w
 }
 
 func (m *AdjMxDbitmap) SetEdge(i, j VIdx, w bool) {
 	if w {
-		bitSetSet(m.bs, uint(m.sz*i+j))
+		util.BitSetSet(m.bs, m.sz*i+j)
 	} else {
-		bitSetUnset(m.bs, uint(m.sz*i+j))
+		util.BitSetUnset(m.bs, m.sz*i+j)
 	}
 }
 
@@ -93,7 +94,7 @@ func NewAdjMxDbool(vertexNo VIdx, reuse *AdjMxDbool) *AdjMxDbool {
 		}
 	} else {
 		reuse.sz = vertexNo
-		reuse.bs = util.BoolSlice(reuse.bs, int(sz))
+		reuse.bs = iutil.BoolSlice(reuse.bs, int(sz))
 	}
 	return reuse
 }
@@ -149,7 +150,7 @@ func NewAdjMxDi32(vertexNo VIdx, reuse *AdjMxDi32) *AdjMxDi32 {
 		}
 	} else {
 		reuse.sz = vertexNo
-		reuse.w = util.I32Slice(reuse.w, int(vertexNo*vertexNo))
+		reuse.w = iutil.I32Slice(reuse.w, int(vertexNo*vertexNo))
 	}
 	return reuse
 }
@@ -212,7 +213,7 @@ func NewAdjMxDf32(vertexNo VIdx, reuse *AdjMxDf32) *AdjMxDf32 {
 		}
 	} else {
 		reuse.sz = vertexNo
-		reuse.w = util.F32Slice(reuse.w, int(vertexNo*vertexNo))
+		reuse.w = iutil.F32Slice(reuse.w, int(vertexNo*vertexNo))
 	}
 	return reuse
 }
@@ -277,7 +278,7 @@ func NewAdjMxUf32(vertexNo VIdx, reuse *AdjMxUf32) *AdjMxUf32 {
 		}
 	} else {
 		reuse.sz = vertexNo
-		reuse.w = util.F32Slice(reuse.w, int(nSum(vertexNo)))
+		reuse.w = iutil.F32Slice(reuse.w, int(nSum(vertexNo)))
 	}
 	return reuse
 }
@@ -357,7 +358,7 @@ func NewAdjMxUi32(vertexNo VIdx, reuse *AdjMxUi32) *AdjMxUi32 {
 		}
 	} else {
 		reuse.sz = vertexNo
-		reuse.w = util.I32Slice(reuse.w, int(nSum(vertexNo)))
+		reuse.w = iutil.I32Slice(reuse.w, int(nSum(vertexNo)))
 	}
 	return reuse
 }
