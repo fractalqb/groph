@@ -16,20 +16,20 @@ func (m *adjMx) VertexNo() VIdx { return m.sz }
 // bitmap. This sacrifices runtime performance for lesser memory usage.
 type AdjMxDbitmap struct {
 	adjMx
-	bs []uint
+	bs []bitsWord
 }
 
 func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
-	sz := uint(vertexNo * vertexNo)
-	sz = (sz + (wordBits - 1)) / wordBits
+	sz := vertexNo * vertexNo
+	sz = bitSetWords(sz)
 	if reuse == nil {
 		reuse = &AdjMxDbitmap{
 			adjMx: adjMx{sz: vertexNo},
-			bs:    make([]uint, sz),
+			bs:    make([]bitsWord, sz),
 		}
 	} else {
 		reuse.sz = vertexNo
-		reuse.bs = util.UIntSlice(reuse.bs, int(sz))
+		reuse.bs = util.U64Slice(reuse.bs, int(sz))
 	}
 	return reuse
 }
@@ -37,7 +37,7 @@ func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap {
 	if flag {
 		for i := range m.bs {
-			m.bs[i] = ^uint(0)
+			m.bs[i] = ^bitsWord(0)
 		}
 	} else {
 		for i := range m.bs {
@@ -67,15 +67,15 @@ func (m *AdjMxDbitmap) SetWeight(i, j VIdx, w interface{}) {
 }
 
 func (m *AdjMxDbitmap) Edge(i, j VIdx) (w bool) {
-	w = BitSetGet(m.bs, uint(m.sz*i+j))
+	w = bitSetGet(m.bs, uint(m.sz*i+j))
 	return w
 }
 
 func (m *AdjMxDbitmap) SetEdge(i, j VIdx, w bool) {
 	if w {
-		BitSetSet(m.bs, uint(m.sz*i+j))
+		bitSetSet(m.bs, uint(m.sz*i+j))
 	} else {
-		BitSetUnset(m.bs, uint(m.sz*i+j))
+		bitSetUnset(m.bs, uint(m.sz*i+j))
 	}
 }
 

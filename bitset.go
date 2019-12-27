@@ -1,37 +1,30 @@
 package groph
 
-import (
-	"reflect"
-)
-
 // http://graphics.stanford.edu/~seander/bithacks.html
 
-var wordBits uint
-var wordMask uint
+type bitsWord = uint64
 
-func init() {
-	wordBits = uint(reflect.TypeOf(uint(0)).Bits())
-	wordMask = wordBits - 1
+const (
+	wordBits  = 64
+	wordMask  = 0x3f
+	wordShift = 6
+)
+
+func bitSetWords(size VIdx) VIdx {
+	return (size + (wordBits - 1)) / wordBits
 }
 
-func BitSetCap(bs []uint) uint { return uint(len(bs)) * wordBits }
-
-func BitSetGet(bs []uint, i uint) bool {
-	w, b := i/wordBits, i&wordMask
+func bitSetGet(bs []bitsWord, i uint) bool {
+	w, b := i>>wordShift, i&wordMask
 	return bs[w]&(1<<b) != 0
 }
 
-func BitSetSet(bs []uint, i uint) {
-	w, b := i/wordBits, i&wordMask
+func bitSetSet(bs []bitsWord, i uint) {
+	w, b := i>>wordShift, i&wordMask
 	bs[w] |= 1 << b
 }
 
-func BitSetUnset(bs []uint, i uint) {
-	w, b := i/wordBits, i&wordMask
+func bitSetUnset(bs []bitsWord, i uint) {
+	w, b := i>>wordShift, i&wordMask
 	bs[w] &= ^(1 << b)
-}
-
-type BitSet struct {
-	Raw  []uint
-	Size uint
 }

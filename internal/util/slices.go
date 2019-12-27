@@ -23,9 +23,9 @@ func I32Slice(s []int32, l int) []int32 {
 	return s[:l]
 }
 
-func UIntSlice(s []uint, l int) []uint {
+func U64Slice(s []uint64, l int) []uint64 {
 	if s == nil || cap(s) < l {
-		return make([]uint, l)
+		return make([]uint64, l)
 	}
 	return s[:l]
 }
