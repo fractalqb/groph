@@ -19,7 +19,7 @@ func sortedEdges(g groph.RGf32) (res []groph.Edge) {
 	}
 	sort.Slice(res, func(i, j int) bool {
 		e1, e2 := &res[i], &res[j]
-		return g.Edge(e1.I, e1.J) < g.Edge(e2.I, e2.J)
+		return g.Edge(e1.U, e1.V) < g.Edge(e2.U, e2.V)
 	})
 	return res
 }
@@ -34,7 +34,7 @@ func retag(f map[groph.VIdx]groph.VIdx, oldTag, newTag groph.VIdx) {
 }
 
 func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) {
-	if g.Directed() {
+	if groph.Directed(g) {
 		return mst, errors.New("cannot apply Kruskal's algorithm to directed graphs")
 	}
 	mst = mst[:0]
@@ -42,8 +42,8 @@ func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) {
 	frs := make(map[groph.VIdx]groph.VIdx)
 	vc := groph.VIdx(0)
 	for _, e := range ebo {
-		ti, iOk := frs[e.I]
-		tj, jOk := frs[e.J]
+		ti, iOk := frs[e.U]
+		tj, jOk := frs[e.V]
 		if iOk {
 			if jOk { // no new vertex
 				if ti != tj {
@@ -51,7 +51,7 @@ func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) {
 					mst = append(mst, e)
 				}
 			} else { // j is new vertex
-				frs[e.J] = ti
+				frs[e.V] = ti
 				mst = append(mst, e)
 				vc++
 				if vc == g.VertexNo() {
@@ -59,15 +59,15 @@ func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) {
 				}
 			}
 		} else if jOk { // i is new vertex
-			frs[e.I] = tj
+			frs[e.U] = tj
 			mst = append(mst, e)
 			vc++
 			if vc == g.VertexNo() {
 				return mst, nil
 			}
 		} else { // i & j are new vertices
-			frs[e.I] = e.I
-			frs[e.J] = e.I
+			frs[e.U] = e.U
+			frs[e.V] = e.U
 			mst = append(mst, e)
 			vc += 2
 			if vc == g.VertexNo() {

@@ -24,7 +24,7 @@ func testSetUnset(
 	read func(i, j VIdx) interface{},
 	isCleared func(w interface{}) bool,
 ) {
-	if g.Directed() {
+	if Directed(g) {
 		testDSetUnset(t, g, set, clear, read, isCleared)
 	} else {
 		t.Fatal("testing undirected graphs NYI")
@@ -39,7 +39,7 @@ func testDSetUnset(
 	read func(i, j VIdx) interface{},
 	isCleared func(w interface{}) bool,
 ) {
-	if !g.Directed() {
+	if !Directed(g) {
 		t.Fatal("graph is not directed")
 	}
 	vno := g.VertexNo()
@@ -84,15 +84,12 @@ func testDSetUnset(
 
 func testUSetUnset(
 	t *testing.T,
-	g WGraph,
+	g WUndirected,
 	set func(i, j VIdx) interface{},
 	clear func(i, j VIdx),
 	read func(i, j VIdx) interface{},
 	isCleared func(w interface{}) bool,
 ) {
-	if g.Directed() {
-		t.Fatal("graph is directed")
-	}
 	vno := g.VertexNo()
 	for wi := VIdx(0); wi < vno; wi++ {
 		for wj := wi; wj < vno; wj++ {

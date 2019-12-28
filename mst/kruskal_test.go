@@ -27,7 +27,7 @@ func ExampleKruskal() {
 	}
 	fmt.Printf("len: %d\n", len(mst))
 	for i, e := range mst {
-		fmt.Printf("%d: %d -- %d\n", i, e.I, e.J)
+		fmt.Printf("%d: %d -- %d\n", i, e.U, e.V)
 	}
 	// Output:
 	// len: 6

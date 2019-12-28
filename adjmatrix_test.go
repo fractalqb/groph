@@ -10,7 +10,8 @@ var _ WGbool = (*AdjMxDbitmap)(nil)
 var _ WGbool = (*AdjMxDbool)(nil)
 var _ WGi32 = (*AdjMxDi32)(nil)
 var _ WGf32 = (*AdjMxDf32)(nil)
-var _ WGf32 = (*AdjMxUf32)(nil)
+var _ WUi32 = (*AdjMxUi32)(nil)
+var _ WUf32 = (*AdjMxUf32)(nil)
 
 func TestAdjMxDbitmap_SetUset(t *testing.T) {
 	m := NewAdjMxDbitmap(testSizeSetUnset, nil)
@@ -125,7 +126,7 @@ func TestAdjMxDi32_SetUset(t *testing.T) {
 	const w32 = int32(4711)
 	testDSetUnset(t, m,
 		func(i, j VIdx) interface{} { m.SetEdge(i, j, w32); return w32 },
-		func(i, j VIdx) { m.SetEdge(i, j, m.Cleared) },
+		func(i, j VIdx) { m.SetEdge(i, j, m.Del) },
 		func(i, j VIdx) interface{} { return m.Weight(i, j) },
 		func(w interface{}) bool { return w == nil },
 	)
@@ -246,9 +247,12 @@ func TestAdjMxUi32_SetUset(t *testing.T) {
 	const w32 int32 = 31415
 	testUSetUnset(t, m,
 		func(i, j VIdx) interface{} { m.SetEdge(i, j, w32); return w32 },
-		func(i, j VIdx) { m.SetEdge(i, j, m.Cleared) },
-		func(i, j VIdx) interface{} { return m.Edge(i, j) },
-		func(w interface{}) bool { return w.(int32) == m.Cleared },
+		func(i, j VIdx) { m.SetEdge(i, j, m.Del) },
+		func(i, j VIdx) interface{} {
+			w, _ := m.Edge(i, j)
+			return w
+		},
+		func(w interface{}) bool { return w.(int32) == m.Del },
 	)
 }
 

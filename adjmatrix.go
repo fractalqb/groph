@@ -48,15 +48,13 @@ func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap {
 	return m
 }
 
-func (m *AdjMxDbitmap) Directed() bool { return true }
-
-func (m *AdjMxDbitmap) Clear(vertexNo VIdx) {
+func (m *AdjMxDbitmap) Reset(vertexNo VIdx) {
 	NewAdjMxDbitmap(vertexNo, m)
 	m.Init(false)
 }
 
-func (m *AdjMxDbitmap) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	return m.Edge(edgeFrom, edgeTo)
+func (m *AdjMxDbitmap) Weight(u, v VIdx) interface{} {
+	return m.Edge(u, v)
 }
 
 func (m *AdjMxDbitmap) SetWeight(i, j VIdx, w interface{}) {
@@ -106,15 +104,13 @@ func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool {
 	return m
 }
 
-func (m *AdjMxDbool) Directed() bool { return true }
-
-func (m *AdjMxDbool) Clear(vertexNo VIdx) {
+func (m *AdjMxDbool) Reset(vertexNo VIdx) {
 	NewAdjMxDbool(vertexNo, m)
 	m.Init(false)
 }
 
-func (m *AdjMxDbool) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	return m.Edge(edgeFrom, edgeTo)
+func (m *AdjMxDbool) Weight(u, v VIdx) interface{} {
+	return m.Edge(u, v)
 }
 
 func (m *AdjMxDbool) SetWeight(i, j VIdx, w interface{}) {
@@ -135,18 +131,16 @@ func (m *AdjMxDbool) SetEdge(i, j VIdx, w bool) {
 
 type AdjMxDi32 struct {
 	adjMx
-	w       []int32
-	Cleared int32
+	w   []int32
+	Del int32
 }
-
-const i32cleared = -2147483648 // min{ int32 }
 
 func NewAdjMxDi32(vertexNo VIdx, reuse *AdjMxDi32) *AdjMxDi32 {
 	if reuse == nil {
 		reuse = &AdjMxDi32{
-			adjMx:   adjMx{sz: vertexNo},
-			w:       make([]int32, vertexNo*vertexNo),
-			Cleared: i32cleared,
+			adjMx: adjMx{sz: vertexNo},
+			w:     make([]int32, vertexNo*vertexNo),
+			Del:   i32cleared,
 		}
 	} else {
 		reuse.sz = vertexNo
@@ -162,17 +156,15 @@ func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 {
 	return m
 }
 
-func (m *AdjMxDi32) Directed() bool { return true }
-
-func (m *AdjMxDi32) Clear(vertexNo VIdx) {
-	c := m.Cleared
+func (m *AdjMxDi32) Reset(vertexNo VIdx) {
+	c := m.Del
 	NewAdjMxDi32(vertexNo, m)
-	m.Cleared = c
-	m.Init(m.Cleared)
+	m.Del = c
+	m.Init(m.Del)
 }
 
-func (m *AdjMxDi32) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	res, ok := m.Edge(edgeFrom, edgeTo)
+func (m *AdjMxDi32) Weight(u, v VIdx) interface{} {
+	res, ok := m.Edge(u, v)
 	if ok {
 		return res
 	}
@@ -189,7 +181,7 @@ func (m *AdjMxDi32) SetWeight(i, j VIdx, w interface{}) {
 
 func (m *AdjMxDi32) Edge(i, j VIdx) (w int32, exists bool) {
 	w = m.w[m.sz*i+j]
-	return w, w != m.Cleared
+	return w, w != m.Del
 }
 
 func (m *AdjMxDi32) SetEdge(i, j VIdx, w int32) {
@@ -197,7 +189,7 @@ func (m *AdjMxDi32) SetEdge(i, j VIdx, w int32) {
 }
 
 func (m *AdjMxDi32) DelEdge(i, j VIdx) {
-	m.SetEdge(i, j, m.Cleared)
+	m.SetEdge(i, j, m.Del)
 }
 
 type AdjMxDf32 struct {
@@ -225,15 +217,13 @@ func (m *AdjMxDf32) Init(w float32) *AdjMxDf32 {
 	return m
 }
 
-func (m *AdjMxDf32) Directed() bool { return true }
-
-func (m *AdjMxDf32) Clear(vertexNo VIdx) {
+func (m *AdjMxDf32) Reset(vertexNo VIdx) {
 	NewAdjMxDf32(vertexNo, m)
 	m.Init(nan32)
 }
 
-func (m *AdjMxDf32) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	w := m.Edge(edgeFrom, edgeTo)
+func (m *AdjMxDf32) Weight(u, v VIdx) interface{} {
+	w := m.Edge(u, v)
 	if math.IsNaN(float64(w)) {
 		return nil
 	} else {
@@ -290,22 +280,25 @@ func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 {
 	return m
 }
 
-func (m *AdjMxUf32) Directed() bool { return false }
-
-func (m *AdjMxUf32) Clear(vertexNo VIdx) {
+func (m *AdjMxUf32) Reset(vertexNo VIdx) {
 	NewAdjMxUf32(vertexNo, m)
 	m.Init(nan32)
 }
 
 // uIdx computes the index into the weight slice of an undirected matrix
-func uIdx(sz, i, j VIdx) VIdx {
-	j -= i
-	i = nSum(sz - i - 1)
-	return i + j
-}
+func uIdx(i, j VIdx) VIdx { return nSum(i) + j }
 
 func (m *AdjMxUf32) Weight(i, j VIdx) interface{} {
 	w := m.Edge(i, j)
+	if math.IsNaN(float64(w)) {
+		return nil
+	} else {
+		return w
+	}
+}
+
+func (m *AdjMxUf32) WeightU(i, j VIdx) interface{} {
+	w := m.EdgeU(i, j)
 	if math.IsNaN(float64(w)) {
 		return nil
 	} else {
@@ -317,44 +310,48 @@ func (m *AdjMxUf32) SetWeight(i, j VIdx, w interface{}) {
 	m.SetEdge(i, j, w.(float32))
 }
 
+func (m *AdjMxUf32) SetWeightU(i, j VIdx, w interface{}) {
+	m.SetEdgeU(i, j, w.(float32))
+}
+
 func (m *AdjMxUf32) Edge(i, j VIdx) (w float32) {
-	if i <= j {
-		return m.w[uIdx(m.sz, i, j)]
+	if i >= j {
+		return m.w[uIdx(i, j)]
 	} else {
-		return m.w[uIdx(m.sz, j, i)]
+		return m.w[uIdx(j, i)]
 	}
 }
 
-// EdgeD is used iff i <= j
-func (m *AdjMxUf32) EdgeD(i, j VIdx) (w float32) {
-	return m.w[uIdx(m.sz, i, j)]
+// EdgeU is used iff i >= j
+func (m *AdjMxUf32) EdgeU(i, j VIdx) (w float32) {
+	return m.w[uIdx(i, j)]
 }
 
 func (m *AdjMxUf32) SetEdge(i, j VIdx, w float32) {
-	if i <= j {
-		m.w[uIdx(m.sz, i, j)] = w
+	if i >= j {
+		m.w[uIdx(i, j)] = w
 	} else {
-		m.w[uIdx(m.sz, j, i)] = w
+		m.w[uIdx(j, i)] = w
 	}
 }
 
-// SetEdgeD is used iff i <= j
-func (m *AdjMxUf32) SetEdgeD(i, j VIdx, w float32) {
-	m.w[uIdx(m.sz, i, j)] = w
+// SetEdgeU is used iff i >= j
+func (m *AdjMxUf32) SetEdgeU(i, j VIdx, w float32) {
+	m.w[uIdx(i, j)] = w
 }
 
 type AdjMxUi32 struct {
 	adjMx
-	w       []int32
-	Cleared int32
+	w   []int32
+	Del int32
 }
 
 func NewAdjMxUi32(vertexNo VIdx, reuse *AdjMxUi32) *AdjMxUi32 {
 	if reuse == nil {
 		reuse = &AdjMxUi32{
-			adjMx:   adjMx{sz: vertexNo},
-			w:       make([]int32, nSum(vertexNo)),
-			Cleared: i32cleared,
+			adjMx: adjMx{sz: vertexNo},
+			w:     make([]int32, nSum(vertexNo)),
+			Del:   i32cleared,
 		}
 	} else {
 		reuse.sz = vertexNo
@@ -370,48 +367,66 @@ func (m *AdjMxUi32) Init(w int32) *AdjMxUi32 {
 	return m
 }
 
-func (m *AdjMxUi32) Directed() bool { return false }
-
-func (m *AdjMxUi32) Clear(vertexNo VIdx) {
+func (m *AdjMxUi32) Reset(vertexNo VIdx) {
 	NewAdjMxUi32(vertexNo, m)
-	m.Init(m.Cleared)
+	m.Init(m.Del)
 }
 
 func (m *AdjMxUi32) Weight(i, j VIdx) interface{} {
-	w := m.Edge(i, j)
-	if w == m.Cleared {
-		return nil
-	} else {
+	if w, ok := m.Edge(i, j); ok {
 		return w
 	}
+	return nil
+}
+
+func (m *AdjMxUi32) WeightU(i, j VIdx) interface{} {
+	w, ok := m.EdgeU(i, j)
+	if ok {
+		return w
+	}
+	return nil
 }
 
 func (m *AdjMxUi32) SetWeight(i, j VIdx, w interface{}) {
 	m.SetEdge(i, j, w.(int32))
 }
 
-func (m *AdjMxUi32) Edge(i, j VIdx) (w int32) {
-	if i <= j {
-		return m.w[uIdx(m.sz, i, j)]
-	} else {
-		return m.w[uIdx(m.sz, j, i)]
-	}
+func (m *AdjMxUi32) SetWeightU(i, j VIdx, w interface{}) {
+	m.SetEdgeU(i, j, w.(int32))
 }
 
-// EdgeD is used iff i <= j
-func (m *AdjMxUi32) EdgeD(i, j VIdx) (w int32) {
-	return m.w[uIdx(m.sz, i, j)]
+func (m *AdjMxUi32) DelEdge(u, v VIdx) {
+	m.SetEdge(u, v, m.Del)
+}
+
+func (m *AdjMxUi32) DelEdgeU(u, v VIdx) {
+	m.SetEdgeU(u, v, m.Del)
+}
+
+func (m *AdjMxUi32) Edge(i, j VIdx) (w int32, ok bool) {
+	if i >= j {
+		w = m.w[uIdx(i, j)]
+	} else {
+		w = m.w[uIdx(j, i)]
+	}
+	return w, w != m.Del
+}
+
+// EdgeU is used iff i >= j
+func (m *AdjMxUi32) EdgeU(i, j VIdx) (w int32, ok bool) {
+	w = m.w[uIdx(i, j)]
+	return w, w != m.Del
 }
 
 func (m *AdjMxUi32) SetEdge(i, j VIdx, w int32) {
-	if i <= j {
-		m.w[uIdx(m.sz, i, j)] = w
+	if i >= j {
+		m.w[uIdx(i, j)] = w
 	} else {
-		m.w[uIdx(m.sz, j, i)] = w
+		m.w[uIdx(j, i)] = w
 	}
 }
 
-// SetEdgeD is used iff i <= j
-func (m *AdjMxUi32) SetEdgeD(i, j VIdx, w int32) {
-	m.w[uIdx(m.sz, i, j)] = w
+// SetEdgeU is used iff i >= j
+func (m *AdjMxUi32) SetEdgeU(i, j VIdx, w int32) {
+	m.w[uIdx(i, j)] = w
 }

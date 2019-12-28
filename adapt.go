@@ -53,13 +53,13 @@ func (g *Slice) VertexNo() VIdx { return g.sz }
 
 func (g *Slice) Directed() bool { return g.dir }
 
-func (g *Slice) Weight(edgeFrom, edgeTo VIdx) interface{} {
+func (g *Slice) Weight(u, v VIdx) interface{} {
 	if g.dir {
-		return g.slc.Index(int(g.sz*edgeFrom + edgeTo)).Interface()
-	} else if edgeFrom < edgeTo {
-		return g.slc.Index(int(uIdx(g.sz, edgeFrom, edgeTo))).Interface()
+		return g.slc.Index(int(g.sz*u + v)).Interface()
+	} else if u > v {
+		return g.slc.Index(int(uIdx(u, v))).Interface()
 	}
-	return g.slc.Index(int(uIdx(g.sz, edgeTo, edgeFrom))).Interface()
+	return g.slc.Index(int(uIdx(v, u))).Interface()
 }
 
 // SliceNMeasure implements a metric RGraph based on a slice of vertices of
@@ -119,8 +119,8 @@ func (g *SliceNMeasure) Directed() bool {
 	return g.dir
 }
 
-func (g *SliceNMeasure) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	f, t := g.slc.Index(int(edgeFrom)), g.slc.Index(int(edgeTo))
+func (g *SliceNMeasure) Weight(u, v VIdx) interface{} {
+	f, t := g.slc.Index(int(u)), g.slc.Index(int(v))
 	d := g.m.Call([]reflect.Value{f, t})
 	return d[0].Interface()
 }
@@ -130,20 +130,14 @@ type RSubgraph struct {
 	vls []VIdx
 }
 
-var _ RGraph = (*RSubgraph)(nil)
-
 func (g *RSubgraph) VertexNo() VIdx {
 	return VIdx(len(g.vls))
 }
 
-func (g *RSubgraph) Directed() bool {
-	return g.g.Directed()
-}
-
-func (g *RSubgraph) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	edgeFrom = g.vls[edgeFrom]
-	edgeTo = g.vls[edgeTo]
-	return g.Weight(edgeFrom, edgeTo)
+func (g *RSubgraph) Weight(u, v VIdx) interface{} {
+	u = g.vls[u]
+	v = g.vls[v]
+	return g.Weight(u, v)
 }
 
 type WSubgraph struct {
@@ -151,28 +145,22 @@ type WSubgraph struct {
 	vls []VIdx
 }
 
-var _ WGraph = (*WSubgraph)(nil)
-
 func (g *WSubgraph) VertexNo() VIdx {
 	return VIdx(len(g.vls))
 }
 
-func (g *WSubgraph) Directed() bool {
-	return g.g.Directed()
+func (g *WSubgraph) Weight(u, v VIdx) interface{} {
+	u = g.vls[u]
+	v = g.vls[v]
+	return g.Weight(u, v)
 }
 
-func (g *WSubgraph) Weight(edgeFrom, edgeTo VIdx) interface{} {
-	edgeFrom = g.vls[edgeFrom]
-	edgeTo = g.vls[edgeTo]
-	return g.Weight(edgeFrom, edgeTo)
-}
-
-func (g *WSubgraph) Clear(vertexNo VIdx) {
+func (g *WSubgraph) Reset(vertexNo VIdx) {
 	panic("must not clear WSubgraph")
 }
 
-func (g *WSubgraph) SetWeight(edgeFrom, edgeTo VIdx, w interface{}) {
-	edgeFrom = g.vls[edgeFrom]
-	edgeTo = g.vls[edgeTo]
-	g.SetWeight(edgeFrom, edgeTo, w)
+func (g *WSubgraph) SetWeight(u, v VIdx, w interface{}) {
+	u = g.vls[u]
+	v = g.vls[v]
+	g.SetWeight(u, v, w)
 }

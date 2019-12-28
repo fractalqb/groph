@@ -4,6 +4,15 @@ import (
 	"testing"
 )
 
+var (
+	_ WGraph          = (*SpMap)(nil)
+	_ NeighbourLister = (*SpMap)(nil)
+	_ WGf32           = (*SpMapf32)(nil)
+	_ NeighbourLister = (*SpMapf32)(nil)
+	_ WGi32           = (*SpMapi32)(nil)
+	_ NeighbourLister = (*SpMapi32)(nil)
+)
+
 func TestSpMap_SetUset(t *testing.T) {
 	m := NewSpMap(testSizeSetUnset, nil)
 	testGenericSetUnset(t, m, 4)

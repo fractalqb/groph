@@ -15,14 +15,14 @@ func TestDijkstrai32_toFW(t *testing.T) {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
 			if rand.Intn(100) < 20 {
-				g.SetEdge(i, j, g.Cleared)
+				g.SetEdge(i, j, g.Del)
 			} else {
 				g.SetEdge(i, j, int32(1+rand.Intn(20)))
 			}
 		}
 	}
 	fwDs := groph.NewAdjMxDi32(VNo, nil)
-	fwDs.Cleared = g.Cleared
+	fwDs.Del = g.Del
 	groph.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDi32(fwDs)
 	var (
@@ -51,7 +51,7 @@ func TestDijkstrai32_paths(t *testing.T) {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
 			if rand.Intn(100) < 20 {
-				g.SetEdge(i, j, g.Cleared)
+				g.SetEdge(i, j, g.Del)
 			} else {
 				g.SetEdge(i, j, int32(1+rand.Intn(20)))
 			}
@@ -71,7 +71,11 @@ func TestDijkstrai32_paths(t *testing.T) {
 			current := dest
 			len := int32(0)
 			for pred := path[current]; pred >= 0; pred = path[current] {
-				len += g.Edge(pred, current)
+				d, ok := g.Edge(pred, current)
+				if !ok {
+					t.Fatalf("inexistent edge in path")
+				}
+				len += d
 				current = pred
 			}
 			if len != dist[dest] {

@@ -94,7 +94,8 @@ func (dij *Dijkstrai32) On(
 			if alt < 0 {
 				return
 			}
-			alt += g.Edge(u, n) // TODO EdgeD?
+			e, _ := g.Edge(u, n) // TODO EdgeD?
+			alt += e
 			if dist[n] < 0 || alt < dist[n] {
 				dist[n] = alt
 				if prev != nil {

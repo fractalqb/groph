@@ -18,7 +18,7 @@ func ExampleFloydWarshalli32() {
 	}).Must()
 	sz := graph.VertexNo()
 	fwres := groph.NewAdjMxDi32(sz, nil)
-	fwres.Cleared = 0
+	fwres.Del = 0
 	groph.CpWeights(fwres, graph)
 	FloydWarshalli32(fwres)
 	for i := 0; i < sz; i++ {

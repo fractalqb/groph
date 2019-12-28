@@ -5,6 +5,11 @@ import (
 	"testing"
 )
 
+var (
+	_ RGraph = (*RSubgraph)(nil)
+	_ WGraph = (*WSubgraph)(nil)
+)
+
 func TestSliceNMeasure(t *testing.T) {
 	slc := []float64{1, 2, 3}
 	a := NewSliceNMeasure(slc, func(a, b float64) float64 {

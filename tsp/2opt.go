@@ -40,7 +40,7 @@ func apply2opt(p []groph.VIdx, e0, e1 groph.VIdx) {
 
 func TwoOptf32(g groph.RGf32) (path []groph.VIdx, plen float32) {
 	var diff2opt func(groph.RGf32, []groph.VIdx, groph.VIdx, groph.VIdx) float32
-	if g.Directed() {
+	if groph.Directed(g) {
 		diff2opt = diff2optD
 	} else {
 		diff2opt = diff2optU
