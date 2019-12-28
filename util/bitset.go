@@ -10,23 +10,23 @@ const (
 
 type BitSet []bitsWord
 
-func BitSetWords(size int) int {
-	return (size + (wordBits - 1)) / wordBits
+func BitSetWords(setSize int) int {
+	return (setSize + (wordBits - 1)) / wordBits
 }
 
-func BitSetCap(bs []bitsWord) int { return len(bs) * wordBits }
+func (bs BitSet) Cap() int { return len(bs) * wordBits }
 
-func BitSetGet(bs BitSet, i int) bool {
+func (bs BitSet) Get(i int) bool {
 	w, b := i>>wordShift, i&wordMask
 	return bs[w]&(1<<b) != 0
 }
 
-func BitSetSet(bs BitSet, i int) {
+func (bs BitSet) Set(i int) {
 	w, b := i>>wordShift, i&wordMask
 	bs[w] |= 1 << b
 }
 
-func BitSetUnset(bs BitSet, i int) {
+func (bs BitSet) Unset(i int) {
 	w, b := i>>wordShift, i&wordMask
 	bs[w] &= ^(1 << b)
 }

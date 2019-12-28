@@ -89,12 +89,12 @@ func (dij *Dijkstrai32) On(
 	}
 	for dij.Len() != 0 {
 		u := heap.Pop(dij).(pqItemi32).v
-		groph.EachNeighbour(g, u, func(n groph.VIdx, _ bool, w interface{}) {
+		groph.EachNeighbour(g, u, func(n groph.VIdx) {
 			alt := dist[u]
 			if alt < 0 {
 				return
 			}
-			alt += w.(int32)
+			alt += g.Edge(u, n) // TODO EdgeD?
 			if dist[n] < 0 || alt < dist[n] {
 				dist[n] = alt
 				if prev != nil {
@@ -179,8 +179,8 @@ func (dij *Dijkstraf32) On(
 	}
 	for dij.Len() != 0 {
 		u := heap.Pop(dij).(pqItemf32).v
-		groph.EachNeighbour(g, u, func(n groph.VIdx, _ bool, w interface{}) {
-			alt := dist[u] + w.(float32)
+		groph.EachNeighbour(g, u, func(n groph.VIdx) {
+			alt := dist[u] + g.Edge(u, n) // TOOD EdgeD?
 			if alt < dist[n] {
 				dist[n] = alt
 				if prev != nil {

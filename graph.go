@@ -37,14 +37,15 @@ func WeightOr(g RGraph, edgeFrom, edgeTo VIdx, or interface{}) interface{} {
 	return or
 }
 
-type VisitNeighbour = func(n VIdx, fwd bool, w interface{})
+type VisitNeighbour = func(neighbour VIdx)
 
 // NeighbourLister is implemented by graph implementations that can easily
 // iterate over all neighbous of one node.
 type NeighbourLister interface {
-	EachNeighbour(v0 VIdx, do VisitNeighbour)
+	EachNeighbour(v VIdx, do VisitNeighbour)
 }
 
+// Guarantees to call (i,j) with i <= j on undirected graphs
 func EachNeighbour(g RGraph, v VIdx, do VisitNeighbour) {
 	if ln, ok := g.(NeighbourLister); ok {
 		ln.EachNeighbour(v, do)
@@ -52,18 +53,23 @@ func EachNeighbour(g RGraph, v VIdx, do VisitNeighbour) {
 		vno := g.VertexNo()
 		for n := VIdx(0); n < vno; n++ {
 			if w := g.Weight(v, n); w != nil {
-				do(n, true, w)
-			}
-			if w := g.Weight(n, v); w != nil {
-				do(n, false, w)
+				do(n)
 			}
 		}
 	} else {
 		vno := g.VertexNo()
-		for n := VIdx(0); n < vno; n++ {
-			if w := g.Weight(v, n); w != nil {
-				do(n, false, w)
+		n := VIdx(0)
+		for n < v {
+			if w := g.Weight(n, v); w != nil {
+				do(n)
 			}
+			n++
+		}
+		for n < vno {
+			if w := g.Weight(v, n); w != nil {
+				do(n)
+			}
+			n++
 		}
 	}
 }

@@ -68,15 +68,15 @@ func (m *AdjMxDbitmap) SetWeight(i, j VIdx, w interface{}) {
 }
 
 func (m *AdjMxDbitmap) Edge(i, j VIdx) (w bool) {
-	w = util.BitSetGet(m.bs, m.sz*i+j)
+	w = m.bs.Get(m.sz*i + j)
 	return w
 }
 
 func (m *AdjMxDbitmap) SetEdge(i, j VIdx, w bool) {
 	if w {
-		util.BitSetSet(m.bs, m.sz*i+j)
+		m.bs.Set(m.sz*i + j)
 	} else {
-		util.BitSetUnset(m.bs, m.sz*i+j)
+		m.bs.Unset(m.sz*i + j)
 	}
 }
 
