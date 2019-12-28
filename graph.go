@@ -8,16 +8,17 @@ import (
 // provided by the groph package.
 type VIdx = int
 
-// Edge represents a graphs edge between vertices I and J. For directed graphs
-// its the edge from I to J.
+// Edge represents a graphs edge between vertices U and V. For directed graphs
+// its the edge from U to V.
 type Edge struct {
 	U, V VIdx
 }
 
-// RGraph represents a set of graph data that allows read only access to the
-// egde weights.
+// RGraph represents graph that allows read only access to the egde
+// weights.
 //
-// For graphs that can change edged see WGraph.
+// For graphs that can change be modified see WGraph. For undirected
+// graphs see also RUndirected.
 type RGraph interface {
 	// VertextNo return the numer of vertices in the graph.
 	VertexNo() VIdx
@@ -33,26 +34,38 @@ func WeightOr(g RGraph, u, v VIdx, or interface{}) interface{} {
 	return or
 }
 
+// RUndirected represents an undirected graph that allows read only
+// access to the edge weights.
 type RUndirected interface {
 	RGraph
+	// Weight must only be called when u ≥ v.  Otherwise WeightU's
+	// behaviour is unspecified, it even might crash.  In many
+	// implementations this can be way more efficient than the
+	// general case, see method Weight().
 	WeightU(u, v VIdx) interface{}
 }
 
+// Directed returns true, iff g is a directed graph and false otherwise.
 func Directed(g RGraph) bool {
 	_, ok := g.(RUndirected)
 	return !ok
 }
 
-type VisitNeighbour = func(neighbour VIdx)
+type VisitNode = func(neighbour VIdx)
 
-// NeighbourLister is implemented by graph implementations that can easily
-// iterate over all neighbous of one node.
+// NeighbourLister is implemented by graph implementations that can
+// easily iterate over all neighbous of one node. Users are encouraged
+// to use the EachNeighbour function.
 type NeighbourLister interface {
-	EachNeighbour(v VIdx, do VisitNeighbour)
+	EachNeighbour(v VIdx, do VisitNode)
 }
 
-// Guarantees to call (i,j) with i >= j on undirected graphs
-func EachNeighbour(g RGraph, v VIdx, do VisitNeighbour) {
+// EachNeighbour calls do on each node u that is a neighbour of v in
+// graph g. u is a neighbour of v, iff g contains the edge (v, u).
+//
+// For undirected graphs that are no NeighbourListers EachNeighbour
+// guarantees to call WeightU with v ≥ u to detect neighbours.
+func EachNeighbour(g RGraph, v VIdx, do VisitNode) {
 	switch gi := g.(type) {
 	case NeighbourLister:
 		gi.EachNeighbour(v, do)
@@ -81,11 +94,13 @@ func EachNeighbour(g RGraph, v VIdx, do VisitNeighbour) {
 	}
 }
 
-// WGraph represents a set of graph data tha allows read and write access to
-// the egde weights.
+// WGraph represents graph that allows read and write access to the
+// egde weights.
+//
+// For undirected graphs see also WUndirected.
 type WGraph interface {
 	RGraph
-	// Clear resizes the graph to vertexNo and reinitializes it. Implementations
+	// Reset resizes the graph to vertexNo and reinitializes it. Implementations
 	// are expected to reuse memory.
 	Reset(vertexNo VIdx)
 	// SetWeight sets the edge weight for the edge starting at vertex u and
@@ -93,13 +108,20 @@ type WGraph interface {
 	SetWeight(u, v VIdx, w interface{})
 }
 
+// WUndirected represents an undirected graph that allows read and
+// write access to the egde weights.
 type WUndirected interface {
 	WGraph
+	// See RUndirected.WeightU
 	WeightU(u, v VIdx) interface{}
+	// SetWeightU must only be called when u ≥ v.  Otherwise
+	// SetWeightU's behaviour is unspecified, it even might crash.
+	//
+	// See also RUndirected.WeightU
 	SetWeightU(u, v VIdx, w interface{})
 }
 
-// Clear clears a WGraph while keeping the original vertexNo.
+// Reset clears a WGraph while keeping the original vertexNo.
 func Reset(g WGraph) { g.Reset(g.VertexNo()) }
 
 // RGbool represents a RGraph with boolean edge weights.
@@ -108,6 +130,7 @@ type RGbool interface {
 	Edge(u, v VIdx) bool
 }
 
+// RUbool represents a RUndirected with boolean edge weights.
 type RUbool interface {
 	RGbool
 	EdgeU(u, v VIdx) bool
@@ -179,7 +202,7 @@ type WUf32 interface {
 	SetEdgeU(u, v VIdx, weight float32)
 }
 
-// CpWeights copies the edge weights from one grap to another.
+// CpWeights copies the edge weights from one graph to another.
 // Vertices are identified by their index, i.e. the user has to take care of
 // the vertex order. If the number of vertices in the graph differs the smaller
 // graph determines how many edge weights are copied.

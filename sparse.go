@@ -57,7 +57,7 @@ func (g *SpMap) Reset(vertexNo VIdx) {
 	g.ws = make(map[VIdx]smpro)
 }
 
-func (g *SpMap) EachNeighbour(v VIdx, do VisitNeighbour) {
+func (g *SpMap) EachNeighbour(v VIdx, do VisitNode) {
 	row, ok := g.ws[v]
 	if !ok {
 		return
@@ -143,7 +143,7 @@ func (g *SpMapf32) Reset(vertexNo VIdx) {
 	g.ws = make(map[VIdx]spmrof32)
 }
 
-func (g *SpMapf32) EachNeighbour(v VIdx, do VisitNeighbour) {
+func (g *SpMapf32) EachNeighbour(v VIdx, do VisitNode) {
 	row, ok := g.ws[v]
 	if !ok {
 		return
@@ -248,7 +248,7 @@ func (g *SpMapi32) Reset(vertexNo VIdx) {
 	g.ws = make(map[VIdx]spmroi32)
 }
 
-func (g *SpMapi32) EachNeighbour(v VIdx, do VisitNeighbour) {
+func (g *SpMapi32) EachNeighbour(v VIdx, do VisitNode) {
 	row, ok := g.ws[v]
 	if !ok {
 		return

@@ -35,3 +35,48 @@ func TestBitset(t *testing.T) {
 		}
 	}
 }
+
+func TestBitset_firstUnset(t *testing.T) {
+	s := make(BitSet, 3)
+	for i := range s {
+		s[i] = wordAll
+	}
+	if s1 := s.FirstUnset(); s1 >= 0 {
+		t.Errorf("found unset at %d in complete set", s1)
+	}
+	exp := len(s)*wordBits - 1
+	s.Unset(exp)
+	if s1 := s.FirstUnset(); s1 != exp {
+		t.Errorf("found unset at %d instead of %d", s1, exp)
+	}
+	exp = (len(s) - 1) * wordBits
+	s.Unset(exp)
+	if s1 := s.FirstUnset(); s1 != exp {
+		t.Errorf("found unset at %d instead of %d", s1, exp)
+	}
+	exp = (len(s)-1)*wordBits - 1
+	s.Unset(exp)
+	if s1 := s.FirstUnset(); s1 != exp {
+		t.Errorf("found unset at %d instead of %d", s1, exp)
+	}
+	exp = wordBits + (wordBits >> 1)
+	s.Unset(exp)
+	if s1 := s.FirstUnset(); s1 != exp {
+		t.Errorf("found unset at %d instead of %d", s1, exp)
+	}
+	exp = wordBits
+	s.Unset(exp)
+	if s1 := s.FirstUnset(); s1 != exp {
+		t.Errorf("found unset at %d instead of %d", s1, exp)
+	}
+	exp = wordBits >> 1
+	s.Unset(exp)
+	if s1 := s.FirstUnset(); s1 != exp {
+		t.Errorf("found unset at %d instead of %d", s1, exp)
+	}
+	exp = 0
+	s.Unset(exp)
+	if s1 := s.FirstUnset(); s1 != exp {
+		t.Errorf("found unset at %d instead of %d", s1, exp)
+	}
+}
