@@ -5,9 +5,12 @@ import (
 )
 
 var (
-	_ WGraph = (*SpSoM)(nil)
-	_ WGi32  = (*SpMoMi32)(nil)
-	_ WGf32  = (*SpMoMf32)(nil)
+	_ WGraph          = (*SpSoM)(nil)
+	_ NeighbourLister = (*SpSoM)(nil)
+	_ WGi32           = (*SpSoMi32)(nil)
+	_ NeighbourLister = (*SpSoMi32)(nil)
+	_ WGf32           = (*SpSoMf32)(nil)
+	_ NeighbourLister = (*SpSoMf32)(nil)
 )
 
 func TestSpSoM_SetUset(t *testing.T) {
@@ -135,8 +138,7 @@ func BenchmarkSpSoMf32(b *testing.B) {
 		}
 		for i := VIdx(0); i < max; i++ {
 			for j := VIdx(0); j < max; j++ {
-				r, _ := m.Edge(i, j)
-				if r != w {
+				if r := m.Edge(i, j); r != w {
 					b.Fatal("unexpected read", w, r)
 				}
 			}

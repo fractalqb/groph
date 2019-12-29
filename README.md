@@ -14,31 +14,30 @@ A pure Go library of graphs and algorithms. More info at [godoc.org](https://god
 The following table shows the supported graph implementations along
 with their relative access performance, i.e. read & write. Access
 performance is the factor relative to the fastest implementation –
-currently the typed access on adjacency matrix with `int32` edges.
+the one with 1 in the `t/*` column.
 Each implementation can be accessed through their `WGraph` interface
 _(t/gen)_ or through their specifically typed interface _(t/typed)_.
 
 | Implementation   | Weight Type       | Dir/Undir | t/typed | t/gen |
 |------------------|:-----------------:|:---------:|--------:|------:|
-| Adjacency matrix | bool (bitmap)     | D         | 1.48    | 3.16  |
-| Adjacency matrix | bool              | D         | 1.06    | 1.29  |
-| Adjacency matrix | int32             | D, U      | 1       | 8.05  |
-| Adjacency matrix | float32           | D, U      | 1.09    | 8.14  |
-| Sparse / Go map  | interface\{\}     | D         | –       | 48.26 |
-| Sparse / Go map  | int32             | D         |         |       |
-| Sparse / Go map  | float32           | D         | 33.83   |       |
+| Adjacency matrix | bool (bitmap)     | D         | 1.51    | 3.06  |
+| Adjacency matrix | bool              | D         | 1       | 1.19  |
+| Adjacency matrix | int32             | D         | 1.12    | 8.09  |
+| Adjacency matrix | float32           | D         | 1.17    | 8.51  |
+| Slice of Maps    | interface\{\}     | D         | –       | 26.17 |
+| Slice of Maps    | int32             | D         | 16.11   | 24.91 |
+| Slice of Maps    | float32           | D         | 15.66   | 25.32 |
 
 ## Algorithms
 
-| Problem | Algorithm |
-|---------|-----------|
-| [Traversal](https://godoc.org/codeberg.org/fractalqb/groph/trv)| Depth First |
-| [Shortest path](https://godoc.org/codeberg.org/fractalqb/groph/sp)| Floyd Warshall |
-| [Shortest path](https://godoc.org/codeberg.org/fractalqb/groph/sp)| Dijkstra |
-| [Minimal spannig Tree](https://godoc.org/codeberg.org/fractalqb/groph/sp) | Dijkstra |
-| [Minimal spannig Tree](https://godoc.org/codeberg.org/fractalqb/groph/mst) | Kruskal |
-| [Travelling Salesman](https://godoc.org/codeberg.org/fractalqb/groph/tsp) | greedy |
-| [Travelling Salesman](https://godoc.org/codeberg.org/fractalqb/groph/tsp) | 2-Opt |
+| Algorithm | Problem | Weight Types |
+|-----------|---------|--------------|
+| Depth First | Traversal (tvr) | interface\{\} |
+| Floyd Warshall | Shortest path (sp) | int32, float32 |
+| Dijkstra | Shortest path (sp), Minimal spannig Tree | int32, float32 |
+| Kruskal | Minimal spannig Tree (msp) | int32, float32 |
+| TSP greedy | Travelling Salesman (tsp) | float32 |
+| 2-Opt | Travelling Salesman (tsp) | float32 |
 
 ## Performance compared to other Libraries
 

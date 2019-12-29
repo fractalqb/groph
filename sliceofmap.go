@@ -148,22 +148,23 @@ func NewSpSoMf32(vertexNo VIdx, reuse *SpSoMf32) *SpSoMf32 {
 
 func (g *SpSoMf32) VertexNo() VIdx { return len(g.ws) }
 
-func (m *SpSoMf32) Edge(u, v VIdx) (w float32, exists bool) {
+func (m *SpSoMf32) Edge(u, v VIdx) (w float32) {
 	row := m.ws[u]
 	if row == nil {
-		return 0, false
+		return NaN32()
 	}
 	if res, ok := row[v]; ok {
-		return res, true
+		return res
 	}
-	return 0, false
+	return NaN32()
 }
 
 func (g *SpSoMf32) Weight(u, v VIdx) interface{} {
-	if res, ok := g.Edge(u, v); ok {
+	if res := g.Edge(u, v); IsNaN32(res) {
+		return nil
+	} else {
 		return res
 	}
-	return nil
 }
 
 func (g *SpSoMf32) SetEdge(u, v VIdx, w float32) {
