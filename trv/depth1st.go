@@ -2,6 +2,7 @@ package trv
 
 import (
 	"git.fractalqb.de/fractalqb/groph"
+	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
 	"git.fractalqb.de/fractalqb/groph/util"
 )
 
@@ -17,6 +18,11 @@ func NewDepthFirst(g groph.RGraph) *DepthFirst {
 		Visited: util.NewBitSet(g.VertexNo()),
 	}
 	return res
+}
+
+func (df *DepthFirst) Reset(g groph.RGraph) {
+	df.g = g
+	df.Visited = iutil.U64Slice(df.Visited, util.BitSetWords(g.VertexNo()))
 }
 
 func (df *DepthFirst) push(v groph.VIdx) {

@@ -34,6 +34,12 @@ func (bs BitSet) Unset(i int) {
 	bs[w] &= ^(1 << b)
 }
 
+func (bs BitSet) Clear() {
+	for i := range bs {
+		bs[i] = 0
+	}
+}
+
 func (bs BitSet) FirstUnset() (res int) {
 	var w bitsWord
 	for res, w = range bs {

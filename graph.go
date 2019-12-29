@@ -1,6 +1,7 @@
 package groph
 
 import (
+	"math"
 	"reflect"
 )
 
@@ -175,6 +176,12 @@ type WUi32 interface {
 	EdgeU(u, v VIdx) (weight int32, ok bool)
 	SetEdgeU(u, v VIdx, weight int32)
 }
+
+var nan32 = float32(math.NaN())
+
+func NaN32() float32 { return nan32 }
+
+func IsNaN32(x float32) bool { return math.IsNaN(float64(x)) }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type
 // float32. Besides type safety this avoids boxing/unboxing of the Weight
