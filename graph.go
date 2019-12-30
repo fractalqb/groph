@@ -57,44 +57,10 @@ type VisitVertex = func(neighbour VIdx)
 // OutLister is implemented by graph implementations that can easily iterate
 // over all outgoing edges of one node.
 //
-// See also EachOutgoing function.
+// See also traverse.EachOutgoing function.
 type OutLister interface {
 	EachOutgoing(from VIdx, onDest VisitVertex)
 	OutDegree(v VIdx) int
-}
-
-// EachOutgoing calls onDest on each node d that is a neighbour of 'from' in
-// graph g. Vertex d is a neighbour of from, iff g contains the edge (d,from).
-//
-// For undirected graphs that are no NeighbourListers EachNeighbour
-// guarantees to call WeightU with v ≥ u to detect neighbours.
-func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) {
-	switch gi := g.(type) {
-	case OutLister:
-		gi.EachOutgoing(from, onDest)
-	case RUndirected:
-		vno := gi.VertexNo()
-		n := VIdx(0)
-		for n < from {
-			if w := gi.WeightU(from, n); w != nil {
-				onDest(n)
-			}
-			n++
-		}
-		for n < vno {
-			if w := gi.WeightU(n, from); w != nil {
-				onDest(n)
-			}
-			n++
-		}
-	default:
-		vno := g.VertexNo()
-		for n := VIdx(0); n < vno; n++ {
-			if w := g.Weight(from, n); w != nil {
-				onDest(n)
-			}
-		}
-	}
 }
 
 // InLister is implemented by graph implementations that can easily iterate
@@ -243,59 +209,6 @@ type WUf32 interface {
 	WGf32
 	EdgeU(u, v VIdx) (weight float32)
 	SetEdgeU(u, v VIdx, weight float32)
-}
-
-// CpWeights copies the edge weights from one graph to another.
-// Vertices are identified by their index, i.e. the user has to take care of
-// the vertex order. If the number of vertices in the graph differs the smaller
-// graph determines how many edge weights are copied.
-func CpWeights(dst WGraph, src RGraph) WGraph {
-	sz := dst.VertexNo()
-	if src.VertexNo() < sz {
-		sz = src.VertexNo()
-	}
-	if Directed(dst) {
-		for i := VIdx(0); i < sz; i++ {
-			for j := VIdx(0); j < sz; j++ {
-				w := src.Weight(i, j)
-				dst.SetWeight(i, j, w)
-			}
-		}
-	} else {
-		for i := VIdx(0); i < sz; i++ {
-			for j := i; j < sz; j++ {
-				w := src.Weight(i, j)
-				dst.SetWeight(i, j, w)
-			}
-		}
-	}
-	return dst
-}
-
-// CpXWeights “transfers” the edge weights from src Graph to dst Graph
-// with the same vertex restirctions as CpWeights. CpXWeights applies
-// the transformation function xf() to each edge weight.
-func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGraph {
-	sz := dst.VertexNo()
-	if src.VertexNo() < sz {
-		sz = src.VertexNo()
-	}
-	if Directed(dst) {
-		for i := VIdx(0); i < sz; i++ {
-			for j := VIdx(0); j < sz; j++ {
-				w := src.Weight(i, j)
-				dst.SetWeight(i, j, xf(w))
-			}
-		}
-	} else {
-		for i := VIdx(0); i < sz; i++ {
-			for j := i; j < sz; j++ {
-				w := src.Weight(i, j)
-				dst.SetWeight(i, j, xf(w))
-			}
-		}
-	}
-	return dst
 }
 
 // TODO can this be done in place?

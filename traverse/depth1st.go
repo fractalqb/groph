@@ -1,28 +1,27 @@
-package trv
+package traverse
 
 import (
 	"git.fractalqb.de/fractalqb/groph"
 	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
-	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 type DepthFirst struct {
 	g       groph.RGraph
 	s       []groph.VIdx
-	Visited util.BitSet
+	Visited groph.BitSet
 }
 
 func NewDepthFirst(g groph.RGraph) *DepthFirst {
 	res := &DepthFirst{
 		g:       g,
-		Visited: util.NewBitSet(g.VertexNo()),
+		Visited: groph.NewBitSet(g.VertexNo()),
 	}
 	return res
 }
 
 func (df *DepthFirst) Reset(g groph.RGraph) {
 	df.g = g
-	df.Visited = iutil.U64Slice(df.Visited, util.BitSetWords(g.VertexNo()))
+	df.Visited = iutil.U64Slice(df.Visited, groph.BitSetWords(g.VertexNo()))
 }
 
 func (df *DepthFirst) push(v groph.VIdx) {
@@ -50,7 +49,7 @@ func (df *DepthFirst) Cluster(start groph.VIdx, do groph.VisitVertex) int {
 		df.Visited.Set(start)
 		do(start)
 		count++
-		groph.EachOutgoing(df.g, start, func(n groph.VIdx) {
+		EachOutgoing(df.g, start, func(n groph.VIdx) {
 			if !df.Visited.Get(n) {
 				df.push(n)
 			}

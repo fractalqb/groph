@@ -1,4 +1,4 @@
-package util
+package groph
 
 import (
 	"testing"

@@ -1,4 +1,4 @@
-package sp
+package shortestpath
 
 import (
 	"math"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 func TestDijkstrai32_toFW(t *testing.T) {
@@ -23,7 +24,7 @@ func TestDijkstrai32_toFW(t *testing.T) {
 	}
 	fwDs := groph.NewAdjMxDi32(VNo, nil)
 	fwDs.Del = g.Del
-	groph.CpWeights(fwDs, g)
+	util.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDi32(fwDs)
 	var (
 		dijkstra Dijkstrai32
@@ -99,7 +100,7 @@ func TestDijkstraf32_toFW(t *testing.T) {
 		}
 	}
 	fwDs := groph.NewAdjMxDf32(VNo, nil)
-	groph.CpWeights(fwDs, g)
+	util.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDf32(fwDs)
 	var (
 		dijkstra Dijkstraf32

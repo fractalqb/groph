@@ -6,14 +6,14 @@ import (
 	"reflect"
 )
 
-type Slice struct {
+type WeightsSlice struct {
 	slc reflect.Value
 	dir bool
 	sz  VIdx
 }
 
-func NewSlice(directed bool, edgeSlice interface{}) *Slice {
-	res := &Slice{
+func NewWeightsSlice(directed bool, edgeSlice interface{}) *WeightsSlice {
+	res := &WeightsSlice{
 		slc: reflect.ValueOf(edgeSlice),
 		dir: directed,
 	}
@@ -25,7 +25,7 @@ func NewSlice(directed bool, edgeSlice interface{}) *Slice {
 	return res
 }
 
-func (g *Slice) Check() (*Slice, error) {
+func (g *WeightsSlice) Check() (*WeightsSlice, error) {
 	if g.slc.Kind() != reflect.Slice {
 		return g, fmt.Errorf("edges have to be a slice, got %s",
 			g.slc.Type().String())
@@ -40,7 +40,7 @@ func (g *Slice) Check() (*Slice, error) {
 	return g, nil
 }
 
-func (g *Slice) Must() *Slice {
+func (g *WeightsSlice) Must() *WeightsSlice {
 	var err error
 	g, err = g.Check()
 	if err != nil {
@@ -49,11 +49,11 @@ func (g *Slice) Must() *Slice {
 	return g
 }
 
-func (g *Slice) VertexNo() VIdx { return g.sz }
+func (g *WeightsSlice) VertexNo() VIdx { return g.sz }
 
-func (g *Slice) Directed() bool { return g.dir }
+func (g *WeightsSlice) Directed() bool { return g.dir }
 
-func (g *Slice) Weight(u, v VIdx) interface{} {
+func (g *WeightsSlice) Weight(u, v VIdx) interface{} {
 	if g.dir {
 		return g.slc.Index(int(g.sz*u + v)).Interface()
 	} else if u > v {

@@ -4,7 +4,6 @@ import (
 	"math"
 
 	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
-	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 type adjMx struct {
@@ -17,16 +16,16 @@ func (m *adjMx) VertexNo() VIdx { return m.sz }
 // bitmap. This sacrifices runtime performance for lesser memory usage.
 type AdjMxDbitmap struct {
 	adjMx
-	bs util.BitSet
+	bs BitSet
 }
 
 func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 	sz := vertexNo * vertexNo
-	sz = util.BitSetWords(sz)
+	sz = BitSetWords(sz)
 	if reuse == nil {
 		reuse = &AdjMxDbitmap{
 			adjMx: adjMx{sz: vertexNo},
-			bs:    make(util.BitSet, sz),
+			bs:    make(BitSet, sz),
 		}
 	} else {
 		reuse.sz = vertexNo

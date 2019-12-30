@@ -1,4 +1,4 @@
-package mst
+package minspantree
 
 import (
 	"errors"

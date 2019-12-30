@@ -62,7 +62,7 @@ func BenchmarkAdjMxDbitmap_generic(b *testing.B) {
 		for i := VIdx(0); i < max; i++ {
 			for j := VIdx(0); j < max; j++ {
 				r := m.Weight(i, j)
-				if r != w {
+				if (w && r == nil) || (!w && r != nil) {
 					b.Fatal("unexpected read", w, r)
 				}
 			}
@@ -121,7 +121,7 @@ func BenchmarkAdjMxDbool_generic(b *testing.B) {
 		for i := VIdx(0); i < max; i++ {
 			for j := VIdx(0); j < max; j++ {
 				r := m.Weight(i, j)
-				if r != w {
+				if (w && r == nil) || (!w && r != nil) {
 					b.Fatal("unexpected read", w, r)
 				}
 			}

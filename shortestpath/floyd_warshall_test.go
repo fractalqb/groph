@@ -1,4 +1,4 @@
-package sp
+package shortestpath
 
 import (
 	"fmt"
@@ -7,10 +7,11 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 func ExampleFloydWarshalli32() {
-	graph := groph.NewSlice(true, []int32{
+	graph := groph.NewWeightsSlice(true, []int32{
 		0, 8, 0, 1,
 		0, 0, 1, 0,
 		4, 0, 0, 0,
@@ -19,7 +20,7 @@ func ExampleFloydWarshalli32() {
 	sz := graph.VertexNo()
 	fwres := groph.NewAdjMxDi32(sz, nil)
 	fwres.Del = 0
-	groph.CpWeights(fwres, graph)
+	util.CpWeights(fwres, graph)
 	FloydWarshalli32(fwres)
 	for i := 0; i < sz; i++ {
 		for j := 0; j < sz; j++ {
@@ -40,7 +41,7 @@ func ExampleFloydWarshalli32() {
 }
 
 func ExampleFloydWarshallf32() {
-	graph := groph.NewSlice(true, []int{
+	graph := groph.NewWeightsSlice(true, []int{
 		0, 8, 0, 1,
 		0, 0, 1, 0,
 		4, 0, 0, 0,
@@ -48,7 +49,7 @@ func ExampleFloydWarshallf32() {
 	}).Must()
 	sz := graph.VertexNo()
 	fwres := groph.NewAdjMxDf32(sz, nil)
-	groph.CpXWeights(fwres, graph, func(i interface{}) interface{} {
+	util.CpXWeights(fwres, graph, func(i interface{}) interface{} {
 		e := i.(int)
 		if i == 0 {
 			return float32(math.Inf(1))
@@ -84,7 +85,7 @@ func TestFloydWarshallDirEqUndir(t *testing.T) {
 			mu.SetEdge(i, j, w)
 		}
 	}
-	groph.CpWeights(md, mu)
+	util.CpWeights(md, mu)
 	FloydWarshallf32(md)
 	FloydWarshallf32(mu)
 	for i := groph.VIdx(0); i < VNO; i++ {

@@ -1,4 +1,4 @@
-package sp
+package shortestpath
 
 import "git.fractalqb.de/fractalqb/groph"
 

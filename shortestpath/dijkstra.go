@@ -1,11 +1,12 @@
-package sp
+package shortestpath
 
 import (
 	"container/heap"
 	"math"
 
 	"git.fractalqb.de/fractalqb/groph"
-	"git.fractalqb.de/fractalqb/groph/internal/util"
+	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
+	"git.fractalqb.de/fractalqb/groph/traverse"
 )
 
 type pqItemi32 struct {
@@ -19,7 +20,7 @@ type Dijkstrai32 struct {
 }
 
 func (dij *Dijkstrai32) init(vno int) {
-	dij.v2i = util.IntSlice(dij.v2i, vno)
+	dij.v2i = iutil.IntSlice(dij.v2i, vno)
 	if dij.is == nil || cap(dij.is) < vno {
 		dij.is = make([]pqItemi32, 0, vno)
 	} else {
@@ -72,9 +73,9 @@ func (dij *Dijkstrai32) On(
 	prev []groph.VIdx,
 ) ([]int32, []groph.VIdx) {
 	vertexNo := g.VertexNo()
-	dist = util.I32Slice(dist, vertexNo)
+	dist = iutil.I32Slice(dist, vertexNo)
 	if prev != nil {
-		prev = util.VIdxSlice(prev, vertexNo)
+		prev = iutil.VIdxSlice(prev, vertexNo)
 	}
 	dij.init(vertexNo)
 	dist[start] = 0
@@ -89,7 +90,7 @@ func (dij *Dijkstrai32) On(
 	}
 	for dij.Len() != 0 {
 		u := heap.Pop(dij).(pqItemi32).v
-		groph.EachOutgoing(g, u, func(n groph.VIdx) {
+		traverse.EachOutgoing(g, u, func(n groph.VIdx) {
 			alt := dist[u]
 			if alt < 0 {
 				return
@@ -119,7 +120,7 @@ type Dijkstraf32 struct {
 }
 
 func (dij *Dijkstraf32) init(vno int) {
-	dij.v2i = util.IntSlice(dij.v2i, vno)
+	dij.v2i = iutil.IntSlice(dij.v2i, vno)
 	if dij.is == nil || cap(dij.is) < vno {
 		dij.is = make([]pqItemf32, 0, vno)
 	} else {
@@ -163,9 +164,9 @@ func (dij *Dijkstraf32) On(
 	prev []groph.VIdx,
 ) ([]float32, []groph.VIdx) {
 	vertexNo := g.VertexNo()
-	dist = util.F32Slice(dist, vertexNo)
+	dist = iutil.F32Slice(dist, vertexNo)
 	if prev != nil {
-		prev = util.VIdxSlice(prev, vertexNo)
+		prev = iutil.VIdxSlice(prev, vertexNo)
 	}
 	dij.init(vertexNo)
 	dist[start] = 0
@@ -180,7 +181,7 @@ func (dij *Dijkstraf32) On(
 	}
 	for dij.Len() != 0 {
 		u := heap.Pop(dij).(pqItemf32).v
-		groph.EachOutgoing(g, u, func(n groph.VIdx) {
+		traverse.EachOutgoing(g, u, func(n groph.VIdx) {
 			alt := dist[u] + g.Edge(u, n) // TOOD EdgeD?
 			if alt < dist[n] {
 				dist[n] = alt

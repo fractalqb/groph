@@ -28,6 +28,10 @@ _(t/gen)_ or through their specifically typed interface _(t/typed)_.
 | Slice of Maps    | int32             | D         | 16.11   | 24.91 |
 | Slice of Maps    | float32           | D         | 15.66   | 25.32 |
 
+_Note:_ Performance losses for generic access are mainly due to the type cast to a
+specific type after calling `g.Weight()`. Because this is probably relevant for real
+applications, this remains part of the benchmarks.
+
 ## Algorithms
 
 | Algorithm | Problem | Weight Types |
