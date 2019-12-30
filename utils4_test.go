@@ -15,22 +15,33 @@ const (
 func testGenericSetDel(t *testing.T, g WGraph, probeWeight interface{}) {
 	genClear := func(i, j VIdx) { g.SetWeight(i, j, nil) }
 	genIsClear := func(w interface{}) bool { return w == nil }
+	genSet := func(i, j VIdx) interface{} {
+		g.SetWeight(i, j, probeWeight)
+		return probeWeight
+	}
 	genRead := func(i, j VIdx) interface{} { return g.Weight(i, j) }
 	if u, ok := g.(WUndirected); ok {
-		testUSetDel(t, u, genClear, genIsClear,
-			func(i, j VIdx) interface{} {
+		undirClear := func(i, j VIdx) { u.SetWeightU(i, j, nil) }
+		undirSet := func(i, j VIdx) interface{} {
+			if i > j {
 				u.SetWeightU(i, j, probeWeight)
-				return probeWeight
-			},
-			genRead,
-		)
+			} else {
+				u.SetWeightU(j, i, probeWeight)
+			}
+			return probeWeight
+		}
+		undirRead := func(i, j VIdx) interface{} {
+			if i > j {
+				return u.WeightU(i, j)
+			}
+			return u.WeightU(j, i)
+		}
+		testUSetDel(t, u, undirClear, genIsClear, genSet, genRead)
+		testUSetDel(t, u, undirClear, genIsClear, genSet, undirRead)
+		testUSetDel(t, u, undirClear, genIsClear, undirSet, genRead)
+		testUSetDel(t, u, undirClear, genIsClear, undirSet, undirRead)
 	} else {
-		testDSetDel(t, g, genClear, genIsClear,
-			func(i, j VIdx) interface{} {
-				g.SetWeight(i, j, probeWeight)
-				return probeWeight
-			},
-			genRead)
+		testDSetDel(t, g, genClear, genIsClear, genSet, genRead)
 	}
 }
 
@@ -45,7 +56,7 @@ func testDSetDel(
 	if !Directed(g) {
 		t.Fatal("graph is not directed")
 	}
-	vno := g.VertexNo()
+	vno := g.Order()
 	for wi := V0; wi < vno; wi++ {
 		for wj := V0; wj < vno; wj++ {
 			clear(wi, wj)
@@ -90,10 +101,10 @@ func testUSetDel(
 	g WUndirected,
 	clear func(i, j VIdx),
 	isCleared func(w interface{}) bool,
-	setU func(i, j VIdx) interface{},
+	set func(i, j VIdx) interface{},
 	read func(i, j VIdx) interface{},
 ) {
-	vno := g.VertexNo()
+	vno := g.Order()
 	for wi := V0; wi < vno; wi++ {
 		for wj := 0; wj <= wi; wj++ {
 			clear(wi, wj)
@@ -110,7 +121,7 @@ func testUSetDel(
 	}
 	for wi := V0; wi < vno; wi++ {
 		for wj := V0; wj <= wi; wj++ {
-			w := setU(wi, wj)
+			w := set(wi, wj)
 			for ri := V0; ri < vno; ri++ {
 				for rj := V0; rj < vno; rj++ {
 					expectSet := (ri == wi && rj == wj) || (ri == wj && rj == wi)
@@ -140,7 +151,6 @@ func testUSetDel(
 							ri, rj,
 							wi, wj)
 					}
-					// TODO optimized read
 				}
 			}
 			clear(wi, wj)
@@ -152,8 +162,8 @@ func testIsWGbool(t *testing.T, g WGbool) {
 	t.Run("generic set and del", func(t *testing.T) {
 		testGenericSetDel(t, g, testProbeBool)
 	})
-	for i := V0; i < g.VertexNo(); i++ {
-		for j := V0; j < g.VertexNo(); j++ {
+	for i := V0; i < g.Order(); i++ {
+		for j := V0; j < g.Order(); j++ {
 			g.SetEdge(i, j, true)
 			g.SetEdge(i, j, false)
 			if g.Edge(i, j) != false {
@@ -182,15 +192,59 @@ func testIsWGbool(t *testing.T, g WGbool) {
 
 func testIsWUbool(t *testing.T, g WUbool) {
 	t.Run("is WGbool", func(t *testing.T) { testIsWGbool(t, g) })
-	// TODO undirected
+	for i := V0; i < g.Order(); i++ {
+		for j := V0; j <= i; j++ {
+			g.SetEdge(i, j, true)
+			g.SetEdge(j, i, true)
+			g.SetEdgeU(i, j, false)
+			if g.Edge(i, j) != false || g.Edge(j, i) != false {
+				t.Errorf("set edge (%d,%d) false does not return 2x dir false", i, j)
+			}
+			if g.EdgeU(i, j) != false {
+				t.Errorf("set edge (%d,%d) false does not return true", i, j)
+			}
+			if g.Weight(i, j) != nil || g.Weight(j, i) != nil {
+				t.Errorf("set edge (%d,%d) false does not return 2x dir nil", i, j)
+			}
+			if g.WeightU(i, j) != nil {
+				t.Errorf("set edge (%d,%d) false does not return nil", i, j)
+			}
+			g.SetEdgeU(i, j, true)
+			if g.Edge(i, j) != true || g.Edge(j, i) != true {
+				t.Errorf("set edge (%d,%d) true does not return 2x dir true", i, j)
+			}
+			if g.EdgeU(i, j) != true {
+				t.Errorf("set edge (%d,%d) true does not return true", i, j)
+			}
+			if g.Weight(i, j) == nil || g.Weight(j, i) == nil {
+				t.Errorf("set edge (%d,%d) true does not return 2x dir non-nil", i, j)
+			}
+			if g.WeightU(i, j) != nil {
+				t.Errorf("set edge (%d,%d) true does not return non-nil", i, j)
+			}
+			g.SetWeightU(i, j, nil)
+			if g.Edge(i, j) != false || g.Edge(j, i) != false {
+				t.Errorf("set weight (%d,%d) nil does not return 2x dir false", i, j)
+			}
+			if g.EdgeU(i, j) != false {
+				t.Errorf("set weight (%d,%d) nil does not return false", i, j)
+			}
+			if g.Weight(i, j) != nil || g.Weight(j, i) != nil {
+				t.Errorf("set weight (%d,%d) nil does not return 2x dir nil", i, j)
+			}
+			if g.WeightU(i, j) != nil {
+				t.Errorf("set weight (%d,%d) nil does not return nil", i, j)
+			}
+		}
+	}
 }
 
 func testIsWGi32(t *testing.T, g WGi32) {
 	t.Run("generic set and del", func(t *testing.T) {
 		testGenericSetDel(t, g, testProbeI32)
 	})
-	for i := V0; i < g.VertexNo(); i++ {
-		for j := V0; j < g.VertexNo(); j++ {
+	for i := V0; i < g.Order(); i++ {
+		for j := V0; j < g.Order(); j++ {
 			g.SetEdge(i, j, 4711)
 			g.DelEdge(i, j)
 			if w, ok := g.Edge(i, j); ok {
@@ -228,8 +282,8 @@ func testIsWGf32(t *testing.T, g WGf32) {
 	t.Run("generic set and del", func(t *testing.T) {
 		testGenericSetDel(t, g, testProbeF32)
 	})
-	for i := V0; i < g.VertexNo(); i++ {
-		for j := V0; j < g.VertexNo(); j++ {
+	for i := V0; i < g.Order(); i++ {
+		for j := V0; j < g.Order(); j++ {
 			g.SetEdge(i, j, testProbeF32)
 			g.SetEdge(i, j, NaN32())
 			if w := g.Edge(i, j); !IsNaN32(w) {

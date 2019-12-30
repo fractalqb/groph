@@ -14,14 +14,14 @@ type DepthFirst struct {
 func NewDepthFirst(g groph.RGraph) *DepthFirst {
 	res := &DepthFirst{
 		g:       g,
-		Visited: groph.NewBitSet(g.VertexNo()),
+		Visited: groph.NewBitSet(g.Order()),
 	}
 	return res
 }
 
 func (df *DepthFirst) Reset(g groph.RGraph) {
 	df.g = g
-	df.Visited = iutil.U64Slice(df.Visited, groph.BitSetWords(g.VertexNo()))
+	df.Visited = iutil.U64Slice(df.Visited, groph.BitSetWords(g.Order()))
 }
 
 func (df *DepthFirst) push(v groph.VIdx) {
@@ -62,7 +62,7 @@ func (df *DepthFirst) Complete(do func(n groph.VIdx, cluster int)) {
 	cluster := 0
 	cdo := func(n groph.VIdx) { do(n, cluster) }
 	count := df.Cluster(0, cdo)
-	for count < df.g.VertexNo() {
+	for count < df.g.Order() {
 		cluster++
 		start := df.Visited.FirstUnset()
 		count += df.Cluster(start, cdo)

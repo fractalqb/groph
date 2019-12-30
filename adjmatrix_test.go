@@ -24,7 +24,7 @@ func TestAdjMxDbitmap(t *testing.T) {
 
 func BenchmarkAdjMxDbitmap(b *testing.B) {
 	m := NewAdjMxDbitmap(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := true
 		if n&1 == 0 {
@@ -48,7 +48,7 @@ func BenchmarkAdjMxDbitmap(b *testing.B) {
 
 func BenchmarkAdjMxDbitmap_generic(b *testing.B) {
 	m := NewAdjMxDbitmap(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := true
 		if n&1 == 0 {
@@ -83,7 +83,7 @@ func TestAdjMxDbool(t *testing.T) {
 
 func BenchmarkAdjMxDbool(b *testing.B) {
 	m := NewAdjMxDbool(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := true
 		if n&1 == 0 {
@@ -107,7 +107,7 @@ func BenchmarkAdjMxDbool(b *testing.B) {
 
 func BenchmarkAdjMxDbool_generic(b *testing.B) {
 	m := NewAdjMxDbool(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := true
 		if n&1 == 0 {
@@ -143,7 +143,7 @@ func TestAdjMxDi32(t *testing.T) {
 
 func BenchmarkAdjMxDi32(b *testing.B) {
 	m := NewAdjMxDi32(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
 		for i := V0; i < max; i++ {
@@ -164,7 +164,7 @@ func BenchmarkAdjMxDi32(b *testing.B) {
 
 func BenchmarkAdjMxDi32_generic(b *testing.B) {
 	m := NewAdjMxDi32(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
 		for i := V0; i < max; i++ {
@@ -197,7 +197,7 @@ func TestAdjMxDf32(t *testing.T) {
 
 func BenchmarkAdjMxDf32(b *testing.B) {
 	m := NewAdjMxDf32(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
 		for i := V0; i < max; i++ {
@@ -218,7 +218,7 @@ func BenchmarkAdjMxDf32(b *testing.B) {
 
 func BenchmarkAdjMxDf32_generic(b *testing.B) {
 	m := NewAdjMxDf32(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
 		for i := V0; i < max; i++ {

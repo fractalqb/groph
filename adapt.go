@@ -37,7 +37,7 @@ func (g *WeightsSlice) Must() *WeightsSlice {
 	return g
 }
 
-func (g *WeightsSlice) VertexNo() VIdx { return g.sz }
+func (g *WeightsSlice) Order() VIdx { return g.sz }
 
 func (g *WeightsSlice) Weight(u, v VIdx) interface{} {
 	return g.slc.Index(int(g.sz*u + v)).Interface()
@@ -71,7 +71,7 @@ func (g *PointsNDist) Check() (*PointsNDist, error) {
 	if g.d.Kind() != reflect.Func {
 		return g, fmt.Errorf("edge weight measure must be a function, got: %s",
 			g.d.Type().String())
-	} // TODO more precise checking
+	} // TODO more precise checking: func signature
 	return g, nil
 }
 
@@ -83,7 +83,7 @@ func (g *PointsNDist) Must() *PointsNDist {
 	return g
 }
 
-func (g *PointsNDist) VertexNo() VIdx {
+func (g *PointsNDist) Order() VIdx {
 	return VIdx(g.ps.Len())
 }
 

@@ -28,9 +28,9 @@ func MustCp(g groph.WGraph, err error) groph.WGraph {
 // the vertex order. If the number of vertices in the graph differs the smaller
 // graph determines how many edge weights are copied.
 func CpWeights(dst groph.WGraph, src groph.RGraph) (groph.WGraph, error) {
-	sz := dst.VertexNo()
-	if src.VertexNo() < sz {
-		sz = src.VertexNo()
+	sz := dst.Order()
+	if src.Order() < sz {
+		sz = src.Order()
 	}
 	if udst, ok := dst.(groph.WUndirected); ok {
 		if usrc, ok := src.(groph.RUndirected); ok {
@@ -59,7 +59,7 @@ func CpWeights(dst groph.WGraph, src groph.RGraph) (groph.WGraph, error) {
 			}
 		}
 	}
-	vnd := dst.VertexNo() - src.VertexNo()
+	vnd := dst.Order() - src.Order()
 	if vnd == 0 {
 		return dst, nil
 	}
@@ -74,9 +74,9 @@ func CpXWeights(
 	src groph.RGraph,
 	xf func(in interface{}) interface{},
 ) (groph.WGraph, error) {
-	sz := dst.VertexNo()
-	if src.VertexNo() < sz {
-		sz = src.VertexNo()
+	sz := dst.Order()
+	if src.Order() < sz {
+		sz = src.Order()
 	}
 	var w interface{}
 	if udst, ok := dst.(groph.WUndirected); ok {
@@ -110,7 +110,7 @@ func CpXWeights(
 			}
 		}
 	}
-	vnd := dst.VertexNo() - src.VertexNo()
+	vnd := dst.Order() - src.Order()
 	if vnd == 0 {
 		return dst, nil
 	}

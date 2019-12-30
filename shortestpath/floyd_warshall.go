@@ -3,7 +3,7 @@ package shortestpath
 import "git.fractalqb.de/fractalqb/groph"
 
 func FloydWarshallf32(g groph.WGf32) {
-	vno := g.VertexNo()
+	vno := g.Order()
 	if u, ok := g.(groph.WUf32); ok {
 		for k := groph.V0; k < vno; k++ {
 			for i := groph.V0; i < vno; i++ {
@@ -30,7 +30,7 @@ func FloydWarshallf32(g groph.WGf32) {
 }
 
 func FloydWarshalli32(g groph.WGi32) {
-	vno := g.VertexNo()
+	vno := g.Order()
 	if u, ok := g.(groph.WUi32); ok {
 		for k := groph.V0; k < vno; k++ {
 			for i := groph.V0; i < vno; i++ {
@@ -73,7 +73,7 @@ func FloydWarshalli32(g groph.WGi32) {
 }
 
 func FloydWarshallAdjMxDf32(g *groph.AdjMxDf32) {
-	vno := g.VertexNo()
+	vno := g.Order()
 	for k := groph.V0; k < vno; k++ {
 		for i := groph.V0; i < vno; i++ {
 			for j := groph.V0; j < vno; j++ {
@@ -87,7 +87,7 @@ func FloydWarshallAdjMxDf32(g *groph.AdjMxDf32) {
 }
 
 func FloydWarshallAdjMxDi32(g *groph.AdjMxDi32) {
-	vno := g.VertexNo()
+	vno := g.Order()
 	for k := groph.V0; k < vno; k++ {
 		for i := groph.V0; i < vno; i++ {
 			for j := groph.V0; j < vno; j++ {

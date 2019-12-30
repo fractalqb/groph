@@ -14,7 +14,7 @@ func EachOutgoing(g groph.RGraph, from groph.VIdx, onDest groph.VisitVertex) {
 	case groph.OutLister:
 		gi.EachOutgoing(from, onDest)
 	case groph.RUndirected:
-		vno := gi.VertexNo()
+		vno := gi.Order()
 		n := groph.V0
 		for n < from {
 			if w := gi.WeightU(from, n); w != nil {
@@ -29,7 +29,7 @@ func EachOutgoing(g groph.RGraph, from groph.VIdx, onDest groph.VisitVertex) {
 			n++
 		}
 	default:
-		vno := g.VertexNo()
+		vno := g.Order()
 		for n := groph.V0; n < vno; n++ {
 			if w := g.Weight(from, n); w != nil {
 				onDest(n)
@@ -48,7 +48,7 @@ func EachIncoming(g groph.RGraph, to groph.VIdx, onSource groph.VisitVertex) {
 	case groph.InLister:
 		gi.EachIncoming(to, onSource)
 	case groph.RUndirected:
-		vno := gi.VertexNo()
+		vno := gi.Order()
 		n := groph.V0
 		for n < to {
 			if w := gi.WeightU(to, n); w != nil {
@@ -63,7 +63,7 @@ func EachIncoming(g groph.RGraph, to groph.VIdx, onSource groph.VisitVertex) {
 			n++
 		}
 	default:
-		vno := g.VertexNo()
+		vno := g.Order()
 		for n := groph.V0; n < vno; n++ {
 			if w := g.Weight(n, to); w != nil {
 				onSource(n)

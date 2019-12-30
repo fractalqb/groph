@@ -2,7 +2,6 @@ package groph
 
 import (
 	"math"
-	"reflect"
 )
 
 // VIdx is the type used to represent vertices in the graph implementations
@@ -23,8 +22,8 @@ type Edge struct {
 // For graphs that can change be modified see WGraph. For undirected
 // graphs see also RUndirected.
 type RGraph interface {
-	// VertextNo return the numer of vertices in the graph.
-	VertexNo() VIdx
+	// Order return the numer of vertices in the graph.
+	Order() VIdx
 	// Returns the weight of the edge that connects the vertex with index
 	// u with the vertex with index v. If there is no such edge it returns nil.
 	Weight(u, v VIdx) interface{}
@@ -59,19 +58,93 @@ type VisitVertex = func(neighbour VIdx)
 // OutLister is implemented by graph implementations that can easily iterate
 // over all outgoing edges of one node.
 //
-// See also traverse.EachOutgoing function.
+// See also OutDegree and traverse.EachOutgoing function.
 type OutLister interface {
 	EachOutgoing(from VIdx, onDest VisitVertex)
 	OutDegree(v VIdx) int
 }
 
+func OutDegree(g RGraph, v VIdx) (res int) {
+	if ol, ok := g.(OutLister); ok {
+		return ol.OutDegree(v)
+	}
+	ord := g.Order()
+	for i := V0; i < ord; i++ {
+		if g.Weight(v, i) != nil {
+			res++
+		}
+	}
+	return res
+}
+
 // InLister is implemented by graph implementations that can easily iterate
 // over all incoming edges of one node.
 //
-// See also EachIncoming function.
+// See also InDegree and traverse.EachIncoming function.
 type InLister interface {
 	EachIncoming(to VIdx, onSource VisitVertex)
 	InDegree(v VIdx) int
+}
+
+func InDegree(g RGraph, v VIdx) (res int) {
+	if il, ok := g.(InLister); ok {
+		return il.InDegree(v)
+	}
+	ord := g.Order()
+	for i := V0; i < ord; i++ {
+		if g.Weight(i, v) != nil {
+			res++
+		}
+	}
+	return res
+}
+
+type VisitEdge = func(u, v VIdx)
+
+// InLister is implemented by graph implementations that can easily iterate
+// over all edges of the graph.
+//
+// See also Size and traverse.EachEdge function.
+type EdgeLister interface {
+	EachEdge(onEdge VisitEdge)
+	Size() int
+}
+
+func Size(g RGraph) (res int) {
+	switch xl := g.(type) {
+	case EdgeLister:
+		return xl.Size()
+	case RUndirected:
+		ord := g.Order()
+		if ol, ok := g.(OutLister); ok {
+			for v := V0; v < ord; v++ {
+				res += ol.OutDegree(v)
+			}
+		} else if il, ok := g.(InLister); ok {
+			for v := V0; v < ord; v++ {
+				res += il.InDegree(v)
+			}
+		} else {
+			for i := V0; i < ord; i++ {
+				for j := V0; j <= i; j++ {
+					if xl.WeightU(i, j) != nil {
+						res++
+					}
+				}
+			}
+		}
+	default:
+		ord := g.Order()
+		// TODO optimize with in/out lister
+		for i := V0; i < ord; i++ {
+			for j := V0; j <= ord; j++ {
+				if g.Weight(i, j) != nil {
+					res++
+				}
+			}
+		}
+	}
+	return res
 }
 
 // WGraph represents graph that allows read and write access to the
@@ -80,9 +153,9 @@ type InLister interface {
 // For undirected graphs see also WUndirected.
 type WGraph interface {
 	RGraph
-	// Reset resizes the graph to vertexNo and reinitializes it. Implementations
+	// Reset resizes the graph to order and reinitializes it. Implementations
 	// are expected to reuse memory.
-	Reset(vertexNo VIdx)
+	Reset(order VIdx)
 	// SetWeight sets the edge weight for the edge starting at vertex u and
 	// ending at vertex v. Passing w==nil removes the edge.
 	SetWeight(u, v VIdx, w interface{})
@@ -101,8 +174,8 @@ type WUndirected interface {
 	SetWeightU(u, v VIdx, w interface{})
 }
 
-// Reset clears a WGraph while keeping the original vertexNo.
-func Reset(g WGraph) { g.Reset(g.VertexNo()) }
+// Reset clears a WGraph while keeping the original order.
+func Reset(g WGraph) { g.Reset(g.Order()) }
 
 // RGbool represents a RGraph with boolean edge weights.
 type RGbool interface {
@@ -129,6 +202,8 @@ type WGbool interface {
 
 type WUbool interface {
 	WGbool
+	WeightU(u, v VIdx) interface{}
+	SetWeightU(u, v VIdx, w interface{})
 	EdgeU(u, v VIdx) bool
 	SetEdgeU(u, v VIdx, flag bool)
 }
@@ -163,6 +238,8 @@ type WGi32 interface {
 
 type WUi32 interface {
 	WGi32
+	WeightU(u, v VIdx) interface{}
+	SetWeightU(u, v VIdx, w interface{})
 	EdgeU(u, v VIdx) (weight int32, ok bool)
 	SetEdgeU(u, v VIdx, weight int32)
 }
@@ -200,24 +277,10 @@ type WGf32 interface {
 
 type WUf32 interface {
 	WGf32
+	WeightU(u, v VIdx) interface{}
+	SetWeightU(u, v VIdx, w interface{})
 	EdgeU(u, v VIdx) (weight float32)
 	SetEdgeU(u, v VIdx, weight float32)
-}
-
-// TODO can this be done in place?
-func ReorderPath(slice interface{}, path []VIdx) {
-	slv := reflect.ValueOf(slice)
-	if slv.Len() == 0 {
-		return
-	}
-	tmp := make([]interface{}, slv.Len())
-	for i := 0; i < slv.Len(); i++ {
-		tmp[i] = slv.Index(i).Interface()
-	}
-	for w, r := range path {
-		v := tmp[r]
-		slv.Index(w).Set(reflect.ValueOf(v))
-	}
 }
 
 const i32cleared = -2147483648 // min{ int32 }

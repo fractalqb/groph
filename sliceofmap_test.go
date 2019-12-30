@@ -25,7 +25,7 @@ func TestSpSoM_undir(t *testing.T) {
 
 func BenchmarkSpSoM_generic(b *testing.B) {
 	m := NewSpSoM(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		for i := V0; i < max; i++ {
 			for j := V0; j < max; j++ {
@@ -46,8 +46,7 @@ func BenchmarkSpSoM_generic(b *testing.B) {
 func TestSpSoMi32(t *testing.T) {
 	m := NewSpSoMi32(testSizeSetDel, nil)
 	t.Run("is WGi32", func(t *testing.T) { testIsWGi32(t, m) })
-	// TODO typed access
-
+	// No specifics
 }
 
 func TestSpSoMi32_undir(t *testing.T) {
@@ -61,7 +60,7 @@ func TestSpSoMi32_undir(t *testing.T) {
 
 func BenchmarkSpSoMi32_generic(b *testing.B) {
 	m := NewSpSoMi32(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
 		for i := V0; i < max; i++ {
@@ -82,7 +81,7 @@ func BenchmarkSpSoMi32_generic(b *testing.B) {
 
 func BenchmarkSpSoMi32(b *testing.B) {
 	m := NewSpSoMi32(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
 		for i := V0; i < max; i++ {
@@ -117,7 +116,7 @@ func TestSpSoMf32_undir(t *testing.T) {
 
 func BenchmarkSpSoMf32_generic(b *testing.B) {
 	m := NewSpSoMf32(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
 		for i := V0; i < max; i++ {
@@ -138,7 +137,7 @@ func BenchmarkSpSoMf32_generic(b *testing.B) {
 
 func BenchmarkSpSoMf32(b *testing.B) {
 	m := NewSpSoMf32(testSizeSetDel, nil)
-	max := m.VertexNo()
+	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
 		for i := V0; i < max; i++ {

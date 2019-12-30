@@ -3,7 +3,7 @@ package tsp
 import "git.fractalqb.de/fractalqb/groph"
 
 func Greedyf32(m groph.RGf32) (path []groph.VIdx, plen float32) {
-	size := m.VertexNo()
+	size := m.Order()
 	switch size {
 	case 0:
 		return nil, 0
@@ -50,7 +50,7 @@ func Greedyf32(m groph.RGf32) (path []groph.VIdx, plen float32) {
 }
 
 func GreedyAdjMxDf32(m *groph.AdjMxDf32) (path []groph.VIdx, plen float32) {
-	size := m.VertexNo()
+	size := m.Order()
 	switch size {
 	case 0:
 		return nil, 0

@@ -6,15 +6,15 @@ type SpSoM struct {
 	ws []spmro
 }
 
-func NewSpSoM(vertexNo VIdx, reuse *SpSoM) *SpSoM {
+func NewSpSoM(order VIdx, reuse *SpSoM) *SpSoM {
 	if reuse == nil {
-		return &SpSoM{make([]spmro, vertexNo)}
+		return &SpSoM{make([]spmro, order)}
 	}
-	reuse.Reset(vertexNo)
+	reuse.Reset(order)
 	return reuse
 }
 
-func (g *SpSoM) VertexNo() VIdx { return len(g.ws) }
+func (g *SpSoM) Order() VIdx { return len(g.ws) }
 
 func (g *SpSoM) Weight(u, v VIdx) interface{} {
 	row := g.ws[u]
@@ -37,11 +37,11 @@ func (g *SpSoM) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SpSoM) Reset(vertexNo VIdx) {
-	if g.ws == nil || cap(g.ws) < vertexNo {
-		g.ws = make([]spmro, vertexNo)
+func (g *SpSoM) Reset(order VIdx) {
+	if g.ws == nil || cap(g.ws) < order {
+		g.ws = make([]spmro, order)
 	} else {
-		g.ws = g.ws[:vertexNo]
+		g.ws = g.ws[:order]
 		for i := range g.ws {
 			g.ws[i] = nil
 		}
@@ -71,18 +71,18 @@ type SpSoMi32 struct {
 	Del int32
 }
 
-func NewSpSoMi32(vertexNo VIdx, reuse *SpSoMi32) *SpSoMi32 {
+func NewSpSoMi32(order VIdx, reuse *SpSoMi32) *SpSoMi32 {
 	if reuse == nil {
 		return &SpSoMi32{
-			ws:  make([]spmroi32, vertexNo),
+			ws:  make([]spmroi32, order),
 			Del: i32cleared,
 		}
 	}
-	reuse.Reset(vertexNo)
+	reuse.Reset(order)
 	return reuse
 }
 
-func (g *SpSoMi32) VertexNo() VIdx { return len(g.ws) }
+func (g *SpSoMi32) Order() VIdx { return len(g.ws) }
 
 func (m *SpSoMi32) Edge(u, v VIdx) (w int32, exists bool) {
 	row := m.ws[u]
@@ -121,11 +121,11 @@ func (g *SpSoMi32) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SpSoMi32) Reset(vertexNo VIdx) {
-	if g.ws == nil || cap(g.ws) < vertexNo {
-		g.ws = make([]spmroi32, vertexNo)
+func (g *SpSoMi32) Reset(order VIdx) {
+	if g.ws == nil || cap(g.ws) < order {
+		g.ws = make([]spmroi32, order)
 	} else {
-		g.ws = g.ws[:vertexNo]
+		g.ws = g.ws[:order]
 		for i := range g.ws {
 			g.ws[i] = nil
 		}
@@ -154,15 +154,15 @@ type SpSoMf32 struct {
 	ws []spmrof32
 }
 
-func NewSpSoMf32(vertexNo VIdx, reuse *SpSoMf32) *SpSoMf32 {
+func NewSpSoMf32(order VIdx, reuse *SpSoMf32) *SpSoMf32 {
 	if reuse == nil {
-		return &SpSoMf32{make([]spmrof32, vertexNo)}
+		return &SpSoMf32{make([]spmrof32, order)}
 	}
-	reuse.Reset(vertexNo)
+	reuse.Reset(order)
 	return reuse
 }
 
-func (g *SpSoMf32) VertexNo() VIdx { return len(g.ws) }
+func (g *SpSoMf32) Order() VIdx { return len(g.ws) }
 
 func (m *SpSoMf32) Edge(u, v VIdx) (w float32) {
 	row := m.ws[u]
@@ -202,11 +202,11 @@ func (g *SpSoMf32) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SpSoMf32) Reset(vertexNo VIdx) {
-	if g.ws == nil || cap(g.ws) < vertexNo {
-		g.ws = make([]spmrof32, vertexNo)
+func (g *SpSoMf32) Reset(order VIdx) {
+	if g.ws == nil || cap(g.ws) < order {
+		g.ws = make([]spmrof32, order)
 	} else {
-		g.ws = g.ws[:vertexNo]
+		g.ws = g.ws[:order]
 		for i := range g.ws {
 			g.ws[i] = nil
 		}

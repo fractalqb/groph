@@ -17,7 +17,7 @@ func ExampleFloydWarshalli32() {
 		4, 0, 0, 0,
 		0, 2, 9, 0,
 	}).Must()
-	sz := graph.VertexNo()
+	sz := graph.Order()
 	fwres := groph.NewAdjMxDi32(sz, nil)
 	fwres.Del = 0
 	util.CpWeights(fwres, graph)
@@ -47,7 +47,7 @@ func ExampleFloydWarshallf32() {
 		4, 0, 0, 0,
 		0, 2, 9, 0,
 	}).Must()
-	sz := graph.VertexNo()
+	sz := graph.Order()
 	fwres := groph.NewAdjMxDf32(sz, nil)
 	util.CpXWeights(fwres, graph, func(i interface{}) interface{} {
 		e := i.(int)
@@ -77,7 +77,7 @@ func ExampleFloydWarshallf32() {
 func TestFloydWarshallDirEqUndir(t *testing.T) {
 	const VNO = 7
 	mu := groph.NewAdjMxUf32(VNO, nil)
-	md := groph.NewAdjMxDf32(mu.VertexNo(), nil)
+	md := groph.NewAdjMxDf32(mu.Order(), nil)
 	for i := groph.V0; i < VNO; i++ {
 		mu.SetEdge(i, i, 0)
 		for j := i + 1; j < VNO; j++ {

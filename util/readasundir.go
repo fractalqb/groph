@@ -23,7 +23,7 @@ type RUadapter struct {
 	Err   error
 }
 
-func (rua *RUadapter) VertexNo() groph.VIdx { return rua.G.VertexNo() }
+func (rua *RUadapter) Order() groph.VIdx { return rua.G.Order() }
 
 func (rua *RUadapter) Weight(u, v groph.VIdx) interface{} {
 	return rua.WeightU(u, v)

@@ -15,7 +15,7 @@ func TestSliceNMeasure(t *testing.T) {
 	a := NewPointsNDist(slc, func(a, b float64) float64 {
 		return b - a
 	})
-	if vn := a.VertexNo(); vn != VIdx(len(slc)) {
+	if vn := a.Order(); vn != VIdx(len(slc)) {
 		t.Fatalf("unexpected vertex no: %d (expected %d)", vn, len(slc))
 	}
 	for i := 0; i < len(slc); i++ {

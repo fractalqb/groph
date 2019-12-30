@@ -5,7 +5,7 @@ type RSubgraph struct {
 	VMap []VIdx
 }
 
-func (g RSubgraph) VertexNo() VIdx {
+func (g RSubgraph) Order() VIdx {
 	return VIdx(len(g.VMap))
 }
 
@@ -18,7 +18,7 @@ type WSubgraph struct {
 	VMap []VIdx
 }
 
-func (g WSubgraph) VertexNo() VIdx {
+func (g WSubgraph) Order() VIdx {
 	return VIdx(len(g.VMap))
 }
 
@@ -26,7 +26,7 @@ func (g WSubgraph) Weight(u, v VIdx) interface{} {
 	return g.Weight(g.VMap[u], g.VMap[v])
 }
 
-func (g WSubgraph) Reset(vertexNo VIdx) {
+func (g WSubgraph) Reset(order VIdx) {
 	panic("must not clear WSubgraph")
 }
 
@@ -40,7 +40,7 @@ func (g WSubgraph) SetWeight(u, v VIdx, w interface{}) {
 // 	vls []VIdx
 // }
 
-// func (g RSubUndir) VertexNo() VIdx {
+// func (g RSubUndir) Order() VIdx {
 // 	return VIdx(len(g.vls))
 // }
 
@@ -57,7 +57,7 @@ func (g WSubgraph) SetWeight(u, v VIdx, w interface{}) {
 // 	vls []VIdx
 // }
 
-// func (g WSubUndir) VertexNo() VIdx {
+// func (g WSubUndir) Order() VIdx {
 // 	return VIdx(len(g.vls))
 // }
 
@@ -69,7 +69,7 @@ func (g WSubgraph) SetWeight(u, v VIdx, w interface{}) {
 // 	return g.WeightU(g.vls[u], g.vls[v])
 // }
 
-// func (g WSubUndir) Reset(vertexNo VIdx) {
+// func (g WSubUndir) Reset(order VIdx) {
 // 	panic("must not clear WSubgraph")
 // }
 

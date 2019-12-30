@@ -11,7 +11,7 @@ func AsRUndir(g RGraph) RUndirected {
 	return RUadapt{g}
 }
 
-func (g RUadapt) VertexNo() VIdx { return g.G.VertexNo() }
+func (g RUadapt) Order() VIdx { return g.G.Order() }
 
 func (g RUadapt) Weight(u, v VIdx) interface{} {
 	if u > v {
@@ -33,7 +33,7 @@ func AsWUndir(g WGraph) WUndirected {
 	return WUadapt{g}
 }
 
-func (g WUadapt) VertexNo() VIdx { return g.G.VertexNo() }
+func (g WUadapt) Order() VIdx { return g.G.Order() }
 
 func (g WUadapt) Weight(u, v VIdx) interface{} {
 	if u > v {
@@ -44,8 +44,8 @@ func (g WUadapt) Weight(u, v VIdx) interface{} {
 
 func (g WUadapt) WeightU(u, v VIdx) interface{} { return g.G.Weight(u, v) }
 
-func (g WUadapt) Reset(vertexNo VIdx) {
-	g.G.Reset(vertexNo)
+func (g WUadapt) Reset(order VIdx) {
+	g.G.Reset(order)
 }
 
 func (g WUadapt) SetWeight(u, v VIdx, w interface{}) {

@@ -72,14 +72,14 @@ func (dij *Dijkstrai32) On(
 	dist []int32,
 	prev []groph.VIdx,
 ) ([]int32, []groph.VIdx) {
-	vertexNo := g.VertexNo()
-	dist = iutil.I32Slice(dist, vertexNo)
+	order := g.Order()
+	dist = iutil.I32Slice(dist, order)
 	if prev != nil {
-		prev = iutil.VIdxSlice(prev, vertexNo)
+		prev = iutil.VIdxSlice(prev, order)
 	}
-	dij.init(vertexNo)
+	dij.init(order)
 	dist[start] = 0
-	for v := groph.V0; v < g.VertexNo(); v++ {
+	for v := groph.V0; v < g.Order(); v++ {
 		if v != start {
 			dist[v] = -1
 		}
@@ -163,14 +163,14 @@ func (dij *Dijkstraf32) On(
 	dist []float32,
 	prev []groph.VIdx,
 ) ([]float32, []groph.VIdx) {
-	vertexNo := g.VertexNo()
-	dist = iutil.F32Slice(dist, vertexNo)
+	order := g.Order()
+	dist = iutil.F32Slice(dist, order)
 	if prev != nil {
-		prev = iutil.VIdxSlice(prev, vertexNo)
+		prev = iutil.VIdxSlice(prev, order)
 	}
-	dij.init(vertexNo)
+	dij.init(order)
 	dist[start] = 0
-	for v := groph.V0; v < g.VertexNo(); v++ {
+	for v := groph.V0; v < g.Order(); v++ {
 		if v != start {
 			dist[v] = float32(math.Inf(1))
 		}

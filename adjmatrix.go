@@ -10,7 +10,7 @@ type adjMx struct {
 	sz VIdx
 }
 
-func (m *adjMx) VertexNo() VIdx { return m.sz }
+func (m *adjMx) Order() VIdx { return m.sz }
 
 // AdjMxDbitmap is a directed WGraph with boolean edge weights implemented as
 // bitmap. This sacrifices runtime performance for lesser memory usage.
@@ -19,16 +19,16 @@ type AdjMxDbitmap struct {
 	bs BitSet
 }
 
-func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
-	sz := vertexNo * vertexNo
+func NewAdjMxDbitmap(order VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
+	sz := order * order
 	sz = BitSetWords(sz)
 	if reuse == nil {
 		reuse = &AdjMxDbitmap{
-			adjMx: adjMx{sz: vertexNo},
+			adjMx: adjMx{sz: order},
 			bs:    make(BitSet, sz),
 		}
 	} else {
-		reuse.sz = vertexNo
+		reuse.sz = order
 		reuse.bs = iutil.U64Slice(reuse.bs, int(sz))
 	}
 	return reuse
@@ -47,8 +47,8 @@ func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap {
 	return m
 }
 
-func (m *AdjMxDbitmap) Reset(vertexNo VIdx) {
-	NewAdjMxDbitmap(vertexNo, m)
+func (m *AdjMxDbitmap) Reset(order VIdx) {
+	NewAdjMxDbitmap(order, m)
 	m.Init(false)
 }
 
@@ -85,15 +85,15 @@ type AdjMxDbool struct {
 	bs []bool
 }
 
-func NewAdjMxDbool(vertexNo VIdx, reuse *AdjMxDbool) *AdjMxDbool {
-	sz := vertexNo * vertexNo
+func NewAdjMxDbool(order VIdx, reuse *AdjMxDbool) *AdjMxDbool {
+	sz := order * order
 	if reuse == nil {
 		reuse = &AdjMxDbool{
-			adjMx: adjMx{sz: vertexNo},
+			adjMx: adjMx{sz: order},
 			bs:    make([]bool, sz),
 		}
 	} else {
-		reuse.sz = vertexNo
+		reuse.sz = order
 		reuse.bs = iutil.BoolSlice(reuse.bs, int(sz))
 	}
 	return reuse
@@ -106,8 +106,8 @@ func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool {
 	return m
 }
 
-func (m *AdjMxDbool) Reset(vertexNo VIdx) {
-	NewAdjMxDbool(vertexNo, m)
+func (m *AdjMxDbool) Reset(order VIdx) {
+	NewAdjMxDbool(order, m)
 	m.Init(false)
 }
 
@@ -140,16 +140,16 @@ type AdjMxDi32 struct {
 	Del int32
 }
 
-func NewAdjMxDi32(vertexNo VIdx, reuse *AdjMxDi32) *AdjMxDi32 {
+func NewAdjMxDi32(order VIdx, reuse *AdjMxDi32) *AdjMxDi32 {
 	if reuse == nil {
 		reuse = &AdjMxDi32{
-			adjMx: adjMx{sz: vertexNo},
-			w:     make([]int32, vertexNo*vertexNo),
+			adjMx: adjMx{sz: order},
+			w:     make([]int32, order*order),
 			Del:   i32cleared,
 		}
 	} else {
-		reuse.sz = vertexNo
-		reuse.w = iutil.I32Slice(reuse.w, int(vertexNo*vertexNo))
+		reuse.sz = order
+		reuse.w = iutil.I32Slice(reuse.w, int(order*order))
 	}
 	return reuse
 }
@@ -161,9 +161,9 @@ func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 {
 	return m
 }
 
-func (m *AdjMxDi32) Reset(vertexNo VIdx) {
+func (m *AdjMxDi32) Reset(order VIdx) {
 	c := m.Del
-	NewAdjMxDi32(vertexNo, m)
+	NewAdjMxDi32(order, m)
 	m.Del = c
 	m.Init(m.Del)
 }
@@ -202,15 +202,15 @@ type AdjMxDf32 struct {
 	w []float32
 }
 
-func NewAdjMxDf32(vertexNo VIdx, reuse *AdjMxDf32) *AdjMxDf32 {
+func NewAdjMxDf32(order VIdx, reuse *AdjMxDf32) *AdjMxDf32 {
 	if reuse == nil {
 		reuse = &AdjMxDf32{
-			adjMx: adjMx{sz: vertexNo},
-			w:     make([]float32, vertexNo*vertexNo),
+			adjMx: adjMx{sz: order},
+			w:     make([]float32, order*order),
 		}
 	} else {
-		reuse.sz = vertexNo
-		reuse.w = iutil.F32Slice(reuse.w, int(vertexNo*vertexNo))
+		reuse.sz = order
+		reuse.w = iutil.F32Slice(reuse.w, int(order*order))
 	}
 	return reuse
 }
@@ -222,8 +222,8 @@ func (m *AdjMxDf32) Init(w float32) *AdjMxDf32 {
 	return m
 }
 
-func (m *AdjMxDf32) Reset(vertexNo VIdx) {
-	NewAdjMxDf32(vertexNo, m)
+func (m *AdjMxDf32) Reset(order VIdx) {
+	NewAdjMxDf32(order, m)
 	m.Init(nan32)
 }
 
@@ -265,15 +265,15 @@ type AdjMxUf32 struct {
 	w []float32
 }
 
-func NewAdjMxUf32(vertexNo VIdx, reuse *AdjMxUf32) *AdjMxUf32 {
+func NewAdjMxUf32(order VIdx, reuse *AdjMxUf32) *AdjMxUf32 {
 	if reuse == nil {
 		reuse = &AdjMxUf32{
-			adjMx: adjMx{sz: vertexNo},
-			w:     make([]float32, nSum(vertexNo)),
+			adjMx: adjMx{sz: order},
+			w:     make([]float32, nSum(order)),
 		}
 	} else {
-		reuse.sz = vertexNo
-		reuse.w = iutil.F32Slice(reuse.w, int(nSum(vertexNo)))
+		reuse.sz = order
+		reuse.w = iutil.F32Slice(reuse.w, int(nSum(order)))
 	}
 	return reuse
 }
@@ -285,8 +285,8 @@ func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 {
 	return m
 }
 
-func (m *AdjMxUf32) Reset(vertexNo VIdx) {
-	NewAdjMxUf32(vertexNo, m)
+func (m *AdjMxUf32) Reset(order VIdx) {
+	NewAdjMxUf32(order, m)
 	m.Init(nan32)
 }
 
@@ -320,7 +320,11 @@ func (m *AdjMxUf32) SetWeight(i, j VIdx, w interface{}) {
 }
 
 func (m *AdjMxUf32) SetWeightU(i, j VIdx, w interface{}) {
-	m.SetEdgeU(i, j, w.(float32))
+	if w == nil {
+		m.SetEdgeU(i, j, NaN32())
+	} else {
+		m.SetEdgeU(i, j, w.(float32))
+	}
 }
 
 func (m *AdjMxUf32) Edge(i, j VIdx) (w float32) {
@@ -355,16 +359,16 @@ type AdjMxUi32 struct {
 	Del int32
 }
 
-func NewAdjMxUi32(vertexNo VIdx, reuse *AdjMxUi32) *AdjMxUi32 {
+func NewAdjMxUi32(order VIdx, reuse *AdjMxUi32) *AdjMxUi32 {
 	if reuse == nil {
 		reuse = &AdjMxUi32{
-			adjMx: adjMx{sz: vertexNo},
-			w:     make([]int32, nSum(vertexNo)),
+			adjMx: adjMx{sz: order},
+			w:     make([]int32, nSum(order)),
 			Del:   i32cleared,
 		}
 	} else {
-		reuse.sz = vertexNo
-		reuse.w = iutil.I32Slice(reuse.w, int(nSum(vertexNo)))
+		reuse.sz = order
+		reuse.w = iutil.I32Slice(reuse.w, int(nSum(order)))
 	}
 	return reuse
 }
@@ -376,8 +380,8 @@ func (m *AdjMxUi32) Init(w int32) *AdjMxUi32 {
 	return m
 }
 
-func (m *AdjMxUi32) Reset(vertexNo VIdx) {
-	NewAdjMxUi32(vertexNo, m)
+func (m *AdjMxUi32) Reset(order VIdx) {
+	NewAdjMxUi32(order, m)
 	m.Init(m.Del)
 }
 

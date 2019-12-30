@@ -45,7 +45,7 @@ func TwoOptf32(g groph.RGf32) (path []groph.VIdx, plen float32) {
 	} else {
 		diff2opt = diff2optU
 	}
-	vno := g.VertexNo()
+	vno := g.Order()
 	path = make([]groph.VIdx, vno)
 	for i := groph.V0; i+1 < vno; i++ {
 		path[i] = i
@@ -77,7 +77,7 @@ func TwoOptf32(g groph.RGf32) (path []groph.VIdx, plen float32) {
 
 // Benchmark showed that the proformance gain is not worth it
 // func (g *AdjMxDf32) Tsp2Opt() (path []uint, plen float32) {
-// 	vno := g.VertexNo()
+// 	vno := g.Order()
 // 	path = make([]uint, vno)
 // 	for i := uint(0); i+1 < vno; i++ {
 // 		path[i] = i
@@ -109,7 +109,7 @@ func TwoOptf32(g groph.RGf32) (path []groph.VIdx, plen float32) {
 
 // Benchmark showed that the proformance gain is not worth it
 // func (g *AdjMxUf32) Tsp2Opt() (path []uint, plen float32) {
-// 	vno := g.VertexNo()
+// 	vno := g.Order()
 // 	path = make([]uint, vno)
 // 	for i := uint(0); i+1 < vno; i++ {
 // 		path[i] = i

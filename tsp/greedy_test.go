@@ -44,7 +44,7 @@ func ExampleAsymGreedy() {
 		fmt.Println(err)
 	}
 	am := util.MustCp(util.CpWeights(
-		groph.NewAdjMxDf32(adp.VertexNo(), nil),
+		groph.NewAdjMxDf32(adp.Order(), nil),
 		adp,
 	)).(*groph.AdjMxDf32)
 	showMatrix(exmp1)
