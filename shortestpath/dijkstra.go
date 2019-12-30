@@ -79,7 +79,7 @@ func (dij *Dijkstrai32) On(
 	}
 	dij.init(vertexNo)
 	dist[start] = 0
-	for v := groph.VIdx(0); v < g.VertexNo(); v++ {
+	for v := groph.V0; v < g.VertexNo(); v++ {
 		if v != start {
 			dist[v] = -1
 		}
@@ -170,7 +170,7 @@ func (dij *Dijkstraf32) On(
 	}
 	dij.init(vertexNo)
 	dist[start] = 0
-	for v := groph.VIdx(0); v < g.VertexNo(); v++ {
+	for v := groph.V0; v < g.VertexNo(); v++ {
 		if v != start {
 			dist[v] = float32(math.Inf(1))
 		}

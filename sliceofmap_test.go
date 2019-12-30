@@ -27,13 +27,13 @@ func BenchmarkSpSoM_generic(b *testing.B) {
 	m := NewSpSoM(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				m.SetWeight(i, j, n)
 			}
 		}
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				r := m.Weight(i, j)
 				if r != n {
 					b.Fatal("unexpected read", n, r)
@@ -64,13 +64,13 @@ func BenchmarkSpSoMi32_generic(b *testing.B) {
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				m.SetWeight(i, j, w)
 			}
 		}
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				r := m.Weight(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -85,13 +85,13 @@ func BenchmarkSpSoMi32(b *testing.B) {
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				m.SetEdge(i, j, w)
 			}
 		}
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				r, _ := m.Edge(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -120,13 +120,13 @@ func BenchmarkSpSoMf32_generic(b *testing.B) {
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				m.SetWeight(i, j, w)
 			}
 		}
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				r := m.Weight(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -141,13 +141,13 @@ func BenchmarkSpSoMf32(b *testing.B) {
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				m.SetEdge(i, j, w)
 			}
 		}
-		for i := VIdx(0); i < max; i++ {
-			for j := VIdx(0); j < max; j++ {
+		for i := V0; i < max; i++ {
+			for j := V0; j < max; j++ {
 				if r := m.Edge(i, j); r != w {
 					b.Fatal("unexpected read", w, r)
 				}

@@ -53,8 +53,8 @@ func CpWeights(dst groph.WGraph, src groph.RGraph) (groph.WGraph, error) {
 			}
 		}
 	} else {
-		for i := groph.VIdx(0); i < sz; i++ {
-			for j := groph.VIdx(0); j < sz; j++ {
+		for i := groph.V0; i < sz; i++ {
+			for j := groph.V0; j < sz; j++ {
 				dst.SetWeight(i, j, src.Weight(i, j))
 			}
 		}
@@ -103,8 +103,8 @@ func CpXWeights(
 			}
 		}
 	} else {
-		for i := groph.VIdx(0); i < sz; i++ {
-			for j := groph.VIdx(0); j < sz; j++ {
+		for i := groph.V0; i < sz; i++ {
+			for j := groph.V0; j < sz; j++ {
 				w = src.Weight(i, j)
 				dst.SetWeight(i, j, xf(w))
 			}

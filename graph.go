@@ -74,15 +74,6 @@ type InLister interface {
 	InDegree(v VIdx) int
 }
 
-// EachIncoming calls onSource on each node s that is a neighbour of 'to' in
-// graph g. Vertex s is a neighbour of to, iff g contains the edge (s,to).
-//
-// For undirected graphs that are no NeighbourListers EachNeighbour
-// guarantees to call WeightU with v ≥ u to detect neighbours.
-func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) {
-	panic("NYI!")
-}
-
 // WGraph represents graph that allows read and write access to the
 // egde weights.
 //

@@ -30,9 +30,9 @@ func TestDijkstrai32_toFW(t *testing.T) {
 		dijkstra Dijkstrai32
 		dist     []int32
 	)
-	for start := groph.VIdx(0); start < VNo; start++ {
+	for start := groph.V0; start < VNo; start++ {
 		dist, _ := dijkstra.On(g, start, dist, nil)
-		for dest := groph.VIdx(0); dest < VNo; dest++ {
+		for dest := groph.V0; dest < VNo; dest++ {
 			if start == dest {
 				continue
 			}
@@ -63,9 +63,9 @@ func TestDijkstrai32_paths(t *testing.T) {
 		dist     []int32
 		path     = []groph.VIdx{}
 	)
-	for start := groph.VIdx(0); start < VNo; start++ {
+	for start := groph.V0; start < VNo; start++ {
 		dist, path = dijkstra.On(g, start, dist, path)
-		for dest := groph.VIdx(0); dest < VNo; dest++ {
+		for dest := groph.V0; dest < VNo; dest++ {
 			if dest == start {
 				continue
 			}
@@ -106,9 +106,9 @@ func TestDijkstraf32_toFW(t *testing.T) {
 		dijkstra Dijkstraf32
 		dist     []float32
 	)
-	for start := groph.VIdx(0); start < VNo; start++ {
+	for start := groph.V0; start < VNo; start++ {
 		dist, _ := dijkstra.On(g, start, dist, nil)
-		for dest := groph.VIdx(0); dest < VNo; dest++ {
+		for dest := groph.V0; dest < VNo; dest++ {
 			if start == dest {
 				continue
 			}
@@ -139,9 +139,9 @@ func TestDijkstraf32_paths(t *testing.T) {
 		dist     []float32
 		path     = []groph.VIdx{}
 	)
-	for start := groph.VIdx(0); start < VNo; start++ {
+	for start := groph.V0; start < VNo; start++ {
 		dist, path = dijkstra.On(g, start, dist, path)
-		for dest := groph.VIdx(0); dest < VNo; dest++ {
+		for dest := groph.V0; dest < VNo; dest++ {
 			if dest == start {
 				continue
 			}

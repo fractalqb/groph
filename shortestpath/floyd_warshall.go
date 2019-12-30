@@ -5,8 +5,8 @@ import "git.fractalqb.de/fractalqb/groph"
 func FloydWarshallf32(g groph.WGf32) {
 	vno := g.VertexNo()
 	if u, ok := g.(groph.WUf32); ok {
-		for k := groph.VIdx(0); k < vno; k++ {
-			for i := groph.VIdx(0); i < vno; i++ {
+		for k := groph.V0; k < vno; k++ {
+			for i := groph.V0; i < vno; i++ {
 				for j := 0; j < i; j++ {
 					ds := u.Edge(i, k) + u.Edge(k, j)
 					if u.EdgeU(i, j) > ds {
@@ -16,9 +16,9 @@ func FloydWarshallf32(g groph.WGf32) {
 			}
 		}
 	} else {
-		for k := groph.VIdx(0); k < vno; k++ {
-			for i := groph.VIdx(0); i < vno; i++ {
-				for j := groph.VIdx(0); j < vno; j++ {
+		for k := groph.V0; k < vno; k++ {
+			for i := groph.V0; i < vno; i++ {
+				for j := groph.V0; j < vno; j++ {
 					ds := g.Edge(i, k) + g.Edge(k, j)
 					if g.Edge(i, j) > ds {
 						g.SetEdge(i, j, ds)
@@ -32,8 +32,8 @@ func FloydWarshallf32(g groph.WGf32) {
 func FloydWarshalli32(g groph.WGi32) {
 	vno := g.VertexNo()
 	if u, ok := g.(groph.WUi32); ok {
-		for k := groph.VIdx(0); k < vno; k++ {
-			for i := groph.VIdx(0); i < vno; i++ {
+		for k := groph.V0; k < vno; k++ {
+			for i := groph.V0; i < vno; i++ {
 				for j := 0; j < i; j++ {
 					ds, ok := u.Edge(i, k)
 					if !ok {
@@ -51,9 +51,9 @@ func FloydWarshalli32(g groph.WGi32) {
 			}
 		}
 	} else {
-		for k := groph.VIdx(0); k < vno; k++ {
-			for i := groph.VIdx(0); i < vno; i++ {
-				for j := groph.VIdx(0); j < vno; j++ {
+		for k := groph.V0; k < vno; k++ {
+			for i := groph.V0; i < vno; i++ {
+				for j := groph.V0; j < vno; j++ {
 					ds, ok := g.Edge(i, k)
 					if !ok {
 						continue
@@ -74,9 +74,9 @@ func FloydWarshalli32(g groph.WGi32) {
 
 func FloydWarshallAdjMxDf32(g *groph.AdjMxDf32) {
 	vno := g.VertexNo()
-	for k := groph.VIdx(0); k < vno; k++ {
-		for i := groph.VIdx(0); i < vno; i++ {
-			for j := groph.VIdx(0); j < vno; j++ {
+	for k := groph.V0; k < vno; k++ {
+		for i := groph.V0; i < vno; i++ {
+			for j := groph.V0; j < vno; j++ {
 				ds := g.Edge(i, k) + g.Edge(k, j)
 				if g.Edge(i, j) > ds {
 					g.SetEdge(i, j, ds)
@@ -88,9 +88,9 @@ func FloydWarshallAdjMxDf32(g *groph.AdjMxDf32) {
 
 func FloydWarshallAdjMxDi32(g *groph.AdjMxDi32) {
 	vno := g.VertexNo()
-	for k := groph.VIdx(0); k < vno; k++ {
-		for i := groph.VIdx(0); i < vno; i++ {
-			for j := groph.VIdx(0); j < vno; j++ {
+	for k := groph.V0; k < vno; k++ {
+		for i := groph.V0; i < vno; i++ {
+			for j := groph.V0; j < vno; j++ {
 				ds, ok := g.Edge(i, k)
 				if !ok {
 					continue
