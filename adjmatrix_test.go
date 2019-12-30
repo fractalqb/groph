@@ -1,8 +1,6 @@
 package groph
 
 import (
-	"fmt"
-	"math"
 	"testing"
 )
 
@@ -13,9 +11,10 @@ var _ WGf32 = (*AdjMxDf32)(nil)
 var _ WUi32 = (*AdjMxUi32)(nil)
 var _ WUf32 = (*AdjMxUf32)(nil)
 
-func TestAdjMxDbitmap_SetUset(t *testing.T) {
-	m := NewAdjMxDbitmap(testSizeSetUnset, nil)
-	testDSetUnset(t, m,
+func TestAdjMxDbitmap(t *testing.T) {
+	m := NewAdjMxDbitmap(3, nil)
+	t.Run("is WGbool", func(t *testing.T) { testIsWGbool(t, m) })
+	testDSetDel(t, m,
 		func(i, j VIdx) { m.SetEdge(i, j, false) },
 		func(w interface{}) bool { return w.(bool) == false },
 		func(i, j VIdx) interface{} { m.SetEdge(i, j, true); return true },
@@ -24,7 +23,7 @@ func TestAdjMxDbitmap_SetUset(t *testing.T) {
 }
 
 func BenchmarkAdjMxDbitmap(b *testing.B) {
-	m := NewAdjMxDbitmap(testSizeSetUnset, nil)
+	m := NewAdjMxDbitmap(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := true
@@ -48,7 +47,7 @@ func BenchmarkAdjMxDbitmap(b *testing.B) {
 }
 
 func BenchmarkAdjMxDbitmap_generic(b *testing.B) {
-	m := NewAdjMxDbitmap(testSizeSetUnset, nil)
+	m := NewAdjMxDbitmap(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := true
@@ -71,9 +70,10 @@ func BenchmarkAdjMxDbitmap_generic(b *testing.B) {
 	}
 }
 
-func TestAdjMxDbool_SetUset(t *testing.T) {
-	m := NewAdjMxDbool(testSizeSetUnset, nil)
-	testDSetUnset(t, m,
+func TestAdjMxDbool(t *testing.T) {
+	m := NewAdjMxDbool(3, nil)
+	t.Run("is WGbool", func(t *testing.T) { testIsWGbool(t, m) })
+	testDSetDel(t, m,
 		func(i, j VIdx) { m.SetEdge(i, j, false) },
 		func(w interface{}) bool { return w.(bool) == false },
 		func(i, j VIdx) interface{} { m.SetEdge(i, j, true); return true },
@@ -82,7 +82,7 @@ func TestAdjMxDbool_SetUset(t *testing.T) {
 }
 
 func BenchmarkAdjMxDbool(b *testing.B) {
-	m := NewAdjMxDbool(testSizeSetUnset, nil)
+	m := NewAdjMxDbool(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := true
@@ -106,7 +106,7 @@ func BenchmarkAdjMxDbool(b *testing.B) {
 }
 
 func BenchmarkAdjMxDbool_generic(b *testing.B) {
-	m := NewAdjMxDbool(testSizeSetUnset, nil)
+	m := NewAdjMxDbool(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := true
@@ -129,10 +129,11 @@ func BenchmarkAdjMxDbool_generic(b *testing.B) {
 	}
 }
 
-func TestAdjMxDi32_SetUset(t *testing.T) {
-	m := NewAdjMxDi32(testSizeSetUnset, nil)
+func TestAdjMxDi32(t *testing.T) {
+	m := NewAdjMxDi32(testSizeSetDel, nil)
+	t.Run("is WGi32", func(t *testing.T) { testIsWGi32(t, m) })
 	const w32 = int32(4711)
-	testDSetUnset(t, m,
+	testDSetDel(t, m,
 		func(i, j VIdx) { m.SetEdge(i, j, m.Del) },
 		func(w interface{}) bool { return w == nil },
 		func(i, j VIdx) interface{} { m.SetEdge(i, j, w32); return w32 },
@@ -141,7 +142,7 @@ func TestAdjMxDi32_SetUset(t *testing.T) {
 }
 
 func BenchmarkAdjMxDi32(b *testing.B) {
-	m := NewAdjMxDi32(testSizeSetUnset, nil)
+	m := NewAdjMxDi32(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
@@ -162,7 +163,7 @@ func BenchmarkAdjMxDi32(b *testing.B) {
 }
 
 func BenchmarkAdjMxDi32_generic(b *testing.B) {
-	m := NewAdjMxDi32(testSizeSetUnset, nil)
+	m := NewAdjMxDi32(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
@@ -182,10 +183,11 @@ func BenchmarkAdjMxDi32_generic(b *testing.B) {
 	}
 }
 
-func TestAdjMxDf32_SetUset(t *testing.T) {
-	m := NewAdjMxDf32(testSizeSetUnset, nil)
+func TestAdjMxDf32(t *testing.T) {
+	m := NewAdjMxDf32(testSizeSetDel, nil)
+	t.Run("is WGf32", func(t *testing.T) { testIsWGf32(t, m) })
 	const w32 = float32(3.1415)
-	testDSetUnset(t, m,
+	testDSetDel(t, m,
 		func(i, j VIdx) { m.SetEdge(i, j, NaN32()) },
 		func(w interface{}) bool { return IsNaN32(w.(float32)) },
 		func(i, j VIdx) interface{} { m.SetEdge(i, j, w32); return w32 },
@@ -194,7 +196,7 @@ func TestAdjMxDf32_SetUset(t *testing.T) {
 }
 
 func BenchmarkAdjMxDf32(b *testing.B) {
-	m := NewAdjMxDf32(testSizeSetUnset, nil)
+	m := NewAdjMxDf32(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
@@ -215,7 +217,7 @@ func BenchmarkAdjMxDf32(b *testing.B) {
 }
 
 func BenchmarkAdjMxDf32_generic(b *testing.B) {
-	m := NewAdjMxDf32(testSizeSetUnset, nil)
+	m := NewAdjMxDf32(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
@@ -235,10 +237,11 @@ func BenchmarkAdjMxDf32_generic(b *testing.B) {
 	}
 }
 
-func TestAdjMxUf32_SetUset(t *testing.T) {
-	m := NewAdjMxUf32(testSizeSetUnset, nil)
+func TestAdjMxUf32(t *testing.T) {
+	m := NewAdjMxUf32(testSizeSetDel, nil)
+	t.Run("is WUf32", func(t *testing.T) { testIsWUf32(t, m) })
 	const w32 = float32(3.1415)
-	testUSetUnset(t, m,
+	testUSetDel(t, m,
 		func(i, j VIdx) { m.SetEdgeU(i, j, NaN32()) },
 		func(w interface{}) bool { return IsNaN32(w.(float32)) },
 		func(i, j VIdx) interface{} { m.SetEdgeU(i, j, w32); return w32 },
@@ -246,10 +249,11 @@ func TestAdjMxUf32_SetUset(t *testing.T) {
 	)
 }
 
-func TestAdjMxUi32_SetUset(t *testing.T) {
-	m := NewAdjMxUi32(testSizeSetUnset, nil)
+func TestAdjMxUi32(t *testing.T) {
+	m := NewAdjMxUi32(testSizeSetDel, nil)
+	t.Run("is WUi32", func(t *testing.T) { testIsWUi32(t, m) })
 	const w32 int32 = 31415
-	testUSetUnset(t, m,
+	testUSetDel(t, m,
 		func(i, j VIdx) { m.SetEdgeU(i, j, m.Del) },
 		func(w interface{}) bool { return w.(int32) == m.Del },
 		func(i, j VIdx) interface{} { m.SetEdgeU(i, j, w32); return w32 },
@@ -258,40 +262,4 @@ func TestAdjMxUi32_SetUset(t *testing.T) {
 			return w
 		},
 	)
-}
-
-func ExampleNaN64() {
-	nan := math.NaN()
-	fmt.Printf("0 < NaN: %t\n", 0 < nan)
-	fmt.Printf("0 > NaN: %t\n", 0 > nan)
-	fmt.Printf("nan isNan(): %t\n", math.IsNaN(nan))
-	tmp := 3.14 + nan
-	fmt.Println("tmp := 3.14 + nan")
-	fmt.Printf("tmp isNan(): %t\n", math.IsNaN(tmp))
-	fmt.Printf("tmp == nan : %t\n", tmp == nan)
-	// Output:
-	// 0 < NaN: false
-	// 0 > NaN: false
-	// nan isNan(): true
-	// tmp := 3.14 + nan
-	// tmp isNan(): true
-	// tmp == nan : false
-}
-
-func ExampleNaN32() {
-	nan := NaN32()
-	fmt.Printf("0 < NaN: %t\n", 0 < nan)
-	fmt.Printf("0 > NaN: %t\n", 0 > nan)
-	fmt.Printf("nan isNan(): %t\n", IsNaN32(nan))
-	tmp := 3.14 + nan
-	fmt.Println("tmp := 3.14 + nan")
-	fmt.Printf("tmp isNan(): %t\n", IsNaN32(tmp))
-	fmt.Printf("tmp == nan : %t\n", tmp == nan)
-	// Output:
-	// 0 < NaN: false
-	// 0 > NaN: false
-	// nan isNan(): true
-	// tmp := 3.14 + nan
-	// tmp isNan(): true
-	// tmp == nan : false
 }

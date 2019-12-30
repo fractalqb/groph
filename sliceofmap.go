@@ -48,12 +48,20 @@ func (g *SpSoM) Reset(vertexNo VIdx) {
 	}
 }
 
-func (g *SpSoM) EachNeighbour(v VIdx, do VisitNode) {
-	if row := g.ws[v]; row != nil {
+func (g *SpSoM) EachOutgoing(from VIdx, onDest VisitVertex) {
+	if row := g.ws[from]; row != nil {
 		for n := range row {
-			do(n)
+			onDest(n)
 		}
 	}
+}
+
+func (g *SpSoM) OutDegree(v VIdx) int {
+	row := g.ws[v]
+	if row == nil {
+		return 0
+	}
+	return len(row)
 }
 
 type spmroi32 map[VIdx]int32
@@ -124,12 +132,20 @@ func (g *SpSoMi32) Reset(vertexNo VIdx) {
 	}
 }
 
-func (g *SpSoMi32) EachNeighbour(v VIdx, do VisitNode) {
-	if row := g.ws[v]; row != nil {
+func (g *SpSoMi32) EachOutgoing(from VIdx, onDest VisitVertex) {
+	if row := g.ws[from]; row != nil {
 		for n := range row {
-			do(n)
+			onDest(n)
 		}
 	}
+}
+
+func (g *SpSoMi32) OutDegree(v VIdx) int {
+	row := g.ws[v]
+	if row == nil {
+		return 0
+	}
+	return len(row)
 }
 
 type spmrof32 map[VIdx]float32
@@ -197,10 +213,18 @@ func (g *SpSoMf32) Reset(vertexNo VIdx) {
 	}
 }
 
-func (g *SpSoMf32) EachNeighbour(v VIdx, do VisitNode) {
-	if row := g.ws[v]; row != nil {
+func (g *SpSoMf32) EachOutgoing(from VIdx, onDest VisitVertex) {
+	if row := g.ws[from]; row != nil {
 		for n := range row {
-			do(n)
+			onDest(n)
 		}
 	}
+}
+
+func (g *SpSoMf32) OutDegree(v VIdx) int {
+	row := g.ws[v]
+	if row == nil {
+		return 0
+	}
+	return len(row)
 }

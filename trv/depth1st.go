@@ -36,7 +36,7 @@ func (df *DepthFirst) pop() (res groph.VIdx) {
 	return res
 }
 
-func (df *DepthFirst) Cluster(start groph.VIdx, do groph.VisitNode) int {
+func (df *DepthFirst) Cluster(start groph.VIdx, do groph.VisitVertex) int {
 	if df.Visited.Get(start) {
 		return 0
 	}
@@ -50,7 +50,7 @@ func (df *DepthFirst) Cluster(start groph.VIdx, do groph.VisitNode) int {
 		df.Visited.Set(start)
 		do(start)
 		count++
-		groph.EachNeighbour(df.g, start, func(n groph.VIdx) {
+		groph.EachOutgoing(df.g, start, func(n groph.VIdx) {
 			if !df.Visited.Get(n) {
 				df.push(n)
 			}

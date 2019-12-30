@@ -89,7 +89,7 @@ func (dij *Dijkstrai32) On(
 	}
 	for dij.Len() != 0 {
 		u := heap.Pop(dij).(pqItemi32).v
-		groph.EachNeighbour(g, u, func(n groph.VIdx) {
+		groph.EachOutgoing(g, u, func(n groph.VIdx) {
 			alt := dist[u]
 			if alt < 0 {
 				return
@@ -180,7 +180,7 @@ func (dij *Dijkstraf32) On(
 	}
 	for dij.Len() != 0 {
 		u := heap.Pop(dij).(pqItemf32).v
-		groph.EachNeighbour(g, u, func(n groph.VIdx) {
+		groph.EachOutgoing(g, u, func(n groph.VIdx) {
 			alt := dist[u] + g.Edge(u, n) // TOOD EdgeD?
 			if alt < dist[n] {
 				dist[n] = alt

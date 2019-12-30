@@ -52,47 +52,67 @@ func Directed(g RGraph) bool {
 	return !ok
 }
 
-type VisitNode = func(neighbour VIdx)
+type VisitVertex = func(neighbour VIdx)
 
-// NeighbourLister is implemented by graph implementations that can
-// easily iterate over all neighbous of one node. Users are encouraged
-// to use the EachNeighbour function.
-type NeighbourLister interface {
-	EachNeighbour(v VIdx, do VisitNode)
+// OutLister is implemented by graph implementations that can easily iterate
+// over all outgoing edges of one node.
+//
+// See also EachOutgoing function.
+type OutLister interface {
+	EachOutgoing(from VIdx, onDest VisitVertex)
+	OutDegree(v VIdx) int
 }
 
-// EachNeighbour calls do on each node u that is a neighbour of v in
-// graph g. u is a neighbour of v, iff g contains the edge (v, u).
+// EachOutgoing calls onDest on each node d that is a neighbour of 'from' in
+// graph g. Vertex d is a neighbour of from, iff g contains the edge (d,from).
 //
 // For undirected graphs that are no NeighbourListers EachNeighbour
 // guarantees to call WeightU with v ≥ u to detect neighbours.
-func EachNeighbour(g RGraph, v VIdx, do VisitNode) {
+func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) {
 	switch gi := g.(type) {
-	case NeighbourLister:
-		gi.EachNeighbour(v, do)
+	case OutLister:
+		gi.EachOutgoing(from, onDest)
 	case RUndirected:
 		vno := gi.VertexNo()
 		n := VIdx(0)
-		for n < v {
-			if w := gi.WeightU(v, n); w != nil {
-				do(n)
+		for n < from {
+			if w := gi.WeightU(from, n); w != nil {
+				onDest(n)
 			}
 			n++
 		}
 		for n < vno {
-			if w := gi.WeightU(n, v); w != nil {
-				do(n)
+			if w := gi.WeightU(n, from); w != nil {
+				onDest(n)
 			}
 			n++
 		}
 	default:
 		vno := g.VertexNo()
 		for n := VIdx(0); n < vno; n++ {
-			if w := g.Weight(v, n); w != nil {
-				do(n)
+			if w := g.Weight(from, n); w != nil {
+				onDest(n)
 			}
 		}
 	}
+}
+
+// InLister is implemented by graph implementations that can easily iterate
+// over all incoming edges of one node.
+//
+// See also EachIncoming function.
+type InLister interface {
+	EachIncoming(to VIdx, onSource VisitVertex)
+	InDegree(v VIdx) int
+}
+
+// EachIncoming calls onSource on each node s that is a neighbour of 'to' in
+// graph g. Vertex s is a neighbour of to, iff g contains the edge (s,to).
+//
+// For undirected graphs that are no NeighbourListers EachNeighbour
+// guarantees to call WeightU with v ≥ u to detect neighbours.
+func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) {
+	panic("NYI!")
 }
 
 // WGraph represents graph that allows read and write access to the
@@ -128,6 +148,7 @@ func Reset(g WGraph) { g.Reset(g.VertexNo()) }
 // RGbool represents a RGraph with boolean edge weights.
 type RGbool interface {
 	RGraph
+	// Edge returns true, iff the edge (u,v) is in the graph.
 	Edge(u, v VIdx) bool
 }
 
@@ -140,7 +161,10 @@ type RUbool interface {
 // WGbool represents a WGraph with boolean edge weights.
 type WGbool interface {
 	WGraph
+	// see RGbool
 	Edge(u, v VIdx) bool
+	// SetEdge removes the edge (u,v) from the graph when flag == bool.
+	// Otherwise it adds the edge (u,v) to the graph.
 	SetEdge(u, v VIdx, flag bool)
 }
 
@@ -155,6 +179,9 @@ type WUbool interface {
 // method for performance reasons.
 type RGi32 interface {
 	RGraph
+	// Edge returns ok == true, iff the edge (u,v) is in the graph. Then it will
+	// also return the weight of the edge. Otherwise the value of weight is
+	// unspecified.
 	Edge(u, v VIdx) (weight int32, ok bool)
 }
 
@@ -166,8 +193,12 @@ type RUi32 interface {
 // An WGi32 is to WGraph what RGi32 is to RGraph.
 type WGi32 interface {
 	WGraph
+	// see RGi32
 	Edge(u, v VIdx) (weight int32, ok bool)
+	// SetEdge sets the weight of the edge (u,v). If the edge (u,v) was not in
+	// the graph before, it is implicitly added.
 	SetEdge(u, v VIdx, weight int32)
+	// DelEdge deletes the edge (u,v) from the graph.
 	DelEdge(u, v VIdx)
 }
 
@@ -188,6 +219,8 @@ func IsNaN32(x float32) bool { return math.IsNaN(float64(x)) }
 // method for performance reasons.
 type RGf32 interface {
 	RGraph
+	// Edge returns Nan32() when the edge (u,v) is not in the graph. Otherwise
+	// it returns the weight of the edge.
 	Edge(u, v VIdx) (weight float32)
 }
 
@@ -199,7 +232,10 @@ type RUf32 interface {
 // An WGf32 is to WGraph what RGf32 is to RGraph.
 type WGf32 interface {
 	WGraph
+	// see RGf32
 	Edge(u, v VIdx) (weight float32)
+	// SetEdge removes the edge (u,v) from the graph, iff weight is NaN32().
+	// Othwerwise it sets the weight of the edge to weight.
 	SetEdge(u, v VIdx, weight float32)
 }
 

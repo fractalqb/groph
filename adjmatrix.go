@@ -54,7 +54,10 @@ func (m *AdjMxDbitmap) Reset(vertexNo VIdx) {
 }
 
 func (m *AdjMxDbitmap) Weight(u, v VIdx) interface{} {
-	return m.Edge(u, v)
+	if m.Edge(u, v) {
+		return true
+	}
+	return nil
 }
 
 func (m *AdjMxDbitmap) SetWeight(i, j VIdx, w interface{}) {
@@ -110,7 +113,10 @@ func (m *AdjMxDbool) Reset(vertexNo VIdx) {
 }
 
 func (m *AdjMxDbool) Weight(u, v VIdx) interface{} {
-	return m.Edge(u, v)
+	if m.Edge(u, v) {
+		return true
+	}
+	return nil
 }
 
 func (m *AdjMxDbool) SetWeight(i, j VIdx, w interface{}) {
@@ -307,7 +313,11 @@ func (m *AdjMxUf32) WeightU(i, j VIdx) interface{} {
 }
 
 func (m *AdjMxUf32) SetWeight(i, j VIdx, w interface{}) {
-	m.SetEdge(i, j, w.(float32))
+	if w == nil {
+		m.SetEdge(i, j, NaN32())
+	} else {
+		m.SetEdge(i, j, w.(float32))
+	}
 }
 
 func (m *AdjMxUf32) SetWeightU(i, j VIdx, w interface{}) {
@@ -372,27 +382,35 @@ func (m *AdjMxUi32) Reset(vertexNo VIdx) {
 	m.Init(m.Del)
 }
 
-func (m *AdjMxUi32) Weight(i, j VIdx) interface{} {
-	if w, ok := m.Edge(i, j); ok {
+func (m *AdjMxUi32) Weight(u, v VIdx) interface{} {
+	if w, ok := m.Edge(u, v); ok {
 		return w
 	}
 	return nil
 }
 
-func (m *AdjMxUi32) WeightU(i, j VIdx) interface{} {
-	w, ok := m.EdgeU(i, j)
+func (m *AdjMxUi32) WeightU(u, v VIdx) interface{} {
+	w, ok := m.EdgeU(u, v)
 	if ok {
 		return w
 	}
 	return nil
 }
 
-func (m *AdjMxUi32) SetWeight(i, j VIdx, w interface{}) {
-	m.SetEdge(i, j, w.(int32))
+func (m *AdjMxUi32) SetWeight(u, v VIdx, w interface{}) {
+	if w == nil {
+		m.DelEdge(u, v)
+	} else {
+		m.SetEdge(u, v, w.(int32))
+	}
 }
 
-func (m *AdjMxUi32) SetWeightU(i, j VIdx, w interface{}) {
-	m.SetEdgeU(i, j, w.(int32))
+func (m *AdjMxUi32) SetWeightU(u, v VIdx, w interface{}) {
+	if w == nil {
+		m.DelEdgeU(u, v)
+	} else {
+		m.SetEdgeU(u, v, w.(int32))
+	}
 }
 
 func (m *AdjMxUi32) DelEdge(u, v VIdx) {
@@ -403,18 +421,18 @@ func (m *AdjMxUi32) DelEdgeU(u, v VIdx) {
 	m.SetEdgeU(u, v, m.Del)
 }
 
-func (m *AdjMxUi32) Edge(i, j VIdx) (w int32, ok bool) {
-	if i >= j {
-		w = m.w[uIdx(i, j)]
+func (m *AdjMxUi32) Edge(u, v VIdx) (w int32, ok bool) {
+	if u >= v {
+		w = m.w[uIdx(u, v)]
 	} else {
-		w = m.w[uIdx(j, i)]
+		w = m.w[uIdx(v, u)]
 	}
 	return w, w != m.Del
 }
 
 // EdgeU is used iff i >= j
-func (m *AdjMxUi32) EdgeU(i, j VIdx) (w int32, ok bool) {
-	w = m.w[uIdx(i, j)]
+func (m *AdjMxUi32) EdgeU(u, v VIdx) (w int32, ok bool) {
+	w = m.w[uIdx(u, v)]
 	return w, w != m.Del
 }
 
@@ -427,6 +445,6 @@ func (m *AdjMxUi32) SetEdge(i, j VIdx, w int32) {
 }
 
 // SetEdgeU is used iff i >= j
-func (m *AdjMxUi32) SetEdgeU(i, j VIdx, w int32) {
-	m.w[uIdx(i, j)] = w
+func (m *AdjMxUi32) SetEdgeU(u, v VIdx, w int32) {
+	m.w[uIdx(u, v)] = w
 }

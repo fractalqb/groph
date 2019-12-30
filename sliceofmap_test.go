@@ -5,26 +5,26 @@ import (
 )
 
 var (
-	_ WGraph          = (*SpSoM)(nil)
-	_ NeighbourLister = (*SpSoM)(nil)
-	_ WGi32           = (*SpSoMi32)(nil)
-	_ NeighbourLister = (*SpSoMi32)(nil)
-	_ WGf32           = (*SpSoMf32)(nil)
-	_ NeighbourLister = (*SpSoMf32)(nil)
+	_ WGraph    = (*SpSoM)(nil)
+	_ OutLister = (*SpSoM)(nil)
+	_ WGi32     = (*SpSoMi32)(nil)
+	_ OutLister = (*SpSoMi32)(nil)
+	_ WGf32     = (*SpSoMf32)(nil)
+	_ OutLister = (*SpSoMf32)(nil)
 )
 
-func TestSpSoM_SetUset(t *testing.T) {
-	m := NewSpSoM(testSizeSetUnset, nil)
-	testGenericSetUnset(t, m, 4)
+func TestSpSoM(t *testing.T) {
+	g := NewSpSoM(testSizeSetDel, nil)
+	testGenericSetDel(t, g, testProbeGen)
 }
 
-func TestSpSoM_SetUsetUndir(t *testing.T) {
-	u := AsWUndir(NewSpSoM(testSizeSetUnset, nil))
-	testGenericSetUnset(t, u, 4)
+func TestSpSoM_undir(t *testing.T) {
+	//u := AsWUndir(NewSpSoM(testSizeSetDel, nil))
+	t.Skip("NYI!")
 }
 
 func BenchmarkSpSoM_generic(b *testing.B) {
-	m := NewSpSoM(testSizeSetUnset, nil)
+	m := NewSpSoM(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		for i := VIdx(0); i < max; i++ {
@@ -43,18 +43,24 @@ func BenchmarkSpSoM_generic(b *testing.B) {
 	}
 }
 
-func TestSpSoMi32_SetUset(t *testing.T) {
-	m := NewSpSoMi32(testSizeSetUnset, nil)
-	testGenericSetUnset(t, m, int32(4))
+func TestSpSoMi32(t *testing.T) {
+	m := NewSpSoMi32(testSizeSetDel, nil)
+	t.Run("is WGi32", func(t *testing.T) { testIsWGi32(t, m) })
+	// TODO typed access
+
 }
 
-func TestSpSoMi32_SetUsetUndir(t *testing.T) {
-	u := AsWUndir(NewSpSoMi32(testSizeSetUnset, nil))
-	testGenericSetUnset(t, u, int32(4))
+func TestSpSoMi32_undir(t *testing.T) {
+	u := AsWUndir(NewSpSoMi32(testSizeSetDel, nil))
+	t.Run("generic access", func(t *testing.T) {
+		testGenericSetDel(t, u, testProbeI32)
+	})
+	// TODO is WUi32 & typed access
+
 }
 
 func BenchmarkSpSoMi32_generic(b *testing.B) {
-	m := NewSpSoMi32(testSizeSetUnset, nil)
+	m := NewSpSoMi32(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
@@ -75,7 +81,7 @@ func BenchmarkSpSoMi32_generic(b *testing.B) {
 }
 
 func BenchmarkSpSoMi32(b *testing.B) {
-	m := NewSpSoMi32(testSizeSetUnset, nil)
+	m := NewSpSoMi32(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
@@ -95,18 +101,22 @@ func BenchmarkSpSoMi32(b *testing.B) {
 	}
 }
 
-func TestSpSoMf32_SetUset(t *testing.T) {
-	m := NewSpSoMf32(testSizeSetUnset, nil)
-	testGenericSetUnset(t, m, float32(4))
+func TestSpSoMf32(t *testing.T) {
+	g := NewSpSoMf32(testSizeSetDel, nil)
+	t.Run("is WGf32", func(t *testing.T) { testIsWGf32(t, g) })
+	// TODO typed access
 }
 
-func TestSpSoMf32_SetUsetUndir(t *testing.T) {
-	u := AsWUndir(NewSpSoMf32(testSizeSetUnset, nil))
-	testGenericSetUnset(t, u, float32(4))
+func TestSpSoMf32_undir(t *testing.T) {
+	u := AsWUndir(NewSpSoMf32(testSizeSetDel, nil))
+	t.Run("generic access", func(t *testing.T) {
+		testGenericSetDel(t, u, testProbeF32)
+	})
+	// TODO is WUf32 & typed access
 }
 
 func BenchmarkSpSoMf32_generic(b *testing.B) {
-	m := NewSpSoMf32(testSizeSetUnset, nil)
+	m := NewSpSoMf32(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
@@ -127,7 +137,7 @@ func BenchmarkSpSoMf32_generic(b *testing.B) {
 }
 
 func BenchmarkSpSoMf32(b *testing.B) {
-	m := NewSpSoMf32(testSizeSetUnset, nil)
+	m := NewSpSoMf32(testSizeSetDel, nil)
 	max := m.VertexNo()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
