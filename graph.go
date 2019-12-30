@@ -9,6 +9,8 @@ import (
 // provided by the groph package.
 type VIdx = int
 
+const V0 VIdx = 0
+
 // Edge represents a graphs edge between vertices U and V. For directed graphs
 // its the edge from U to V.
 type Edge struct {

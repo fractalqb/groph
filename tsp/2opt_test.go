@@ -73,10 +73,10 @@ func Test2OptDAgaintsGreedy(t *testing.T) {
 	var am *groph.AdjMxDf32
 	for sz := groph.VIdx(4); sz < 12; sz++ {
 		points = test.RandomPoints(sz, points)
-		am = util.CpWeights(
+		am = util.MustCp(util.CpWeights(
 			groph.NewAdjMxDf32(sz, am),
-			groph.NewSliceNMeasure(points, test.Dist, false).Must(),
-		).(*groph.AdjMxDf32)
+			groph.NewPointsNDist(points, test.Dist).Must(),
+		)).(*groph.AdjMxDf32)
 		gPath, gWeight := GreedyAdjMxDf32(am)
 		tPath, tWeight := TwoOptf32(am)
 		if tWeight/gWeight > 1.01 {
@@ -97,14 +97,14 @@ func Test2OptUAgaintsGreedy(t *testing.T) {
 	var dm *groph.AdjMxDf32
 	for sz := groph.VIdx(4); sz < 12; sz++ {
 		points = test.RandomPoints(sz, points)
-		am = util.CpWeights(
+		am = util.MustCp(util.CpWeights(
 			groph.NewAdjMxUf32(sz, am),
-			groph.NewSliceNMeasure(points, test.Dist, false).Must(),
-		).(*groph.AdjMxUf32)
-		dm = util.CpWeights(
+			groph.NewPointsNDist(points, test.Dist).Must(),
+		)).(*groph.AdjMxUf32)
+		dm = util.MustCp(util.CpWeights(
 			groph.NewAdjMxDf32(sz, dm),
-			groph.NewSliceNMeasure(points, test.Dist, false).Must(),
-		).(*groph.AdjMxDf32)
+			groph.NewPointsNDist(points, test.Dist).Must(),
+		)).(*groph.AdjMxDf32)
 		gPath, gWeight := GreedyAdjMxDf32(dm)
 		tPath, tWeight := TwoOptf32(am)
 		if tWeight/gWeight > 1.052 {
@@ -123,10 +123,10 @@ const twoOptBenchSize = 120
 
 func BenchmarkTsp2OptGenf32D(b *testing.B) {
 	points := test.RandomPoints(twoOptBenchSize, nil)
-	am := util.CpWeights(
+	am := util.MustCp(util.CpWeights(
 		groph.NewAdjMxDf32(twoOptBenchSize, nil),
-		groph.NewSliceNMeasure(points, test.Dist, false).Must(),
-	).(*groph.AdjMxDf32)
+		groph.NewPointsNDist(points, test.Dist).Must(),
+	)).(*groph.AdjMxDf32)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TwoOptf32(am)
@@ -135,10 +135,10 @@ func BenchmarkTsp2OptGenf32D(b *testing.B) {
 
 func BenchmarkTsp2OptGenf32U(b *testing.B) {
 	points := test.RandomPoints(twoOptBenchSize, nil)
-	am := util.CpWeights(
+	am := util.MustCp(util.CpWeights(
 		groph.NewAdjMxUf32(twoOptBenchSize, nil),
-		groph.NewSliceNMeasure(points, test.Dist, false).Must(),
-	).(*groph.AdjMxUf32)
+		groph.NewPointsNDist(points, test.Dist).Must(),
+	)).(*groph.AdjMxUf32)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TwoOptf32(am)

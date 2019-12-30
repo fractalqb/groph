@@ -54,33 +54,33 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">git.fractalqb.de/fractalqb/groph/adapt.go (17.1%)</option>
+				<option value="file0">git.fractalqb.de/fractalqb/groph/adapt.go (22.6%)</option>
 				
 				<option value="file1">git.fractalqb.de/fractalqb/groph/adjmatrix.go (59.2%)</option>
 				
-				<option value="file2">git.fractalqb.de/fractalqb/groph/graph.go (20.0%)</option>
+				<option value="file2">git.fractalqb.de/fractalqb/groph/bitset.go (84.2%)</option>
 				
-				<option value="file3">git.fractalqb.de/fractalqb/groph/internal/test/d2graph.go (0.0%)</option>
+				<option value="file3">git.fractalqb.de/fractalqb/groph/graph.go (66.7%)</option>
 				
-				<option value="file4">git.fractalqb.de/fractalqb/groph/internal/util/slices.go (20.0%)</option>
+				<option value="file4">git.fractalqb.de/fractalqb/groph/internal/test/d2graph.go (0.0%)</option>
 				
-				<option value="file5">git.fractalqb.de/fractalqb/groph/minspantree/kruskal.go (81.8%)</option>
+				<option value="file5">git.fractalqb.de/fractalqb/groph/internal/util/slices.go (20.0%)</option>
 				
-				<option value="file6">git.fractalqb.de/fractalqb/groph/shortestpath/dijkstra.go (98.9%)</option>
+				<option value="file6">git.fractalqb.de/fractalqb/groph/minspantree/kruskal.go (81.8%)</option>
 				
-				<option value="file7">git.fractalqb.de/fractalqb/groph/shortestpath/floyd_warshall.go (80.7%)</option>
+				<option value="file7">git.fractalqb.de/fractalqb/groph/shortestpath/dijkstra.go (98.9%)</option>
 				
-				<option value="file8">git.fractalqb.de/fractalqb/groph/sliceofmap.go (57.1%)</option>
+				<option value="file8">git.fractalqb.de/fractalqb/groph/shortestpath/floyd_warshall.go (80.7%)</option>
 				
-				<option value="file9">git.fractalqb.de/fractalqb/groph/subgraph.go (0.0%)</option>
+				<option value="file9">git.fractalqb.de/fractalqb/groph/sliceofmap.go (57.1%)</option>
 				
-				<option value="file10">git.fractalqb.de/fractalqb/groph/tsp/2opt.go (100.0%)</option>
+				<option value="file10">git.fractalqb.de/fractalqb/groph/subgraph.go (0.0%)</option>
 				
-				<option value="file11">git.fractalqb.de/fractalqb/groph/tsp/greedy.go (46.9%)</option>
+				<option value="file11">git.fractalqb.de/fractalqb/groph/tsp/2opt.go (100.0%)</option>
 				
-				<option value="file12">git.fractalqb.de/fractalqb/groph/undiradapt.go (47.6%)</option>
+				<option value="file12">git.fractalqb.de/fractalqb/groph/tsp/greedy.go (46.9%)</option>
 				
-				<option value="file13">git.fractalqb.de/fractalqb/groph/util/bitset.go (78.9%)</option>
+				<option value="file13">git.fractalqb.de/fractalqb/groph/undiradapt.go (47.6%)</option>
 				
 				</select>
 			</div>
@@ -102,41 +102,29 @@ import (
         "reflect"
 )
 
-type Slice struct {
+type WeightsSlice struct {
         slc reflect.Value
-        dir bool
         sz  VIdx
 }
 
-func NewSlice(directed bool, edgeSlice interface{}) *Slice <span class="cov0" title="0">{
-        res := &amp;Slice{
-                slc: reflect.ValueOf(edgeSlice),
-                dir: directed,
-        }
-        if directed </span><span class="cov0" title="0">{
-                res.sz = VIdx(math.Sqrt(float64(res.slc.Len())))
-        }</span> else<span class="cov0" title="0"> {
-                res.sz = VIdx(nSumRev(VIdx(res.slc.Len())))
-        }</span>
-        <span class="cov0" title="0">return res</span>
-}
+func NewWeightsSlice(edgeSlice interface{}) *WeightsSlice <span class="cov0" title="0">{
+        res := &amp;WeightsSlice{slc: reflect.ValueOf(edgeSlice)}
+        res.sz = VIdx(math.Sqrt(float64(res.slc.Len())))
+        return res
+}</span>
 
-func (g *Slice) Check() (*Slice, error) <span class="cov0" title="0">{
+func (g *WeightsSlice) Check() (*WeightsSlice, error) <span class="cov0" title="0">{
         if g.slc.Kind() != reflect.Slice </span><span class="cov0" title="0">{
                 return g, fmt.Errorf("edges have to be a slice, got %s",
                         g.slc.Type().String())
         }</span>
-        <span class="cov0" title="0">if g.dir </span><span class="cov0" title="0">{
-                if g.sz*g.sz != VIdx(g.slc.Len()) </span><span class="cov0" title="0">{
-                        return g, fmt.Errorf("slice len is not quadratic")
-                }</span>
-        } else<span class="cov0" title="0"> if nSum(g.sz) != VIdx(g.slc.Len()) </span><span class="cov0" title="0">{
-                return g, fmt.Errorf("slice len is not Sum(1, ..., n)")
+        <span class="cov0" title="0">if g.sz*g.sz != VIdx(g.slc.Len()) </span><span class="cov0" title="0">{
+                return g, fmt.Errorf("slice len is not quadratic")
         }</span>
         <span class="cov0" title="0">return g, nil</span>
 }
 
-func (g *Slice) Must() *Slice <span class="cov0" title="0">{
+func (g *WeightsSlice) Must() *WeightsSlice <span class="cov0" title="0">{
         var err error
         g, err = g.Check()
         if err != nil </span><span class="cov0" title="0">{
@@ -145,81 +133,67 @@ func (g *Slice) Must() *Slice <span class="cov0" title="0">{
         <span class="cov0" title="0">return g</span>
 }
 
-func (g *Slice) VertexNo() VIdx <span class="cov0" title="0">{ return g.sz }</span>
+func (g *WeightsSlice) VertexNo() VIdx <span class="cov0" title="0">{ return g.sz }</span>
 
-func (g *Slice) Directed() bool <span class="cov0" title="0">{ return g.dir }</span>
+func (g *WeightsSlice) Weight(u, v VIdx) interface{} <span class="cov0" title="0">{
+        return g.slc.Index(int(g.sz*u + v)).Interface()
+}</span>
 
-func (g *Slice) Weight(u, v VIdx) interface{} <span class="cov0" title="0">{
-        if g.dir </span><span class="cov0" title="0">{
-                return g.slc.Index(int(g.sz*u + v)).Interface()
-        }</span> else<span class="cov0" title="0"> if u &gt; v </span><span class="cov0" title="0">{
-                return g.slc.Index(int(uIdx(u, v))).Interface()
-        }</span>
-        <span class="cov0" title="0">return g.slc.Index(int(uIdx(v, u))).Interface()</span>
-}
-
-// SliceNMeasure implements a metric RGraph based on a slice of vertices of
-// some type V and a function f(u V, v V) → W that computes the weight of type
-// W for any edge (u, v).
+// PointsNDist implements a metric RUndirected graph based on a slice of
+// vertices of some type V and a symmetric function f(u V, v V) → W that
+// computes the weight of type W for any edge (u, v).
 //
 // From this use e.g. CpWeights or CpXWeights to initialize an other WGraph.
-type SliceNMeasure struct {
-        slc reflect.Value
-        m   reflect.Value
-        dir bool
+type PointsNDist struct {
+        ps reflect.Value
+        d  reflect.Value
 }
 
-func NewSliceNMeasure(
-        vertexSlice interface{},
-        measure interface{},
-        directed bool) *SliceNMeasure <span class="cov8" title="1">{
-        res := &amp;SliceNMeasure{
-                slc: reflect.ValueOf(vertexSlice),
-                m:   reflect.ValueOf(measure),
-                dir: directed,
+func NewPointsNDist(vertexSlice interface{}, measure interface{}) *PointsNDist <span class="cov8" title="1">{
+        res := &amp;PointsNDist{
+                ps: reflect.ValueOf(vertexSlice),
+                d:  reflect.ValueOf(measure),
         }
         return res
 }</span>
 
 // Check does type checking on g. It always returns g. Only if everything is OK
 // the returned error is nil.
-func (g *SliceNMeasure) Check() (*SliceNMeasure, error) <span class="cov0" title="0">{
-        if g.slc.Kind() != reflect.Slice </span><span class="cov0" title="0">{
+func (g *PointsNDist) Check() (*PointsNDist, error) <span class="cov0" title="0">{
+        if g.ps.Kind() != reflect.Slice </span><span class="cov0" title="0">{
                 return g, fmt.Errorf("vertex set has to be a slice, got %s",
-                        g.slc.Type().String())
+                        g.ps.Type().String())
         }</span>
-        <span class="cov0" title="0">if g.m.Kind() != reflect.Func </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">if g.d.Kind() != reflect.Func </span><span class="cov0" title="0">{
                 return g, fmt.Errorf("edge weight measure must be a function, got: %s",
-                        g.m.Type().String())
+                        g.d.Type().String())
         }</span> // TODO more precise checking
         <span class="cov0" title="0">return g, nil</span>
 }
 
 // Verify call Check on g and panics if Check returns an error.
-func (g *SliceNMeasure) Must() *SliceNMeasure <span class="cov0" title="0">{
+func (g *PointsNDist) Must() *PointsNDist <span class="cov0" title="0">{
         if _, err := g.Check(); err != nil </span><span class="cov0" title="0">{
                 panic(err)</span>
         }
         <span class="cov0" title="0">return g</span>
 }
 
-func (g *SliceNMeasure) VertexNo() VIdx <span class="cov8" title="1">{
-        return VIdx(g.slc.Len())
+func (g *PointsNDist) VertexNo() VIdx <span class="cov8" title="1">{
+        return VIdx(g.ps.Len())
 }</span>
 
-func (g *SliceNMeasure) Vertex(idx VIdx) interface{} <span class="cov8" title="1">{
-        return g.slc.Index(int(idx)).Interface()
+func (g *PointsNDist) Vertex(idx VIdx) interface{} <span class="cov8" title="1">{
+        return g.ps.Index(int(idx)).Interface()
 }</span>
 
-func (g *SliceNMeasure) Directed() bool <span class="cov0" title="0">{
-        return g.dir
-}</span>
-
-func (g *SliceNMeasure) Weight(u, v VIdx) interface{} <span class="cov8" title="1">{
-        f, t := g.slc.Index(int(u)), g.slc.Index(int(v))
-        d := g.m.Call([]reflect.Value{f, t})
+func (g *PointsNDist) Weight(u, v VIdx) interface{} <span class="cov8" title="1">{
+        f, t := g.ps.Index(int(u)), g.ps.Index(int(v))
+        d := g.d.Call([]reflect.Value{f, t})
         return d[0].Interface()
 }</span>
+
+func (g *PointsNDist) WeightU(u, v VIdx) interface{} <span class="cov0" title="0">{ return g.Weight(u, v) }</span>
 </pre>
 		
 		<pre class="file" id="file1" style="display: none">package groph
@@ -228,7 +202,6 @@ import (
         "math"
 
         iutil "git.fractalqb.de/fractalqb/groph/internal/util"
-        "git.fractalqb.de/fractalqb/groph/util"
 )
 
 type adjMx struct {
@@ -241,16 +214,16 @@ func (m *adjMx) VertexNo() VIdx <span class="cov8" title="1">{ return m.sz }</sp
 // bitmap. This sacrifices runtime performance for lesser memory usage.
 type AdjMxDbitmap struct {
         adjMx
-        bs util.BitSet
+        bs BitSet
 }
 
 func NewAdjMxDbitmap(vertexNo VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap <span class="cov8" title="1">{
         sz := vertexNo * vertexNo
-        sz = util.BitSetWords(sz)
+        sz = BitSetWords(sz)
         if reuse == nil </span><span class="cov8" title="1">{
                 reuse = &amp;AdjMxDbitmap{
                         adjMx: adjMx{sz: vertexNo},
-                        bs:    make(util.BitSet, sz),
+                        bs:    make(BitSet, sz),
                 }
         }</span> else<span class="cov0" title="0"> {
                 reuse.sz = vertexNo
@@ -676,6 +649,62 @@ func (m *AdjMxUi32) SetEdgeU(u, v VIdx, w int32) <span class="cov8" title="1">{
 		
 		<pre class="file" id="file2" style="display: none">package groph
 
+type bitsWord = uint64
+
+const (
+        wordAll = 0xffff_ffff_ffff_ffff
+        wordBits  = 64
+        wordMask  = 0x3f
+        wordShift = 6
+)
+
+type BitSet []bitsWord
+
+func BitSetWords(setSize int) int <span class="cov8" title="1">{
+        return (setSize + (wordBits - 1)) / wordBits
+}</span>
+
+func NewBitSet(setSize int) BitSet <span class="cov0" title="0">{ return make(BitSet, BitSetWords(setSize))}</span>
+
+func (bs BitSet) Cap() int <span class="cov8" title="1">{ return len(bs) * wordBits }</span>
+
+func (bs BitSet) Get(i int) bool <span class="cov8" title="1">{
+        w, b := i&gt;&gt;wordShift, i&amp;wordMask
+        return bs[w]&amp;(1&lt;&lt;b) != 0
+}</span>
+
+func (bs BitSet) Set(i int) <span class="cov8" title="1">{
+        w, b := i&gt;&gt;wordShift, i&amp;wordMask
+        bs[w] |= 1 &lt;&lt; b
+}</span>
+
+func (bs BitSet) Unset(i int) <span class="cov8" title="1">{
+        w, b := i&gt;&gt;wordShift, i&amp;wordMask
+        bs[w] &amp;= ^(1 &lt;&lt; b)
+}</span>
+
+func (bs BitSet) Clear() <span class="cov0" title="0">{
+        for i := range bs </span><span class="cov0" title="0">{
+                bs[i] = 0
+        }</span>
+}
+
+func (bs BitSet) FirstUnset() (res int) <span class="cov8" title="1">{
+        var w bitsWord
+        for res, w = range bs </span><span class="cov8" title="1">{
+                if w != wordAll </span><span class="cov8" title="1">{
+                        res *= wordBits                        
+                        for b := bitsWord(1); w&amp;b == b; b &lt;&lt;= 1 </span><span class="cov8" title="1">{
+                                res++
+                        }</span>
+                        <span class="cov8" title="1">return res</span>
+                }
+        }
+        <span class="cov8" title="1">return -1</span>
+}</pre>
+		
+		<pre class="file" id="file3" style="display: none">package groph
+
 import (
         "math"
         "reflect"
@@ -684,6 +713,8 @@ import (
 // VIdx is the type used to represent vertices in the graph implementations
 // provided by the groph package.
 type VIdx = int
+
+const V0 VIdx = 0
 
 // Edge represents a graphs edge between vertices U and V. For directed graphs
 // its the edge from U to V.
@@ -733,44 +764,10 @@ type VisitVertex = func(neighbour VIdx)
 // OutLister is implemented by graph implementations that can easily iterate
 // over all outgoing edges of one node.
 //
-// See also EachOutgoing function.
+// See also traverse.EachOutgoing function.
 type OutLister interface {
         EachOutgoing(from VIdx, onDest VisitVertex)
         OutDegree(v VIdx) int
-}
-
-// EachOutgoing calls onDest on each node d that is a neighbour of 'from' in
-// graph g. Vertex d is a neighbour of from, iff g contains the edge (d,from).
-//
-// For undirected graphs that are no NeighbourListers EachNeighbour
-// guarantees to call WeightU with v ≥ u to detect neighbours.
-func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) <span class="cov0" title="0">{
-        switch gi := g.(type) </span>{
-        case OutLister:<span class="cov0" title="0">
-                gi.EachOutgoing(from, onDest)</span>
-        case RUndirected:<span class="cov0" title="0">
-                vno := gi.VertexNo()
-                n := VIdx(0)
-                for n &lt; from </span><span class="cov0" title="0">{
-                        if w := gi.WeightU(from, n); w != nil </span><span class="cov0" title="0">{
-                                onDest(n)
-                        }</span>
-                        <span class="cov0" title="0">n++</span>
-                }
-                <span class="cov0" title="0">for n &lt; vno </span><span class="cov0" title="0">{
-                        if w := gi.WeightU(n, from); w != nil </span><span class="cov0" title="0">{
-                                onDest(n)
-                        }</span>
-                        <span class="cov0" title="0">n++</span>
-                }
-        default:<span class="cov0" title="0">
-                vno := g.VertexNo()
-                for n := VIdx(0); n &lt; vno; n++ </span><span class="cov0" title="0">{
-                        if w := g.Weight(from, n); w != nil </span><span class="cov0" title="0">{
-                                onDest(n)
-                        }</span>
-                }
-        }
 }
 
 // InLister is implemented by graph implementations that can easily iterate
@@ -921,59 +918,6 @@ type WUf32 interface {
         SetEdgeU(u, v VIdx, weight float32)
 }
 
-// CpWeights copies the edge weights from one graph to another.
-// Vertices are identified by their index, i.e. the user has to take care of
-// the vertex order. If the number of vertices in the graph differs the smaller
-// graph determines how many edge weights are copied.
-func CpWeights(dst WGraph, src RGraph) WGraph <span class="cov0" title="0">{
-        sz := dst.VertexNo()
-        if src.VertexNo() &lt; sz </span><span class="cov0" title="0">{
-                sz = src.VertexNo()
-        }</span>
-        <span class="cov0" title="0">if Directed(dst) </span><span class="cov0" title="0">{
-                for i := VIdx(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
-                        for j := VIdx(0); j &lt; sz; j++ </span><span class="cov0" title="0">{
-                                w := src.Weight(i, j)
-                                dst.SetWeight(i, j, w)
-                        }</span>
-                }
-        } else<span class="cov0" title="0"> {
-                for i := VIdx(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
-                        for j := i; j &lt; sz; j++ </span><span class="cov0" title="0">{
-                                w := src.Weight(i, j)
-                                dst.SetWeight(i, j, w)
-                        }</span>
-                }
-        }
-        <span class="cov0" title="0">return dst</span>
-}
-
-// CpXWeights “transfers” the edge weights from src Graph to dst Graph
-// with the same vertex restirctions as CpWeights. CpXWeights applies
-// the transformation function xf() to each edge weight.
-func CpXWeights(dst WGraph, src RGraph, xf func(in interface{}) interface{}) WGraph <span class="cov0" title="0">{
-        sz := dst.VertexNo()
-        if src.VertexNo() &lt; sz </span><span class="cov0" title="0">{
-                sz = src.VertexNo()
-        }</span>
-        <span class="cov0" title="0">if Directed(dst) </span><span class="cov0" title="0">{
-                for i := VIdx(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
-                        for j := VIdx(0); j &lt; sz; j++ </span><span class="cov0" title="0">{
-                                w := src.Weight(i, j)
-                                dst.SetWeight(i, j, xf(w))
-                        }</span>
-                }
-        } else<span class="cov0" title="0"> {
-                for i := VIdx(0); i &lt; sz; i++ </span><span class="cov0" title="0">{
-                        for j := i; j &lt; sz; j++ </span><span class="cov0" title="0">{
-                                w := src.Weight(i, j)
-                                dst.SetWeight(i, j, xf(w))
-                        }</span>
-                }
-        }
-        <span class="cov0" title="0">return dst</span>
-}
-
 // TODO can this be done in place?
 func ReorderPath(slice interface{}, path []VIdx) <span class="cov8" title="1">{
         slv := reflect.ValueOf(slice)
@@ -993,7 +937,7 @@ func ReorderPath(slice interface{}, path []VIdx) <span class="cov8" title="1">{
 const i32cleared = -2147483648 // min{ int32 }
 </pre>
 		
-		<pre class="file" id="file3" style="display: none">package test
+		<pre class="file" id="file4" style="display: none">package test
 
 import (
         "math"
@@ -1024,7 +968,7 @@ func RandomPoints(n groph.VIdx, ps []Point) []Point <span class="cov0" title="0"
 }
 </pre>
 		
-		<pre class="file" id="file4" style="display: none">package util
+		<pre class="file" id="file5" style="display: none">package util
 
 var VIdxSlice = IntSlice
 
@@ -1064,7 +1008,7 @@ func F32Slice(s []float32, l int) []float32 <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file5" style="display: none">package minspantree
+		<pre class="file" id="file6" style="display: none">package minspantree
 
 import (
         "errors"
@@ -1145,14 +1089,15 @@ func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) <span cla
 }
 </pre>
 		
-		<pre class="file" id="file6" style="display: none">package shortestpath
+		<pre class="file" id="file7" style="display: none">package shortestpath
 
 import (
         "container/heap"
         "math"
 
         "git.fractalqb.de/fractalqb/groph"
-        "git.fractalqb.de/fractalqb/groph/internal/util"
+        iutil "git.fractalqb.de/fractalqb/groph/internal/util"
+        "git.fractalqb.de/fractalqb/groph/traverse"
 )
 
 type pqItemi32 struct {
@@ -1166,7 +1111,7 @@ type Dijkstrai32 struct {
 }
 
 func (dij *Dijkstrai32) init(vno int) <span class="cov8" title="1">{
-        dij.v2i = util.IntSlice(dij.v2i, vno)
+        dij.v2i = iutil.IntSlice(dij.v2i, vno)
         if dij.is == nil || cap(dij.is) &lt; vno </span><span class="cov8" title="1">{
                 dij.is = make([]pqItemi32, 0, vno)
         }</span> else<span class="cov8" title="1"> {
@@ -1219,9 +1164,9 @@ func (dij *Dijkstrai32) On(
         prev []groph.VIdx,
 ) ([]int32, []groph.VIdx) <span class="cov8" title="1">{
         vertexNo := g.VertexNo()
-        dist = util.I32Slice(dist, vertexNo)
+        dist = iutil.I32Slice(dist, vertexNo)
         if prev != nil </span><span class="cov8" title="1">{
-                prev = util.VIdxSlice(prev, vertexNo)
+                prev = iutil.VIdxSlice(prev, vertexNo)
         }</span>
         <span class="cov8" title="1">dij.init(vertexNo)
         dist[start] = 0
@@ -1236,7 +1181,7 @@ func (dij *Dijkstrai32) On(
         }
         <span class="cov8" title="1">for dij.Len() != 0 </span><span class="cov8" title="1">{
                 u := heap.Pop(dij).(pqItemi32).v
-                groph.EachOutgoing(g, u, func(n groph.VIdx) </span><span class="cov8" title="1">{
+                traverse.EachOutgoing(g, u, func(n groph.VIdx) </span><span class="cov8" title="1">{
                         alt := dist[u]
                         if alt &lt; 0 </span><span class="cov0" title="0">{
                                 return
@@ -1266,7 +1211,7 @@ type Dijkstraf32 struct {
 }
 
 func (dij *Dijkstraf32) init(vno int) <span class="cov8" title="1">{
-        dij.v2i = util.IntSlice(dij.v2i, vno)
+        dij.v2i = iutil.IntSlice(dij.v2i, vno)
         if dij.is == nil || cap(dij.is) &lt; vno </span><span class="cov8" title="1">{
                 dij.is = make([]pqItemf32, 0, vno)
         }</span> else<span class="cov8" title="1"> {
@@ -1310,9 +1255,9 @@ func (dij *Dijkstraf32) On(
         prev []groph.VIdx,
 ) ([]float32, []groph.VIdx) <span class="cov8" title="1">{
         vertexNo := g.VertexNo()
-        dist = util.F32Slice(dist, vertexNo)
+        dist = iutil.F32Slice(dist, vertexNo)
         if prev != nil </span><span class="cov8" title="1">{
-                prev = util.VIdxSlice(prev, vertexNo)
+                prev = iutil.VIdxSlice(prev, vertexNo)
         }</span>
         <span class="cov8" title="1">dij.init(vertexNo)
         dist[start] = 0
@@ -1327,7 +1272,7 @@ func (dij *Dijkstraf32) On(
         }
         <span class="cov8" title="1">for dij.Len() != 0 </span><span class="cov8" title="1">{
                 u := heap.Pop(dij).(pqItemf32).v
-                groph.EachOutgoing(g, u, func(n groph.VIdx) </span><span class="cov8" title="1">{
+                traverse.EachOutgoing(g, u, func(n groph.VIdx) </span><span class="cov8" title="1">{
                         alt := dist[u] + g.Edge(u, n) // TOOD EdgeD?
                         if alt &lt; dist[n] </span><span class="cov8" title="1">{
                                 dist[n] = alt
@@ -1342,7 +1287,7 @@ func (dij *Dijkstraf32) On(
 }
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">package shortestpath
+		<pre class="file" id="file8" style="display: none">package shortestpath
 
 import "git.fractalqb.de/fractalqb/groph"
 
@@ -1453,7 +1398,7 @@ func FloydWarshallAdjMxDi32(g *groph.AdjMxDi32) <span class="cov8" title="1">{
 }
 </pre>
 		
-		<pre class="file" id="file8" style="display: none">package groph
+		<pre class="file" id="file9" style="display: none">package groph
 
 type spmro map[VIdx]interface{}
 
@@ -1685,7 +1630,7 @@ func (g *SpSoMf32) OutDegree(v VIdx) int <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file9" style="display: none">package groph
+		<pre class="file" id="file10" style="display: none">package groph
 
 type RSubgraph struct {
         G   RGraph
@@ -1769,7 +1714,7 @@ func (g WSubgraph) SetWeight(u, v VIdx, w interface{}) <span class="cov0" title=
 // }
 </pre>
 		
-		<pre class="file" id="file10" style="display: none">package tsp
+		<pre class="file" id="file11" style="display: none">package tsp
 
 import "git.fractalqb.de/fractalqb/groph"
 
@@ -1911,7 +1856,7 @@ func TwoOptf32(g groph.RGf32) (path []groph.VIdx, plen float32) <span class="cov
 // }
 </pre>
 		
-		<pre class="file" id="file11" style="display: none">package tsp
+		<pre class="file" id="file12" style="display: none">package tsp
 
 import "git.fractalqb.de/fractalqb/groph"
 
@@ -2010,7 +1955,7 @@ func GreedyAdjMxDf32(m *groph.AdjMxDf32) (path []groph.VIdx, plen float32) <span
 }
 </pre>
 		
-		<pre class="file" id="file12" style="display: none">package groph
+		<pre class="file" id="file13" style="display: none">package groph
 
 type RUadapt struct {
         G RGraph
@@ -2069,62 +2014,6 @@ func (g WUadapt) SetWeight(u, v VIdx, w interface{}) <span class="cov8" title="1
 
 func (g WUadapt) SetWeightU(u, v VIdx, w interface{}) <span class="cov8" title="1">{ g.G.SetWeight(u, v, w) }</span>
 </pre>
-		
-		<pre class="file" id="file13" style="display: none">package util
-
-type bitsWord = uint64
-
-const (
-        wordAll = 0xffff_ffff_ffff_ffff
-        wordBits  = 64
-        wordMask  = 0x3f
-        wordShift = 6
-)
-
-type BitSet []bitsWord
-
-func BitSetWords(setSize int) int <span class="cov0" title="0">{
-        return (setSize + (wordBits - 1)) / wordBits
-}</span>
-
-func NewBitSet(setSize int) BitSet <span class="cov0" title="0">{ return make(BitSet, BitSetWords(setSize))}</span>
-
-func (bs BitSet) Cap() int <span class="cov8" title="1">{ return len(bs) * wordBits }</span>
-
-func (bs BitSet) Get(i int) bool <span class="cov8" title="1">{
-        w, b := i&gt;&gt;wordShift, i&amp;wordMask
-        return bs[w]&amp;(1&lt;&lt;b) != 0
-}</span>
-
-func (bs BitSet) Set(i int) <span class="cov8" title="1">{
-        w, b := i&gt;&gt;wordShift, i&amp;wordMask
-        bs[w] |= 1 &lt;&lt; b
-}</span>
-
-func (bs BitSet) Unset(i int) <span class="cov8" title="1">{
-        w, b := i&gt;&gt;wordShift, i&amp;wordMask
-        bs[w] &amp;= ^(1 &lt;&lt; b)
-}</span>
-
-func (bs BitSet) Clear() <span class="cov0" title="0">{
-        for i := range bs </span><span class="cov0" title="0">{
-                bs[i] = 0
-        }</span>
-}
-
-func (bs BitSet) FirstUnset() (res int) <span class="cov8" title="1">{
-        var w bitsWord
-        for res, w = range bs </span><span class="cov8" title="1">{
-                if w != wordAll </span><span class="cov8" title="1">{
-                        res *= wordBits                        
-                        for b := bitsWord(1); w&amp;b == b; b &lt;&lt;= 1 </span><span class="cov8" title="1">{
-                                res++
-                        }</span>
-                        <span class="cov8" title="1">return res</span>
-                }
-        }
-        <span class="cov8" title="1">return -1</span>
-}</pre>
 		
 		</div>
 	</body>

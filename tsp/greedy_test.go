@@ -39,11 +39,14 @@ var exmp1 = [][2]float32{
 }
 
 func ExampleAsymGreedy() {
-	adp, err := groph.NewSliceNMeasure(exmp1, test.Dist, false).Check()
+	adp, err := groph.NewPointsNDist(exmp1, test.Dist).Check()
 	if err != nil {
 		fmt.Println(err)
 	}
-	am := util.CpWeights(groph.NewAdjMxDf32(adp.VertexNo(), nil), adp).(*groph.AdjMxDf32)
+	am := util.MustCp(util.CpWeights(
+		groph.NewAdjMxDf32(adp.VertexNo(), nil),
+		adp,
+	)).(*groph.AdjMxDf32)
 	showMatrix(exmp1)
 	w, l := GreedyAdjMxDf32(am)
 	fmt.Printf("%v %.2f", w, l)
@@ -70,7 +73,7 @@ var exmp2 = [][2]float32{
 
 func BenchmarkTspGreedyAMf32(b *testing.B) {
 	am := groph.NewAdjMxDf32(groph.VIdx(len(exmp2)), nil)
-	util.CpWeights(am, groph.NewSliceNMeasure(exmp2, test.Dist, false).Must())
+	util.CpWeights(am, groph.NewPointsNDist(exmp2, test.Dist).Must())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		GreedyAdjMxDf32(am)
@@ -79,7 +82,7 @@ func BenchmarkTspGreedyAMf32(b *testing.B) {
 
 func BenchmarkTspGreedyGenf32(b *testing.B) {
 	am := groph.NewAdjMxDf32(groph.VIdx(len(exmp2)), nil)
-	util.CpWeights(am, groph.NewSliceNMeasure(exmp2, test.Dist, false).Must())
+	util.CpWeights(am, groph.NewPointsNDist(exmp2, test.Dist).Must())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		Greedyf32(am)

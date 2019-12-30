@@ -11,7 +11,7 @@ import (
 )
 
 func ExampleFloydWarshalli32() {
-	graph := groph.NewWeightsSlice(true, []int32{
+	graph := groph.NewWeightsSlice([]int32{
 		0, 8, 0, 1,
 		0, 0, 1, 0,
 		4, 0, 0, 0,
@@ -41,7 +41,7 @@ func ExampleFloydWarshalli32() {
 }
 
 func ExampleFloydWarshallf32() {
-	graph := groph.NewWeightsSlice(true, []int{
+	graph := groph.NewWeightsSlice([]int{
 		0, 8, 0, 1,
 		0, 0, 1, 0,
 		4, 0, 0, 0,
