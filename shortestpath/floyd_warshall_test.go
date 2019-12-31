@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
-	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 func ExampleFloydWarshalli32() {
@@ -18,9 +17,8 @@ func ExampleFloydWarshalli32() {
 		0, 2, 9, 0,
 	}).Must()
 	sz := graph.Order()
-	fwres := groph.NewAdjMxDi32(sz, nil)
-	fwres.Del = 0
-	util.CpWeights(fwres, graph)
+	fwres := groph.NewAdjMxDi32(sz, 0, nil)
+	groph.MustCp(groph.CpWeights(fwres, graph))
 	FloydWarshalli32(fwres)
 	for i := 0; i < sz; i++ {
 		for j := 0; j < sz; j++ {
@@ -49,7 +47,7 @@ func ExampleFloydWarshallf32() {
 	}).Must()
 	sz := graph.Order()
 	fwres := groph.NewAdjMxDf32(sz, nil)
-	util.CpXWeights(fwres, graph, func(i interface{}) interface{} {
+	groph.CpXWeights(fwres, graph, func(i interface{}) interface{} {
 		e := i.(int)
 		if i == 0 {
 			return float32(math.Inf(1))
@@ -85,7 +83,7 @@ func TestFloydWarshallDirEqUndir(t *testing.T) {
 			mu.SetEdge(i, j, w)
 		}
 	}
-	util.CpWeights(md, mu)
+	groph.CpWeights(md, mu)
 	FloydWarshallf32(md)
 	FloydWarshallf32(mu)
 	for i := groph.V0; i < VNO; i++ {

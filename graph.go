@@ -1,9 +1,5 @@
 package groph
 
-import (
-	"math"
-)
-
 // VIdx is the type used to represent vertices in the graph implementations
 // provided by the groph package.
 type VIdx = int
@@ -120,10 +116,12 @@ func Size(g RGraph) (res int) {
 			for v := V0; v < ord; v++ {
 				res += ol.OutDegree(v)
 			}
+			res /= 2
 		} else if il, ok := g.(InLister); ok {
 			for v := V0; v < ord; v++ {
 				res += il.InDegree(v)
 			}
+			res /= 2
 		} else {
 			for i := V0; i < ord; i++ {
 				for j := V0; j <= i; j++ {
@@ -137,7 +135,7 @@ func Size(g RGraph) (res int) {
 		ord := g.Order()
 		// TODO optimize with in/out lister
 		for i := V0; i < ord; i++ {
-			for j := V0; j <= ord; j++ {
+			for j := V0; j < ord; j++ {
 				if g.Weight(i, j) != nil {
 					res++
 				}
@@ -176,6 +174,12 @@ type WUndirected interface {
 
 // Reset clears a WGraph while keeping the original order.
 func Reset(g WGraph) { g.Reset(g.Order()) }
+
+func Set(g WGraph, w interface{}, edges ...Edge) {
+	for _, e := range edges {
+		g.SetWeight(e.U, e.V, w)
+	}
+}
 
 // RGbool represents a RGraph with boolean edge weights.
 type RGbool interface {
@@ -244,12 +248,6 @@ type WUi32 interface {
 	SetEdgeU(u, v VIdx, weight int32)
 }
 
-var nan32 = float32(math.NaN())
-
-func NaN32() float32 { return nan32 }
-
-func IsNaN32(x float32) bool { return math.IsNaN(float64(x)) }
-
 // An RGf32 is a RGraph with type safe access to the edge weight of type
 // float32. Besides type safety this avoids boxing/unboxing of the Weight
 // method for performance reasons.
@@ -282,5 +280,3 @@ type WUf32 interface {
 	EdgeU(u, v VIdx) (weight float32)
 	SetEdgeU(u, v VIdx, weight float32)
 }
-
-const i32cleared = -2147483648 // min{ int32 }

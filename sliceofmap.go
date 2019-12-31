@@ -75,7 +75,7 @@ func NewSpSoMi32(order VIdx, reuse *SpSoMi32) *SpSoMi32 {
 	if reuse == nil {
 		return &SpSoMi32{
 			ws:  make([]spmroi32, order),
-			Del: i32cleared,
+			Del: I32Del,
 		}
 	}
 	reuse.Reset(order)

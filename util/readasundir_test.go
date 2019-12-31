@@ -10,15 +10,15 @@ var _ groph.RUndirected = (*RUadapter)(nil)
 
 func ExampleRUadapter() {
 	ws := groph.NewWeightsSlice([]int32{1, 2, 3, 4})
-	u := groph.NewAdjMxUi32(ws.Order(), nil)
-	_, err := CpWeights(u, ws)
+	u := groph.NewAdjMxUi32(ws.Order(), groph.I32Del, nil)
+	_, err := groph.CpWeights(u, ws)
 	fmt.Println("copy error:", err)
 	rua := RUadapter{G: ws, Merge: MergeWeights(ws, MergeEqual)}
-	_, err = CpWeights(u, &rua)
+	_, err = groph.CpWeights(u, &rua)
 	fmt.Println("copy error:", err)
 	fmt.Println("rua error:", rua.Err)
 	// Output:
 	// copy error: cannot copy from directed to undirected graph
-	// copy error: <nil>
+	// copy error: source: edges 1, 0: not equal: '3' / '2'
 	// rua error: edges 1, 0: not equal: '3' / '2'
 }

@@ -6,25 +6,23 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
-	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 func TestDijkstrai32_toFW(t *testing.T) {
 	const VNo = 11
-	g := groph.NewAdjMxUi32(VNo, nil)
+	g := groph.NewAdjMxUi32(VNo, groph.I32Del, nil)
 	for i := 0; i < VNo; i++ {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
 			if rand.Intn(100) < 20 {
-				g.SetEdge(i, j, g.Del)
+				g.SetEdge(i, j, groph.I32Del)
 			} else {
 				g.SetEdge(i, j, int32(1+rand.Intn(20)))
 			}
 		}
 	}
-	fwDs := groph.NewAdjMxDi32(VNo, nil)
-	fwDs.Del = g.Del
-	util.CpWeights(fwDs, g)
+	fwDs := groph.NewAdjMxDi32(VNo, groph.I32Del, nil)
+	groph.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDi32(fwDs)
 	var (
 		dijkstra Dijkstrai32
@@ -47,12 +45,12 @@ func TestDijkstrai32_toFW(t *testing.T) {
 
 func TestDijkstrai32_paths(t *testing.T) {
 	const VNo = 11
-	g := groph.NewAdjMxUi32(VNo, nil)
+	g := groph.NewAdjMxUi32(VNo, groph.I32Del, nil)
 	for i := 0; i < VNo; i++ {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
 			if rand.Intn(100) < 20 {
-				g.SetEdge(i, j, g.Del)
+				g.SetEdge(i, j, groph.I32Del)
 			} else {
 				g.SetEdge(i, j, int32(1+rand.Intn(20)))
 			}
@@ -100,7 +98,7 @@ func TestDijkstraf32_toFW(t *testing.T) {
 		}
 	}
 	fwDs := groph.NewAdjMxDf32(VNo, nil)
-	util.CpWeights(fwDs, g)
+	groph.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDf32(fwDs)
 	var (
 		dijkstra Dijkstraf32

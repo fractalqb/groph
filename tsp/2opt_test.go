@@ -6,7 +6,6 @@ import (
 
 	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/internal/test"
-	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 func pathEq(p1, p2 []groph.VIdx) (bool, string) {
@@ -73,7 +72,7 @@ func Test2OptDAgaintsGreedy(t *testing.T) {
 	var am *groph.AdjMxDf32
 	for sz := groph.VIdx(4); sz < 12; sz++ {
 		points = test.RandomPoints(sz, points)
-		am = util.MustCp(util.CpWeights(
+		am = groph.MustCp(groph.CpWeights(
 			groph.NewAdjMxDf32(sz, am),
 			groph.NewPointsNDist(points, test.Dist).Must(),
 		)).(*groph.AdjMxDf32)
@@ -97,11 +96,11 @@ func Test2OptUAgaintsGreedy(t *testing.T) {
 	var dm *groph.AdjMxDf32
 	for sz := groph.VIdx(4); sz < 12; sz++ {
 		points = test.RandomPoints(sz, points)
-		am = util.MustCp(util.CpWeights(
+		am = groph.MustCp(groph.CpWeights(
 			groph.NewAdjMxUf32(sz, am),
 			groph.NewPointsNDist(points, test.Dist).Must(),
 		)).(*groph.AdjMxUf32)
-		dm = util.MustCp(util.CpWeights(
+		dm = groph.MustCp(groph.CpWeights(
 			groph.NewAdjMxDf32(sz, dm),
 			groph.NewPointsNDist(points, test.Dist).Must(),
 		)).(*groph.AdjMxDf32)
@@ -123,7 +122,7 @@ const twoOptBenchSize = 120
 
 func BenchmarkTsp2OptGenf32D(b *testing.B) {
 	points := test.RandomPoints(twoOptBenchSize, nil)
-	am := util.MustCp(util.CpWeights(
+	am := groph.MustCp(groph.CpWeights(
 		groph.NewAdjMxDf32(twoOptBenchSize, nil),
 		groph.NewPointsNDist(points, test.Dist).Must(),
 	)).(*groph.AdjMxDf32)
@@ -135,7 +134,7 @@ func BenchmarkTsp2OptGenf32D(b *testing.B) {
 
 func BenchmarkTsp2OptGenf32U(b *testing.B) {
 	points := test.RandomPoints(twoOptBenchSize, nil)
-	am := util.MustCp(util.CpWeights(
+	am := groph.MustCp(groph.CpWeights(
 		groph.NewAdjMxUf32(twoOptBenchSize, nil),
 		groph.NewPointsNDist(points, test.Dist).Must(),
 	)).(*groph.AdjMxUf32)

@@ -71,3 +71,28 @@ func EachIncoming(g groph.RGraph, to groph.VIdx, onSource groph.VisitVertex) {
 		}
 	}
 }
+
+func EachEdge(g groph.RGraph, onEdge groph.VisitEdge) {
+	switch ge := g.(type) {
+	case groph.EdgeLister:
+		ge.EachEdge(onEdge)
+	case groph.RUndirected:
+		vno := ge.Order()
+		for i := groph.V0; i < vno; i++ {
+			for j := groph.V0; j <= i; j++ {
+				if w := ge.WeightU(i, j); w != nil {
+					onEdge(i, j)
+				}
+			}
+		}
+	default:
+		vno := g.Order()
+		for i := groph.V0; i < vno; i++ {
+			for j := groph.V0; j < vno; j++ {
+				if w := g.Weight(i, j); w != nil {
+					onEdge(i, j)
+				}
+			}
+		}
+	}
+}

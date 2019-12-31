@@ -130,11 +130,11 @@ func BenchmarkAdjMxDbool_generic(b *testing.B) {
 }
 
 func TestAdjMxDi32(t *testing.T) {
-	m := NewAdjMxDi32(testSizeSetDel, nil)
+	m := NewAdjMxDi32(testSizeSetDel, I32Del, nil)
 	t.Run("is WGi32", func(t *testing.T) { testIsWGi32(t, m) })
 	const w32 = int32(4711)
 	testDSetDel(t, m,
-		func(i, j VIdx) { m.SetEdge(i, j, m.Del) },
+		func(i, j VIdx) { m.SetEdge(i, j, m.del) },
 		func(w interface{}) bool { return w == nil },
 		func(i, j VIdx) interface{} { m.SetEdge(i, j, w32); return w32 },
 		func(i, j VIdx) interface{} { return m.Weight(i, j) },
@@ -142,7 +142,7 @@ func TestAdjMxDi32(t *testing.T) {
 }
 
 func BenchmarkAdjMxDi32(b *testing.B) {
-	m := NewAdjMxDi32(testSizeSetDel, nil)
+	m := NewAdjMxDi32(testSizeSetDel, I32Del, nil)
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
@@ -163,7 +163,7 @@ func BenchmarkAdjMxDi32(b *testing.B) {
 }
 
 func BenchmarkAdjMxDi32_generic(b *testing.B) {
-	m := NewAdjMxDi32(testSizeSetDel, nil)
+	m := NewAdjMxDi32(testSizeSetDel, I32Del, nil)
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
@@ -250,12 +250,12 @@ func TestAdjMxUf32(t *testing.T) {
 }
 
 func TestAdjMxUi32(t *testing.T) {
-	m := NewAdjMxUi32(testSizeSetDel, nil)
+	m := NewAdjMxUi32(testSizeSetDel, I32Del, nil)
 	t.Run("is WUi32", func(t *testing.T) { testIsWUi32(t, m) })
 	const w32 int32 = 31415
 	testUSetDel(t, m,
-		func(i, j VIdx) { m.SetEdgeU(i, j, m.Del) },
-		func(w interface{}) bool { return w.(int32) == m.Del },
+		func(i, j VIdx) { m.SetEdgeU(i, j, m.del) },
+		func(w interface{}) bool { return w.(int32) == m.del },
 		func(i, j VIdx) interface{} { m.SetEdgeU(i, j, w32); return w32 },
 		func(i, j VIdx) interface{} {
 			w, _ := m.Edge(i, j)

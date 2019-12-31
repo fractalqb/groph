@@ -137,20 +137,21 @@ func (m *AdjMxDbool) SetEdge(i, j VIdx, w bool) {
 type AdjMxDi32 struct {
 	adjMx
 	w   []int32
-	Del int32
+	del int32
 }
 
-func NewAdjMxDi32(order VIdx, reuse *AdjMxDi32) *AdjMxDi32 {
+func NewAdjMxDi32(order VIdx, del int32, reuse *AdjMxDi32) *AdjMxDi32 {
 	if reuse == nil {
 		reuse = &AdjMxDi32{
 			adjMx: adjMx{sz: order},
 			w:     make([]int32, order*order),
-			Del:   i32cleared,
+			del:   del,
 		}
 	} else {
 		reuse.sz = order
 		reuse.w = iutil.I32Slice(reuse.w, int(order*order))
 	}
+	reuse.Init(reuse.del)
 	return reuse
 }
 
@@ -161,12 +162,7 @@ func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 {
 	return m
 }
 
-func (m *AdjMxDi32) Reset(order VIdx) {
-	c := m.Del
-	NewAdjMxDi32(order, m)
-	m.Del = c
-	m.Init(m.Del)
-}
+func (m *AdjMxDi32) Reset(order VIdx) { NewAdjMxDi32(order, m.del, m) }
 
 func (m *AdjMxDi32) Weight(u, v VIdx) interface{} {
 	res, ok := m.Edge(u, v)
@@ -186,7 +182,7 @@ func (m *AdjMxDi32) SetWeight(i, j VIdx, w interface{}) {
 
 func (m *AdjMxDi32) Edge(i, j VIdx) (w int32, exists bool) {
 	w = m.w[m.sz*i+j]
-	return w, w != m.Del
+	return w, w != m.del
 }
 
 func (m *AdjMxDi32) SetEdge(i, j VIdx, w int32) {
@@ -194,7 +190,7 @@ func (m *AdjMxDi32) SetEdge(i, j VIdx, w int32) {
 }
 
 func (m *AdjMxDi32) DelEdge(i, j VIdx) {
-	m.SetEdge(i, j, m.Del)
+	m.SetEdge(i, j, m.del)
 }
 
 type AdjMxDf32 struct {
@@ -212,6 +208,7 @@ func NewAdjMxDf32(order VIdx, reuse *AdjMxDf32) *AdjMxDf32 {
 		reuse.sz = order
 		reuse.w = iutil.F32Slice(reuse.w, int(order*order))
 	}
+	reuse.Init(NaN32())
 	return reuse
 }
 
@@ -222,10 +219,7 @@ func (m *AdjMxDf32) Init(w float32) *AdjMxDf32 {
 	return m
 }
 
-func (m *AdjMxDf32) Reset(order VIdx) {
-	NewAdjMxDf32(order, m)
-	m.Init(nan32)
-}
+func (m *AdjMxDf32) Reset(order VIdx) { NewAdjMxDf32(order, m) }
 
 func (m *AdjMxDf32) Weight(u, v VIdx) interface{} {
 	w := m.Edge(u, v)
@@ -275,6 +269,7 @@ func NewAdjMxUf32(order VIdx, reuse *AdjMxUf32) *AdjMxUf32 {
 		reuse.sz = order
 		reuse.w = iutil.F32Slice(reuse.w, int(nSum(order)))
 	}
+	reuse.Init(NaN32())
 	return reuse
 }
 
@@ -285,10 +280,7 @@ func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 {
 	return m
 }
 
-func (m *AdjMxUf32) Reset(order VIdx) {
-	NewAdjMxUf32(order, m)
-	m.Init(nan32)
-}
+func (m *AdjMxUf32) Reset(order VIdx) { NewAdjMxUf32(order, m) }
 
 // uIdx computes the index into the weight slice of an undirected matrix
 func uIdx(i, j VIdx) VIdx { return nSum(i) + j }
@@ -356,20 +348,21 @@ func (m *AdjMxUf32) SetEdgeU(i, j VIdx, w float32) {
 type AdjMxUi32 struct {
 	adjMx
 	w   []int32
-	Del int32
+	del int32
 }
 
-func NewAdjMxUi32(order VIdx, reuse *AdjMxUi32) *AdjMxUi32 {
+func NewAdjMxUi32(order VIdx, del int32, reuse *AdjMxUi32) *AdjMxUi32 {
 	if reuse == nil {
 		reuse = &AdjMxUi32{
 			adjMx: adjMx{sz: order},
 			w:     make([]int32, nSum(order)),
-			Del:   i32cleared,
+			del:   del,
 		}
 	} else {
 		reuse.sz = order
 		reuse.w = iutil.I32Slice(reuse.w, int(nSum(order)))
 	}
+	reuse.Init(reuse.del)
 	return reuse
 }
 
@@ -380,10 +373,7 @@ func (m *AdjMxUi32) Init(w int32) *AdjMxUi32 {
 	return m
 }
 
-func (m *AdjMxUi32) Reset(order VIdx) {
-	NewAdjMxUi32(order, m)
-	m.Init(m.Del)
-}
+func (m *AdjMxUi32) Reset(order VIdx) { NewAdjMxUi32(order, m.del, m) }
 
 func (m *AdjMxUi32) Weight(u, v VIdx) interface{} {
 	if w, ok := m.Edge(u, v); ok {
@@ -417,11 +407,11 @@ func (m *AdjMxUi32) SetWeightU(u, v VIdx, w interface{}) {
 }
 
 func (m *AdjMxUi32) DelEdge(u, v VIdx) {
-	m.SetEdge(u, v, m.Del)
+	m.SetEdge(u, v, m.del)
 }
 
 func (m *AdjMxUi32) DelEdgeU(u, v VIdx) {
-	m.SetEdgeU(u, v, m.Del)
+	m.SetEdgeU(u, v, m.del)
 }
 
 func (m *AdjMxUi32) Edge(u, v VIdx) (w int32, ok bool) {
@@ -430,13 +420,13 @@ func (m *AdjMxUi32) Edge(u, v VIdx) (w int32, ok bool) {
 	} else {
 		w = m.w[uIdx(v, u)]
 	}
-	return w, w != m.Del
+	return w, w != m.del
 }
 
 // EdgeU is used iff i >= j
 func (m *AdjMxUi32) EdgeU(u, v VIdx) (w int32, ok bool) {
 	w = m.w[uIdx(u, v)]
-	return w, w != m.Del
+	return w, w != m.del
 }
 
 func (m *AdjMxUi32) SetEdge(i, j VIdx, w int32) {
