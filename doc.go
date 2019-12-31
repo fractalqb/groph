@@ -1,4 +1,4 @@
-// groph is yet another graph library for go.
+// Package groph is yet another graph library for go.
 //
 // It provides an abstract graph model through some interfaces
 // described below, a set of different implementations for those graph
@@ -11,8 +11,7 @@
 // user. Edges are associated with values called “weights” which is a
 // useful feature for most graph algorithms. A simple, unweighted
 // graph can be considered to have weights of type bool that represent
-// whether an edged is in the graph. Once created a graph cannot
-// change its number of vertices.
+// whether an edged is in the graph.
 //
 // The graph interfaces
 //

@@ -17,7 +17,7 @@ func ExampleGraphViz_Write() {
 		}).Must(),
 	))
 	gv := GraphViz{}
-	gv.Write(os.Stdout, g, "Groph") //, "foo", "bar", "baz", "quux")
+	gv.Write(os.Stdout, g, "Groph")
 	// Output:
 	// digraph Groph {
 	//   0 -> 1 [label="8"];
