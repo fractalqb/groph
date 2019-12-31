@@ -2,21 +2,21 @@ package groph
 
 type spmro map[VIdx]interface{}
 
-type SpSoM struct {
+type SoMD struct {
 	ws []spmro
 }
 
-func NewSpSoM(order VIdx, reuse *SpSoM) *SpSoM {
+func NewSoMD(order VIdx, reuse *SoMD) *SoMD {
 	if reuse == nil {
-		return &SpSoM{make([]spmro, order)}
+		return &SoMD{make([]spmro, order)}
 	}
 	reuse.Reset(order)
 	return reuse
 }
 
-func (g *SpSoM) Order() VIdx { return len(g.ws) }
+func (g *SoMD) Order() VIdx { return len(g.ws) }
 
-func (g *SpSoM) Weight(u, v VIdx) interface{} {
+func (g *SoMD) Weight(u, v VIdx) interface{} {
 	row := g.ws[u]
 	if row == nil {
 		return nil
@@ -24,7 +24,7 @@ func (g *SpSoM) Weight(u, v VIdx) interface{} {
 	return row[v]
 }
 
-func (g *SpSoM) SetWeight(u, v VIdx, w interface{}) {
+func (g *SoMD) SetWeight(u, v VIdx, w interface{}) {
 	row := g.ws[u]
 	if w == nil {
 		delete(row, v)
@@ -37,7 +37,7 @@ func (g *SpSoM) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SpSoM) Reset(order VIdx) {
+func (g *SoMD) Reset(order VIdx) {
 	if g.ws == nil || cap(g.ws) < order {
 		g.ws = make([]spmro, order)
 	} else {
@@ -48,7 +48,7 @@ func (g *SpSoM) Reset(order VIdx) {
 	}
 }
 
-func (g *SpSoM) EachOutgoing(from VIdx, onDest VisitVertex) {
+func (g *SoMD) EachOutgoing(from VIdx, onDest VisitVertex) {
 	if row := g.ws[from]; row != nil {
 		for n := range row {
 			onDest(n)
@@ -56,7 +56,7 @@ func (g *SpSoM) EachOutgoing(from VIdx, onDest VisitVertex) {
 	}
 }
 
-func (g *SpSoM) OutDegree(v VIdx) int {
+func (g *SoMD) OutDegree(v VIdx) int {
 	row := g.ws[v]
 	if row == nil {
 		return 0
@@ -64,16 +64,51 @@ func (g *SpSoM) OutDegree(v VIdx) int {
 	return len(row)
 }
 
+type SoMU struct {
+	SoMD
+}
+
+func NewSoMU(order VIdx, reuse *SoMU) *SoMU {
+	if reuse == nil {
+		reuse = new(SoMU)
+	}
+	NewSoMD(order, &reuse.SoMD)
+	return reuse
+}
+
+func (g *SoMU) WeightU(u, v VIdx) interface{} {
+	return g.SoMD.Weight(u, v)
+}
+
+func (g *SoMU) Weight(u, v VIdx) interface{} {
+	if u > v {
+		return g.WeightU(u, v)
+	}
+	return g.WeightU(v, u)
+}
+
+func (g *SoMU) SetWeightU(u, v VIdx, w interface{}) {
+	g.SoMD.SetWeight(u, v, w)
+}
+
+func (g *SoMU) SetWeight(u, v VIdx, w interface{}) {
+	if u > v {
+		g.SetWeightU(u, v, w)
+	} else {
+		g.SetWeightU(v, u, w)
+	}
+}
+
 type spmroi32 map[VIdx]int32
 
-type SpSoMi32 struct {
+type SoMDi32 struct {
 	ws  []spmroi32
 	Del int32
 }
 
-func NewSpSoMi32(order VIdx, reuse *SpSoMi32) *SpSoMi32 {
+func NewSoMDi32(order VIdx, reuse *SoMDi32) *SoMDi32 {
 	if reuse == nil {
-		return &SpSoMi32{
+		return &SoMDi32{
 			ws:  make([]spmroi32, order),
 			Del: I32Del,
 		}
@@ -82,9 +117,9 @@ func NewSpSoMi32(order VIdx, reuse *SpSoMi32) *SpSoMi32 {
 	return reuse
 }
 
-func (g *SpSoMi32) Order() VIdx { return len(g.ws) }
+func (g *SoMDi32) Order() VIdx { return len(g.ws) }
 
-func (m *SpSoMi32) Edge(u, v VIdx) (w int32, exists bool) {
+func (m *SoMDi32) Edge(u, v VIdx) (w int32, exists bool) {
 	row := m.ws[u]
 	if row == nil {
 		return 0, false
@@ -95,14 +130,14 @@ func (m *SpSoMi32) Edge(u, v VIdx) (w int32, exists bool) {
 	return 0, false
 }
 
-func (g *SpSoMi32) Weight(u, v VIdx) interface{} {
+func (g *SoMDi32) Weight(u, v VIdx) interface{} {
 	if res, ok := g.Edge(u, v); ok {
 		return res
 	}
 	return nil
 }
 
-func (g *SpSoMi32) SetEdge(u, v VIdx, w int32) {
+func (g *SoMDi32) SetEdge(u, v VIdx, w int32) {
 	row := g.ws[u]
 	if row == nil {
 		row = make(spmroi32)
@@ -111,9 +146,9 @@ func (g *SpSoMi32) SetEdge(u, v VIdx, w int32) {
 	row[v] = w
 }
 
-func (g *SpSoMi32) DelEdge(u, v VIdx) { delete(g.ws[u], v) }
+func (g *SoMDi32) DelEdge(u, v VIdx) { delete(g.ws[u], v) }
 
-func (g *SpSoMi32) SetWeight(u, v VIdx, w interface{}) {
+func (g *SoMDi32) SetWeight(u, v VIdx, w interface{}) {
 	if w == nil {
 		g.DelEdge(u, v)
 	} else {
@@ -121,7 +156,7 @@ func (g *SpSoMi32) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SpSoMi32) Reset(order VIdx) {
+func (g *SoMDi32) Reset(order VIdx) {
 	if g.ws == nil || cap(g.ws) < order {
 		g.ws = make([]spmroi32, order)
 	} else {
@@ -132,7 +167,7 @@ func (g *SpSoMi32) Reset(order VIdx) {
 	}
 }
 
-func (g *SpSoMi32) EachOutgoing(from VIdx, onDest VisitVertex) {
+func (g *SoMDi32) EachOutgoing(from VIdx, onDest VisitVertex) {
 	if row := g.ws[from]; row != nil {
 		for n := range row {
 			onDest(n)
@@ -140,7 +175,7 @@ func (g *SpSoMi32) EachOutgoing(from VIdx, onDest VisitVertex) {
 	}
 }
 
-func (g *SpSoMi32) OutDegree(v VIdx) int {
+func (g *SoMDi32) OutDegree(v VIdx) int {
 	row := g.ws[v]
 	if row == nil {
 		return 0
@@ -148,23 +183,93 @@ func (g *SpSoMi32) OutDegree(v VIdx) int {
 	return len(row)
 }
 
+type SoMUi32 struct {
+	SoMDi32
+}
+
+func NewSoMUi32(order VIdx, reuse *SoMUi32) *SoMUi32 {
+	if reuse == nil {
+		reuse = new(SoMUi32)
+	}
+	NewSoMDi32(order, &reuse.SoMDi32)
+	return reuse
+}
+
+func (g *SoMUi32) EdgeU(u, v VIdx) (w int32, exists bool) {
+	return g.SoMDi32.Edge(u, v)
+}
+
+func (g *SoMUi32) Edge(u, v VIdx) (w int32, exists bool) {
+	if u > v {
+		return g.EdgeU(u, v)
+	}
+	return g.EdgeU(v, u)
+}
+
+func (g *SoMUi32) SetEdgeU(u, v VIdx, w int32) {
+	g.SoMDi32.SetEdge(u, v, w)
+}
+
+func (g *SoMUi32) SetEdge(u, v VIdx, w int32) {
+	if u > v {
+		g.SetEdgeU(u, v, w)
+	} else {
+		g.SetEdgeU(v, u, w)
+	}
+}
+
+func (g *SoMUi32) DelEdgeU(u, v VIdx) {
+	g.SoMDi32.DelEdge(u, v)
+}
+
+func (g *SoMUi32) DelEdge(u, v VIdx) {
+	if u > v {
+		g.DelEdgeU(u, v)
+	} else {
+		g.DelEdgeU(v, u)
+	}
+}
+
+func (g *SoMUi32) WeightU(u, v VIdx) interface{} {
+	return g.SoMDi32.Weight(u, v)
+}
+
+func (g *SoMUi32) Weight(u, v VIdx) interface{} {
+	if u > v {
+		return g.WeightU(u, v)
+	}
+	return g.WeightU(v, u)
+}
+
+func (g *SoMUi32) SetWeightU(u, v VIdx, w interface{}) {
+	g.SoMDi32.SetWeight(u, v, w)
+}
+
+func (g *SoMUi32) SetWeight(u, v VIdx, w interface{}) {
+	if u > v {
+		g.SetWeightU(u, v, w)
+	} else {
+		g.SetWeightU(v, u, w)
+	}
+}
+
 type spmrof32 map[VIdx]float32
 
-type SpSoMf32 struct {
+type SoMDf32 struct {
 	ws []spmrof32
 }
 
-func NewSpSoMf32(order VIdx, reuse *SpSoMf32) *SpSoMf32 {
+func NewSoMDf32(order VIdx, reuse *SoMDf32) *SoMDf32 {
 	if reuse == nil {
-		return &SpSoMf32{make([]spmrof32, order)}
+		return &SoMDf32{make([]spmrof32, order)}
 	}
 	reuse.Reset(order)
 	return reuse
 }
 
-func (g *SpSoMf32) Order() VIdx { return len(g.ws) }
+func (g *SoMDf32) Order() VIdx { return len(g.ws) }
 
-func (m *SpSoMf32) Edge(u, v VIdx) (w float32) {
+func (m *SoMDf32) Edge(u, v VIdx) (w float32) {
 	row := m.ws[u]
 	if row == nil {
 		return NaN32()
@@ -175,7 +280,7 @@ func (m *SpSoMf32) Edge(u, v VIdx) (w float32) {
 	return NaN32()
 }
 
-func (g *SpSoMf32) Weight(u, v VIdx) interface{} {
+func (g *SoMDf32) Weight(u, v VIdx) interface{} {
 	if res := g.Edge(u, v); IsNaN32(res) {
 		return nil
 	} else {
@@ -183,7 +288,7 @@ func (g *SpSoMf32) Weight(u, v VIdx) interface{} {
 	}
 }
 
-func (g *SpSoMf32) SetEdge(u, v VIdx, w float32) {
+func (g *SoMDf32) SetEdge(u, v VIdx, w float32) {
 	row := g.ws[u]
 	if row == nil {
 		row = make(spmrof32)
@@ -192,9 +297,9 @@ func (g *SpSoMf32) SetEdge(u, v VIdx, w float32) {
 	row[v] = w
 }
 
-func (g *SpSoMf32) DelEdge(u, v VIdx) { delete(g.ws[u], v) }
+func (g *SoMDf32) DelEdge(u, v VIdx) { delete(g.ws[u], v) }
 
-func (g *SpSoMf32) SetWeight(u, v VIdx, w interface{}) {
+func (g *SoMDf32) SetWeight(u, v VIdx, w interface{}) {
 	if w == nil {
 		g.DelEdge(u, v)
 	} else {
@@ -202,7 +307,7 @@ func (g *SpSoMf32) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SpSoMf32) Reset(order VIdx) {
+func (g *SoMDf32) Reset(order VIdx) {
 	if g.ws == nil || cap(g.ws) < order {
 		g.ws = make([]spmrof32, order)
 	} else {
@@ -213,7 +318,7 @@ func (g *SpSoMf32) Reset(order VIdx) {
 	}
 }
 
-func (g *SpSoMf32) EachOutgoing(from VIdx, onDest VisitVertex) {
+func (g *SoMDf32) EachOutgoing(from VIdx, onDest VisitVertex) {
 	if row := g.ws[from]; row != nil {
 		for n := range row {
 			onDest(n)
@@ -221,10 +326,68 @@ func (g *SpSoMf32) EachOutgoing(from VIdx, onDest VisitVertex) {
 	}
 }
 
-func (g *SpSoMf32) OutDegree(v VIdx) int {
+func (g *SoMDf32) OutDegree(v VIdx) int {
 	row := g.ws[v]
 	if row == nil {
 		return 0
 	}
 	return len(row)
+}
+
+type SoMUf32 struct {
+	SoMDf32
+}
+
+func NewSoMUf32(order VIdx, reuse *SoMUf32) *SoMUf32 {
+	if reuse == nil {
+		reuse = new(SoMUf32)
+	}
+	NewSoMDf32(order, &reuse.SoMDf32)
+	return reuse
+}
+
+func (g *SoMUf32) EdgeU(u, v VIdx) float32 {
+	return g.SoMDf32.Edge(u, v)
+}
+
+func (g *SoMUf32) Edge(u, v VIdx) float32 {
+	if u > v {
+		return g.EdgeU(u, v)
+	}
+	return g.EdgeU(v, u)
+}
+
+func (g *SoMUf32) SetEdgeU(u, v VIdx, w float32) {
+	g.SoMDf32.SetEdge(u, v, w)
+}
+
+func (g *SoMUf32) SetEdge(u, v VIdx, w float32) {
+	if u > v {
+		g.SetEdgeU(u, v, w)
+	} else {
+		g.SetEdgeU(v, u, w)
+	}
+}
+
+func (g *SoMUf32) WeightU(u, v VIdx) interface{} {
+	return g.SoMDf32.Weight(u, v)
+}
+
+func (g *SoMUf32) Weight(u, v VIdx) interface{} {
+	if u > v {
+		return g.WeightU(u, v)
+	}
+	return g.WeightU(v, u)
+}
+
+func (g *SoMUf32) SetWeightU(u, v VIdx, w interface{}) {
+	g.SoMDf32.SetWeight(u, v, w)
+}
+
+func (g *SoMUf32) SetWeight(u, v VIdx, w interface{}) {
+	if u > v {
+		g.SetWeightU(u, v, w)
+	} else {
+		g.SetWeightU(v, u, w)
+	}
 }

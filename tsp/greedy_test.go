@@ -37,7 +37,7 @@ var exmp1 = [][2]float32{
 	[2]float32{8, 3},
 }
 
-func ExampleAsymGreedy() {
+func Example_asymGreedy() {
 	adp, err := groph.NewPointsNDist(exmp1, test.Dist).Check()
 	if err != nil {
 		fmt.Println(err)

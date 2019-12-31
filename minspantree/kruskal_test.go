@@ -6,7 +6,7 @@ import (
 	"git.fractalqb.de/fractalqb/groph"
 )
 
-func ExampleKruskal() {
+func ExampleKruskalf32() {
 	// See https://de.wikipedia.org/wiki/Algorithmus_von_Kruskal
 	g := groph.NewAdjMxUf32(7, nil).Init(groph.NaN32())
 	g.SetEdge(0, 1, 7)

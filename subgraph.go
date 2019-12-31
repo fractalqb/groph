@@ -1,7 +1,7 @@
 package groph
 
 type RSubgraph struct {
-	G   RGraph
+	G    RGraph
 	VMap []VIdx
 }
 
@@ -14,7 +14,7 @@ func (g RSubgraph) Weight(u, v VIdx) interface{} {
 }
 
 type WSubgraph struct {
-	G   WGraph
+	G    WGraph
 	VMap []VIdx
 }
 
@@ -34,7 +34,7 @@ func (g WSubgraph) SetWeight(u, v VIdx, w interface{}) {
 	g.SetWeight(g.VMap[u], g.VMap[v], w)
 }
 
-// TODO Must sort vls to handle WeightU and SetWeightU
+// TODO Must sort vls to handle WeightU and SetWeightU?
 // type RSubUndir struct {
 // 	g   RUndirected
 // 	vls []VIdx

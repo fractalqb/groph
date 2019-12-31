@@ -13,7 +13,7 @@ func sortedEdges(g groph.RGf32) (res []groph.Edge) {
 	for i := groph.V0; i < vno; i++ {
 		for j := i + 1; j < vno; j++ {
 			if !math.IsNaN(float64(g.Edge(i, j))) {
-				res = append(res, groph.Edge{i, j})
+				res = append(res, groph.Edge{U: i, V: j})
 			}
 		}
 	}

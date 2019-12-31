@@ -182,7 +182,7 @@ func (dij *Dijkstraf32) On(
 	for dij.Len() != 0 {
 		u := heap.Pop(dij).(pqItemf32).v
 		traverse.EachOutgoing(g, u, func(n groph.VIdx) {
-			alt := dist[u] + g.Edge(u, n) // TOOD EdgeD?
+			alt := dist[u] + g.Edge(u, n) // TODO EdgeD?
 			if alt < dist[n] {
 				dist[n] = alt
 				if prev != nil {

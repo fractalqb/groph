@@ -27,15 +27,14 @@ func TestSize_undir(t *testing.T) {
 }
 
 func TestSize_undir_outlister(t *testing.T) {
-	t.Skip("No undir OutLister yet") // TODO
-	var g WUndirected = AsWUndir(NewSpSoMi32(4, nil))
+	var g WUndirected = NewSoMUi32(4, nil)
 	if _, ok := g.(OutLister); !ok {
 		t.Fatal("graph is not an out lister")
 	}
 	type E = Edge
-	Set(g, int32(1), E{0, 0}, E{1, 2}, E{2, 1}, E{2, 3})
-	if sz := Size(g); sz != 3 {
-		t.Fatalf("unexpected graph size: want 3, got %d", sz)
+	Set(g, int32(1), E{0, 0}, E{1, 2}, E{2, 1}, E{2, 3}, E{2, 0})
+	if sz := Size(g); sz != 4 {
+		t.Fatalf("unexpected graph size: want 4, got %d", sz)
 	}
 }
 

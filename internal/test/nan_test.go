@@ -7,7 +7,7 @@ import (
 	"git.fractalqb.de/fractalqb/groph"
 )
 
-func ExampleNaN64() {
+func Example_nan64() {
 	nan := math.NaN()
 	fmt.Printf("0 < NaN: %t\n", 0 < nan)
 	fmt.Printf("0 > NaN: %t\n", 0 > nan)

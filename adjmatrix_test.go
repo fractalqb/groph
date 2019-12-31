@@ -130,14 +130,13 @@ func BenchmarkAdjMxDbool_generic(b *testing.B) {
 }
 
 func TestAdjMxDi32(t *testing.T) {
-	m := NewAdjMxDi32(testSizeSetDel, I32Del, nil)
-	t.Run("is WGi32", func(t *testing.T) { testIsWGi32(t, m) })
-	const w32 = int32(4711)
-	testDSetDel(t, m,
-		func(i, j VIdx) { m.SetEdge(i, j, m.del) },
+	g := NewAdjMxDi32(testSizeSetDel, I32Del, nil)
+	t.Run("is WGi32", func(t *testing.T) { testIsWGi32(t, g) })
+	testDSetDel(t, g,
+		func(i, j VIdx) { g.SetEdge(i, j, g.del) },
 		func(w interface{}) bool { return w == nil },
-		func(i, j VIdx) interface{} { m.SetEdge(i, j, w32); return w32 },
-		func(i, j VIdx) interface{} { return m.Weight(i, j) },
+		func(i, j VIdx) interface{} { g.SetEdge(i, j, testProbeI32); return testProbeI32 },
+		func(i, j VIdx) interface{} { return g.Weight(i, j) },
 	)
 }
 
@@ -250,15 +249,14 @@ func TestAdjMxUf32(t *testing.T) {
 }
 
 func TestAdjMxUi32(t *testing.T) {
-	m := NewAdjMxUi32(testSizeSetDel, I32Del, nil)
-	t.Run("is WUi32", func(t *testing.T) { testIsWUi32(t, m) })
-	const w32 int32 = 31415
-	testUSetDel(t, m,
-		func(i, j VIdx) { m.SetEdgeU(i, j, m.del) },
-		func(w interface{}) bool { return w.(int32) == m.del },
-		func(i, j VIdx) interface{} { m.SetEdgeU(i, j, w32); return w32 },
+	u := NewAdjMxUi32(testSizeSetDel, I32Del, nil)
+	t.Run("is WUi32", func(t *testing.T) { testIsWUi32(t, u) })
+	testUSetDel(t, u,
+		func(i, j VIdx) { u.SetEdgeU(i, j, u.del) },
+		func(w interface{}) bool { return w.(int32) == u.del },
+		func(i, j VIdx) interface{} { u.SetEdgeU(i, j, testProbeI32); return testProbeI32 },
 		func(i, j VIdx) interface{} {
-			w, _ := m.Edge(i, j)
+			w, _ := u.Edge(i, j)
 			return w
 		},
 	)

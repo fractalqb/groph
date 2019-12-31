@@ -116,12 +116,10 @@ func Size(g RGraph) (res int) {
 			for v := V0; v < ord; v++ {
 				res += ol.OutDegree(v)
 			}
-			res /= 2
 		} else if il, ok := g.(InLister); ok {
 			for v := V0; v < ord; v++ {
 				res += il.InDegree(v)
 			}
-			res /= 2
 		} else {
 			for i := V0; i < ord; i++ {
 				for j := V0; j <= i; j++ {
@@ -246,6 +244,7 @@ type WUi32 interface {
 	SetWeightU(u, v VIdx, w interface{})
 	EdgeU(u, v VIdx) (weight int32, ok bool)
 	SetEdgeU(u, v VIdx, weight int32)
+	DelEdgeU(u, v VIdx)
 }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type

@@ -5,6 +5,9 @@ import (
 	"fmt"
 )
 
+// ClipError is returned when the order of src and dst in Cp*Weights does not
+// match. If err is < 0 there were -err vertices ignored from src. If err > 0
+// then err vertices in dst were not covered.
 type ClipError int
 
 func (err ClipError) Error() string {
@@ -22,6 +25,8 @@ func Clipped(err error) int {
 	return 0
 }
 
+// SrcDstError is returned when an error occurred in the src or dst graph during
+// Cp*Weights.
 type SrcDstError struct {
 	Src error
 	Dst error
@@ -39,6 +44,7 @@ func (err SrcDstError) Error() string {
 	return "unspecific error"
 }
 
+// MustCp panics when err is not nil. Otherwiese it returns g.
 func MustCp(g WGraph, err error) WGraph {
 	if err != nil {
 		panic(err)
@@ -94,7 +100,7 @@ func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) {
 }
 
 // CpXWeights “transfers” the edge weights from src Graph to dst Graph
-// with the same vertex restirctions as CpWeights. CpXWeights applies
+// with the same vertex restrictions as CpWeights. CpXWeights applies
 // the transformation function xf() to each edge weight.
 //
 // Panic of xf will be recovered and returned as error.
