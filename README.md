@@ -50,9 +50,9 @@ Comparison benchmarks can be found in the separate project [groph-cmpbench](http
 
 ### Access Performance
 
-Access performance is measured by writing and reading graph edges of a graph with a fixed number of vertices. While this does not tell anything about the quality of the provided algorithms theses operations are frequently called in inner loops of most algorithms. I.e. access performance will make factor of algorithm's performance.
+Access performance is measured by writing and reading graph edges of a graph with a fixed number of vertices. While this does not tell anything about the quality of the provided algorithms theses operations are frequently called in inner loops of most algorithms. I.e. access performance will make a factor of algorithm's performance.
 
-Other graph implementations are run against the groph top-speed graph. Use the numbers from the internal benchmark to estimate other comparisons.
+Other graph implementations are run against the groph top-speed graph. Use the numbers from groph's internal benchmark to estimate other comparisons.
 
 _Feedback on the benchmark project is very welcome to improve the validity of the comparison!_
 

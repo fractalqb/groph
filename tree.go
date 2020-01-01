@@ -2,6 +2,17 @@ package groph
 
 type Tree []VIdx
 
+func (t Tree) Root() (res VIdx) {
+	max := len(t)
+	for n := t[res]; n >= 0; n = t[res] {
+		res = n
+		if max--; max == 0 {
+			return -1
+		}
+	}
+	return res
+}
+
 func (t Tree) Order() VIdx { return len(t) }
 
 func (t Tree) EdgeU(u, v VIdx) bool {

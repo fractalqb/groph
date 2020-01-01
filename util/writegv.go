@@ -10,7 +10,10 @@ import (
 	"git.fractalqb.de/fractalqb/groph"
 )
 
-type GraphViz struct{}
+type GraphViz struct {
+	NodeAtts func(g groph.RGraph, v groph.VIdx) (atts string)
+	EdgeAtts func(g groph.RGraph, u, v groph.VIdx) (atts string, hasLabel bool)
+}
 
 func (gv *GraphViz) Write(
 	wr io.Writer,
@@ -25,6 +28,25 @@ func (gv *GraphViz) Write(
 	}
 }
 
+func (gv *GraphViz) nAtts(g groph.RGraph, v groph.VIdx, vlbs []interface{}) string {
+	var label interface{}
+	if v < len(vlbs) {
+		label = vlbs[v]
+	}
+	var atts string
+	if gv.NodeAtts != nil {
+		atts = gv.NodeAtts(g, v)
+	}
+	if label != nil {
+		if atts == "" {
+			return fmt.Sprintf("label=\"%s\"", label)
+		} else {
+			return fmt.Sprintf("label=\"%s\", %s", label, atts)
+		}
+	}
+	return atts
+}
+
 func (gv *GraphViz) dwrite(
 	wr io.Writer,
 	g groph.RGraph,
@@ -36,13 +58,12 @@ func (gv *GraphViz) dwrite(
 	}
 	tw := tabwriter.NewWriter(wr, 2, 0, 1, ' ', 0)
 	fmt.Fprintf(tw, "digraph %s {\n", name)
-	if len(vlabels) > 0 {
-		n := g.Order()
-		if len(vlabels) < n {
-			n = len(vlabels)
-		}
-		for i := 0; i < n; i++ {
-			fmt.Fprintf(tw, "\t%d\t[label=\"%s\"];\n", i, vlabels[i])
+	if len(vlabels) > 0 || gv.NodeAtts != nil {
+		for i := groph.V0; i < g.Order(); i++ {
+			atts := gv.nAtts(g, i, vlabels)
+			if atts != "" {
+				fmt.Fprintf(tw, "\t%d\t[%s];\n", i, atts)
+			}
 		}
 	}
 	traverse.EachEdge(g, func(u, v groph.VIdx) {
@@ -62,13 +83,12 @@ func (gv *GraphViz) uwrite(
 	}
 	tw := tabwriter.NewWriter(wr, 2, 0, 1, ' ', 0)
 	fmt.Fprintf(tw, "graph %s {\n", name)
-	if len(vlabels) > 0 {
-		n := g.Order()
-		if len(vlabels) < n {
-			n = len(vlabels)
-		}
-		for i := 0; i < n; i++ {
-			fmt.Fprintf(tw, "\t%d\t[label=\"%s\"];\n", i, vlabels[i])
+	if len(vlabels) > 0 || gv.NodeAtts != nil {
+		for i := groph.V0; i < g.Order(); i++ {
+			atts := gv.nAtts(g, i, vlabels)
+			if atts != "" {
+				fmt.Fprintf(tw, "\t%d\t[%s];\n", i, atts)
+			}
 		}
 	}
 	traverse.EachEdge(g, func(u, v groph.VIdx) {
