@@ -71,7 +71,7 @@ func (dij *Dijkstrai32) On(
 	start groph.VIdx,
 	dist []int32,
 	prev []groph.VIdx,
-) ([]int32, []groph.VIdx) {
+) ([]int32, groph.Tree) {
 	order := g.Order()
 	dist = iutil.I32Slice(dist, order)
 	if prev != nil {
@@ -162,7 +162,7 @@ func (dij *Dijkstraf32) On(
 	start groph.VIdx,
 	dist []float32,
 	prev []groph.VIdx,
-) ([]float32, []groph.VIdx) {
+) ([]float32, groph.Tree) {
 	order := g.Order()
 	dist = iutil.F32Slice(dist, order)
 	if prev != nil {
@@ -182,7 +182,7 @@ func (dij *Dijkstraf32) On(
 	for dij.Len() != 0 {
 		u := heap.Pop(dij).(pqItemf32).v
 		traverse.EachOutgoing(g, u, func(n groph.VIdx) {
-			alt := dist[u] + g.Edge(u, n) // TODO EdgeD?
+			alt := dist[u] + g.Edge(u, n) // TODO EdgeU?
 			if alt < dist[n] {
 				dist[n] = alt
 				if prev != nil {

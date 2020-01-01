@@ -7,15 +7,12 @@ import (
 )
 
 func ExampleGraphViz_Write() {
-	g := groph.MustCp(groph.CpWeights(
-		groph.NewAdjMxDi32(4, 0, nil),
-		groph.NewWeightsSlice([]int32{
-			0, 8, 0, 1,
-			0, 0, 1, 0,
-			4, 0, 7, 0,
-			0, 2, 9, 0,
-		}).Must(),
-	))
+	g, _ := groph.AsAdjMxDi32(nil, 0, []int32{
+		0, 8, 0, 1,
+		0, 0, 1, 0,
+		4, 0, 7, 0,
+		0, 2, 9, 0,
+	})
 	gv := GraphViz{}
 	gv.Write(os.Stdout, g, "Groph")
 	// Output:

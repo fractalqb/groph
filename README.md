@@ -21,13 +21,13 @@ _(t/gen)_ or through their specifically typed interface _(t/typed)_.
 
 | Implementation   | Weight Type       | Dir/Undir | t/typed | t/gen |
 |------------------|:-----------------:|:---------:|--------:|------:|
-| Adjacency matrix | bool (bitmap)     | D         | 1.51    | 3.06  |
-| Adjacency matrix | bool              | D         | 1       | 1.19  |
-| Adjacency matrix | int32             | D         | 1.12    | 8.09  |
-| Adjacency matrix | float32           | D         | 1.17    | 8.51  |
-| Slice of Maps    | interface\{\}     | D         | –       | 26.17 |
-| Slice of Maps    | int32             | D         | 16.11   | 24.91 |
-| Slice of Maps    | float32           | D         | 15.66   | 25.32 |
+| Adjacency matrix | bool (bitmap)     | D         | 1.51    | 3.68  |
+| Adjacency matrix | bool              | D         | 1       | 2.01  |
+| Adjacency matrix | int32             | D, U      | 1.08    | 8.18  |
+| Adjacency matrix | float32           | D, U      | 1.12    | 8.35  |
+| Slice of Maps    | interface\{\}     | D, U      | –       | 26.07 |
+| Slice of Maps    | int32             | D, U      | 15.92   | 25.22 |
+| Slice of Maps    | float32           | D, U      | 15.90   | 25.90 |
 
 _Note:_ Performance losses for generic access are mainly due to the type cast to a
 specific type after calling `g.Weight()`. Because this is probably relevant for real

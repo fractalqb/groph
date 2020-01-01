@@ -9,7 +9,7 @@ import (
 var _ groph.RUndirected = (*RUadapter)(nil)
 
 func ExampleRUadapter() {
-	ws := groph.NewWeightsSlice([]int32{1, 2, 3, 4})
+	ws := NewWeightsSlice([]int32{1, 2, 3, 4})
 	u := groph.NewAdjMxUi32(ws.Order(), groph.I32Del, nil)
 	_, err := groph.CpWeights(u, ws)
 	fmt.Println("copy error:", err)

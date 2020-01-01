@@ -7,19 +7,18 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 func ExampleFloydWarshalli32() {
-	graph := groph.NewWeightsSlice([]int32{
+	fwres, _ := groph.AsAdjMxDi32(nil, 0, []int32{
 		0, 8, 0, 1,
 		0, 0, 1, 0,
 		4, 0, 0, 0,
 		0, 2, 9, 0,
-	}).Must()
-	sz := graph.Order()
-	fwres := groph.NewAdjMxDi32(sz, 0, nil)
-	groph.MustCp(groph.CpWeights(fwres, graph))
+	})
 	FloydWarshalli32(fwres)
+	sz := fwres.Order()
 	for i := 0; i < sz; i++ {
 		for j := 0; j < sz; j++ {
 			e, _ := fwres.Edge(i, j)
@@ -39,7 +38,7 @@ func ExampleFloydWarshalli32() {
 }
 
 func ExampleFloydWarshallf32() {
-	graph := groph.NewWeightsSlice([]int{
+	graph := util.NewWeightsSlice([]int{
 		0, 8, 0, 1,
 		0, 0, 1, 0,
 		4, 0, 0, 0,

@@ -15,7 +15,7 @@ func ExampleSet() {
 }
 
 func TestSize_undir(t *testing.T) {
-	var g WUndirected = NewAdjMxUi32(4, I32Del, nil)
+	var g WUndirected = NewAdjMxUi32(4, I32Del, nil).Init(I32Del)
 	if sz := Size(g); sz != 0 {
 		t.Fatalf("new graph size not 0: size=%d", sz)
 	}

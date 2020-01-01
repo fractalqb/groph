@@ -6,6 +6,7 @@ import (
 
 	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/internal/test"
+	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 //func dist(u, v [2]float32) float32 {
@@ -38,7 +39,7 @@ var exmp1 = [][2]float32{
 }
 
 func Example_asymGreedy() {
-	adp, err := groph.NewPointsNDist(exmp1, test.Dist).Check()
+	adp, err := util.NewPointsNDist(exmp1, test.Dist).Check()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -72,7 +73,7 @@ var exmp2 = [][2]float32{
 
 func BenchmarkTspGreedyAMf32(b *testing.B) {
 	am := groph.NewAdjMxDf32(groph.VIdx(len(exmp2)), nil)
-	groph.CpWeights(am, groph.NewPointsNDist(exmp2, test.Dist).Must())
+	groph.CpWeights(am, util.NewPointsNDist(exmp2, test.Dist).Must())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		GreedyAdjMxDf32(am)
@@ -81,7 +82,7 @@ func BenchmarkTspGreedyAMf32(b *testing.B) {
 
 func BenchmarkTspGreedyGenf32(b *testing.B) {
 	am := groph.NewAdjMxDf32(groph.VIdx(len(exmp2)), nil)
-	groph.CpWeights(am, groph.NewPointsNDist(exmp2, test.Dist).Must())
+	groph.CpWeights(am, util.NewPointsNDist(exmp2, test.Dist).Must())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		Greedyf32(am)
