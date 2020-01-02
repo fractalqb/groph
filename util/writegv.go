@@ -5,8 +5,6 @@ import (
 	"io"
 	"text/tabwriter"
 
-	"git.fractalqb.de/fractalqb/groph/traverse"
-
 	"git.fractalqb.de/fractalqb/groph"
 )
 
@@ -66,7 +64,7 @@ func (gv *GraphViz) dwrite(
 			}
 		}
 	}
-	traverse.EachEdge(g, func(u, v groph.VIdx) {
+	groph.EachEdge(g, func(u, v groph.VIdx) {
 		fmt.Fprintf(tw, "\t%d -> %d [label=\"%v\"];\n", u, v, g.Weight(u, v))
 	})
 	fmt.Fprintln(tw, "}")
@@ -91,7 +89,7 @@ func (gv *GraphViz) uwrite(
 			}
 		}
 	}
-	traverse.EachEdge(g, func(u, v groph.VIdx) {
+	groph.EachEdge(g, func(u, v groph.VIdx) {
 		fmt.Fprintf(tw, "\t%d -- %d [label=\"%v\"];\n", u, v, g.Weight(u, v))
 	})
 	fmt.Fprintln(tw, "}")

@@ -6,7 +6,6 @@ import (
 
 	"git.fractalqb.de/fractalqb/groph"
 	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
-	"git.fractalqb.de/fractalqb/groph/traverse"
 )
 
 type pqItemi32 struct {
@@ -96,7 +95,7 @@ func (dij *Dijkstrai32) On(
 	}
 	for dij.pq.Len() != 0 {
 		u := heap.Pop(&dij.pq).(pqItemi32).v
-		traverse.EachOutgoing(g, u, func(n groph.VIdx) {
+		groph.EachOutgoing(g, u, func(n groph.VIdx) {
 			alt := dist[u]
 			if alt < 0 {
 				return
@@ -193,7 +192,7 @@ func (dij *Dijkstraf32) On(
 	}
 	for dij.pq.Len() != 0 {
 		u := heap.Pop(&dij.pq).(pqItemf32).v
-		traverse.EachOutgoing(g, u, func(n groph.VIdx) {
+		groph.EachOutgoing(g, u, func(n groph.VIdx) {
 			alt := dist[u] + g.Edge(u, n) // TODO EdgeU?
 			if alt < dist[n] {
 				dist[n] = alt

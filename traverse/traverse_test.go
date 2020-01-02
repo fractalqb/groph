@@ -7,7 +7,7 @@ import (
 )
 
 func ExampleTraversal_Depth1stAt() {
-	g := groph.NewAdjMxDbool(7, nil)
+	g := groph.NewAdjMxUbool(7, nil)
 	type E = groph.Edge
 	groph.Set(g, true,
 		E{0, 1}, E{0, 2}, E{0, 3},
@@ -15,17 +15,19 @@ func ExampleTraversal_Depth1stAt() {
 		E{2, 5},
 		E{3, 6},
 	)
-	hits := NewTraversal(g).Depth1stAt(0, func(v groph.VIdx) {
+	t := NewTraversal(g)
+	t.SortBy = func(u, v1, v2 groph.VIdx) bool { return v1 < v2 }
+	hits := t.Depth1stAt(0, func(v groph.VIdx) {
 		fmt.Printf(" %d", v)
 	})
 	fmt.Println("\nhits:", hits)
 	// Output:
-	// 0 3 6 2 5 1 4
+	// 0 1 4 5 2 3 6
 	// hits: 7
 }
 
 func ExampleTraversal_Breadth1stAt() {
-	g := groph.NewAdjMxDbool(7, nil)
+	g := groph.NewAdjMxUbool(7, nil)
 	type E = groph.Edge
 	groph.Set(g, true,
 		E{0, 1}, E{0, 2}, E{0, 3},

@@ -285,6 +285,97 @@ func (m *AdjMxDf32) SetEdge(i, j VIdx, w float32) {
 	m.ws[m.ord*i+j] = w
 }
 
+type AdjMxUbool struct {
+	adjMx
+	ws []bool
+}
+
+func NewAdjMxUbool(order VIdx, reuse *AdjMxUbool) *AdjMxUbool {
+	if reuse == nil {
+		reuse = &AdjMxUbool{
+			adjMx: adjMx{ord: order},
+			ws:    make([]bool, nSum(order)),
+		}
+	} else {
+		reuse.ord = order
+		reuse.ws = iutil.BoolSlice(reuse.ws, int(nSum(order)))
+	}
+	return reuse
+}
+
+func AsAdjMxUbool(reuse *AdjMxUbool, weights []bool) (*AdjMxUbool, error) {
+	sz, err := uOrdFromLen(len(weights))
+	if err != nil {
+		return nil, err
+	}
+	if reuse == nil {
+		reuse = new(AdjMxUbool)
+	}
+	reuse.ord = sz
+	reuse.ws = weights
+	return reuse, nil
+}
+
+func (m *AdjMxUbool) Init(w bool) *AdjMxUbool {
+	for i := range m.ws {
+		m.ws[i] = w
+	}
+	return m
+}
+
+func (m *AdjMxUbool) Reset(order VIdx) { NewAdjMxUbool(order, m) }
+
+func (m *AdjMxUbool) Weight(u, v VIdx) interface{} {
+	if m.Edge(u, v) {
+		return true
+	}
+	return nil
+}
+
+func (m *AdjMxUbool) WeightU(u, v VIdx) interface{} {
+	if m.EdgeU(u, v) {
+		return true
+	}
+	return nil
+}
+
+func (m *AdjMxUbool) SetWeight(u, v VIdx, w interface{}) {
+	if w == nil {
+		m.SetEdge(u, v, false)
+	} else {
+		m.SetEdge(u, v, w.(bool))
+	}
+}
+
+func (m *AdjMxUbool) SetWeightU(u, v VIdx, w interface{}) {
+	if w == nil {
+		m.SetEdgeU(u, v, false)
+	} else {
+		m.SetEdgeU(u, v, w.(bool))
+	}
+}
+
+func (m *AdjMxUbool) Edge(u, v VIdx) (w bool) {
+	if u > v {
+		return m.ws[uIdx(u, v)]
+	}
+	return m.ws[uIdx(v, u)]
+}
+
+// EdgeU is used iff i >= j
+func (m *AdjMxUbool) EdgeU(u, v VIdx) (w bool) { return m.ws[uIdx(u, v)] }
+
+func (m *AdjMxUbool) SetEdge(i, j VIdx, w bool) {
+	if i >= j {
+		m.ws[uIdx(i, j)] = w
+	} else {
+		m.ws[uIdx(j, i)] = w
+	}
+}
+
+// SetEdgeU is used iff i >= j
+func (m *AdjMxUbool) SetEdgeU(u, v VIdx, w bool) { m.ws[uIdx(u, v)] = w }
+
 type AdjMxUi32 struct {
 	adjMx
 	ws  []int32

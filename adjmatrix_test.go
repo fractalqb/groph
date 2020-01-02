@@ -8,6 +8,7 @@ var _ WGbool = (*AdjMxDbitmap)(nil)
 var _ WGbool = (*AdjMxDbool)(nil)
 var _ WGi32 = (*AdjMxDi32)(nil)
 var _ WGf32 = (*AdjMxDf32)(nil)
+var _ WUbool = (*AdjMxUbool)(nil)
 var _ WUi32 = (*AdjMxUi32)(nil)
 var _ WUf32 = (*AdjMxUf32)(nil)
 
@@ -236,15 +237,14 @@ func BenchmarkAdjMxDf32_generic(b *testing.B) {
 	}
 }
 
-func TestAdjMxUf32(t *testing.T) {
-	m := NewAdjMxUf32(testSizeSetDel, nil)
-	t.Run("is WUf32", func(t *testing.T) { testIsWUf32(t, m) })
-	const w32 = float32(3.1415)
-	testUSetDel(t, m,
-		func(i, j VIdx) { m.SetEdgeU(i, j, NaN32()) },
-		func(w interface{}) bool { return IsNaN32(w.(float32)) },
-		func(i, j VIdx) interface{} { m.SetEdgeU(i, j, w32); return w32 },
-		func(i, j VIdx) interface{} { return m.Edge(i, j) },
+func TestAdjMxUbool(t *testing.T) {
+	u := NewAdjMxUbool(testSizeSetDel, nil)
+	t.Run("is WUbool", func(t *testing.T) { testIsWUbool(t, u) })
+	testUSetDel(t, u,
+		func(i, j VIdx) { u.SetEdgeU(i, j, false) },
+		func(w interface{}) bool { return w == nil },
+		func(i, j VIdx) interface{} { u.SetEdgeU(i, j, testProbeBool); return testProbeBool },
+		func(i, j VIdx) interface{} { return u.Weight(i, j) },
 	)
 }
 
@@ -259,5 +259,17 @@ func TestAdjMxUi32(t *testing.T) {
 			w, _ := u.Edge(i, j)
 			return w
 		},
+	)
+}
+
+func TestAdjMxUf32(t *testing.T) {
+	m := NewAdjMxUf32(testSizeSetDel, nil)
+	t.Run("is WUf32", func(t *testing.T) { testIsWUf32(t, m) })
+	const w32 = float32(3.1415)
+	testUSetDel(t, m,
+		func(i, j VIdx) { m.SetEdgeU(i, j, NaN32()) },
+		func(w interface{}) bool { return IsNaN32(w.(float32)) },
+		func(i, j VIdx) interface{} { m.SetEdgeU(i, j, w32); return w32 },
+		func(i, j VIdx) interface{} { return m.Edge(i, j) },
 	)
 }

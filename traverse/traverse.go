@@ -1,14 +1,19 @@
 package traverse
 
 import (
+	"sort"
+
 	"git.fractalqb.de/fractalqb/groph"
 	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
 )
 
 type Traversal struct {
-	g       groph.RGraph
-	mem     []groph.VIdx
-	tail    int
+	g    groph.RGraph
+	mem  []groph.VIdx
+	tail int
+	// If not nil SortBy is used to sort the neighbours v of node u. SortBy
+	// returns true if the edge (u,v1) is less than (u,v2).
+	SortBy  func(u, v1, v2 groph.VIdx) bool
 	Visited groph.BitSet
 }
 
@@ -50,17 +55,24 @@ func (df *Traversal) Depth1stAt(start groph.VIdx, do groph.VisitVertex) int {
 		df.mem = df.mem[:0]
 	}
 	df.push(start)
+	df.Visited.Set(start)
 	count := 0
 	for len(df.mem) > 0 {
 		start = df.pop()
-		df.Visited.Set(start)
 		do(start)
 		count++
-		EachOutgoing(df.g, start, func(n groph.VIdx) {
+		sortStart := len(df.mem)
+		groph.EachOutgoing(df.g, start, func(n groph.VIdx) {
 			if !df.Visited.Get(n) {
 				df.push(n)
+				df.Visited.Set(n)
 			}
 		})
+		if df.SortBy != nil {
+			sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool {
+				return !df.SortBy(start, v1, v2)
+			})
+		}
 	}
 	return count
 }
@@ -91,12 +103,18 @@ func (df *Traversal) Breadth1stAt(start groph.VIdx, do groph.VisitVertex) int {
 		start = df.take()
 		do(start)
 		count++
-		EachOutgoing(df.g, start, func(n groph.VIdx) {
+		sortStart := len(df.mem)
+		groph.EachOutgoing(df.g, start, func(n groph.VIdx) {
 			if !df.Visited.Get(n) {
 				df.push(n)
 				df.Visited.Set(n)
 			}
 		})
+		if df.SortBy != nil {
+			sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool {
+				return df.SortBy(start, v1, v2)
+			})
+		}
 	}
 	return count
 }

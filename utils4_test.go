@@ -219,7 +219,7 @@ func testIsWUbool(t *testing.T, g WUbool) {
 			if g.Weight(i, j) == nil || g.Weight(j, i) == nil {
 				t.Errorf("set edge (%d,%d) true does not return 2x dir non-nil", i, j)
 			}
-			if g.WeightU(i, j) != nil {
+			if g.WeightU(i, j) == nil {
 				t.Errorf("set edge (%d,%d) true does not return non-nil", i, j)
 			}
 			g.SetWeightU(i, j, nil)

@@ -1,21 +1,17 @@
-package traverse
-
-import (
-	"git.fractalqb.de/fractalqb/groph"
-)
+package groph
 
 // EachOutgoing calls onDest on each node d that is a neighbour of 'from' in
 // graph g. Vertex d is a neighbour of from, iff g contains the edge (d,from).
 //
 // For undirected graphs that are no NeighbourListers EachNeighbour
 // guarantees to call WeightU with v ≥ u to detect neighbours.
-func EachOutgoing(g groph.RGraph, from groph.VIdx, onDest groph.VisitVertex) {
+func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) {
 	switch gi := g.(type) {
-	case groph.OutLister:
+	case OutLister:
 		gi.EachOutgoing(from, onDest)
-	case groph.RUndirected:
+	case RUndirected:
 		vno := gi.Order()
-		n := groph.V0
+		n := V0
 		for n < from {
 			if w := gi.WeightU(from, n); w != nil {
 				onDest(n)
@@ -30,7 +26,7 @@ func EachOutgoing(g groph.RGraph, from groph.VIdx, onDest groph.VisitVertex) {
 		}
 	default:
 		vno := g.Order()
-		for n := groph.V0; n < vno; n++ {
+		for n := V0; n < vno; n++ {
 			if w := g.Weight(from, n); w != nil {
 				onDest(n)
 			}
@@ -43,13 +39,13 @@ func EachOutgoing(g groph.RGraph, from groph.VIdx, onDest groph.VisitVertex) {
 //
 // For undirected graphs that are no NeighbourListers EachNeighbour
 // guarantees to call WeightU with v ≥ u to detect neighbours.
-func EachIncoming(g groph.RGraph, to groph.VIdx, onSource groph.VisitVertex) {
+func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) {
 	switch gi := g.(type) {
-	case groph.InLister:
+	case InLister:
 		gi.EachIncoming(to, onSource)
-	case groph.RUndirected:
+	case RUndirected:
 		vno := gi.Order()
-		n := groph.V0
+		n := V0
 		for n < to {
 			if w := gi.WeightU(to, n); w != nil {
 				onSource(n)
@@ -64,7 +60,7 @@ func EachIncoming(g groph.RGraph, to groph.VIdx, onSource groph.VisitVertex) {
 		}
 	default:
 		vno := g.Order()
-		for n := groph.V0; n < vno; n++ {
+		for n := V0; n < vno; n++ {
 			if w := g.Weight(n, to); w != nil {
 				onSource(n)
 			}
@@ -72,14 +68,14 @@ func EachIncoming(g groph.RGraph, to groph.VIdx, onSource groph.VisitVertex) {
 	}
 }
 
-func EachEdge(g groph.RGraph, onEdge groph.VisitEdge) {
+func EachEdge(g RGraph, onEdge VisitEdge) {
 	switch ge := g.(type) {
-	case groph.EdgeLister:
+	case EdgeLister:
 		ge.EachEdge(onEdge)
-	case groph.RUndirected:
+	case RUndirected:
 		vno := ge.Order()
-		for i := groph.V0; i < vno; i++ {
-			for j := groph.V0; j <= i; j++ {
+		for i := V0; i < vno; i++ {
+			for j := V0; j <= i; j++ {
 				if w := ge.WeightU(i, j); w != nil {
 					onEdge(i, j)
 				}
@@ -87,8 +83,8 @@ func EachEdge(g groph.RGraph, onEdge groph.VisitEdge) {
 		}
 	default:
 		vno := g.Order()
-		for i := groph.V0; i < vno; i++ {
-			for j := groph.V0; j < vno; j++ {
+		for i := V0; i < vno; i++ {
+			for j := V0; j < vno; j++ {
 				if w := g.Weight(i, j); w != nil {
 					onEdge(i, j)
 				}
