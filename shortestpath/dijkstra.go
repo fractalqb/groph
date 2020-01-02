@@ -33,8 +33,9 @@ func (pq *pqi32) Less(i, j int) bool {
 
 func (pq *pqi32) Swap(i, j int) {
 	ii, ij := pq.is[i], pq.is[j]
-	pq.v2i[ii.v], pq.v2i[ij.v] = j, i
 	pq.is[i], pq.is[j] = ij, ii
+	pq.v2i[ii.v] = j
+	pq.v2i[ij.v] = i
 }
 
 func (pq *pqi32) Push(x interface{}) {
@@ -44,6 +45,7 @@ func (pq *pqi32) Push(x interface{}) {
 }
 
 func (pq *pqi32) Pop() interface{} {
+	// TODO what about pq.v2i ?
 	n := len(pq.is) - 1
 	res := pq.is[n]
 	pq.is = pq.is[:n]
