@@ -234,8 +234,6 @@ type WGi32 interface {
 	// SetEdge sets the weight of the edge (u,v). If the edge (u,v) was not in
 	// the graph before, it is implicitly added.
 	SetEdge(u, v VIdx, weight int32)
-	// DelEdge deletes the edge (u,v) from the graph.
-	DelEdge(u, v VIdx)
 }
 
 type WUi32 interface {
@@ -244,7 +242,6 @@ type WUi32 interface {
 	SetWeightU(u, v VIdx, w interface{})
 	EdgeU(u, v VIdx) (weight int32, ok bool)
 	SetEdgeU(u, v VIdx, weight int32)
-	DelEdgeU(u, v VIdx)
 }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type

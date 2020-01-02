@@ -201,9 +201,9 @@ func (m *AdjMxDi32) Weight(u, v VIdx) interface{} {
 
 func (m *AdjMxDi32) SetWeight(i, j VIdx, w interface{}) {
 	if w == nil {
-		m.DelEdge(i, j)
+		m.SetEdge(i, j, m.del)
 	} else {
-		m.ws[m.ord*i+j] = w.(int32)
+		m.SetEdge(i, j, w.(int32))
 	}
 }
 
@@ -214,10 +214,6 @@ func (m *AdjMxDi32) Edge(i, j VIdx) (w int32, exists bool) {
 
 func (m *AdjMxDi32) SetEdge(i, j VIdx, w int32) {
 	m.ws[m.ord*i+j] = w
-}
-
-func (m *AdjMxDi32) DelEdge(i, j VIdx) {
-	m.SetEdge(i, j, m.del)
 }
 
 type AdjMxDf32 struct {
@@ -436,7 +432,7 @@ func (m *AdjMxUi32) WeightU(u, v VIdx) interface{} {
 
 func (m *AdjMxUi32) SetWeight(u, v VIdx, w interface{}) {
 	if w == nil {
-		m.DelEdge(u, v)
+		m.SetEdge(u, v, m.del)
 	} else {
 		m.SetEdge(u, v, w.(int32))
 	}
@@ -444,18 +440,10 @@ func (m *AdjMxUi32) SetWeight(u, v VIdx, w interface{}) {
 
 func (m *AdjMxUi32) SetWeightU(u, v VIdx, w interface{}) {
 	if w == nil {
-		m.DelEdgeU(u, v)
+		m.SetEdgeU(u, v, m.del)
 	} else {
 		m.SetEdgeU(u, v, w.(int32))
 	}
-}
-
-func (m *AdjMxUi32) DelEdge(u, v VIdx) {
-	m.SetEdge(u, v, m.del)
-}
-
-func (m *AdjMxUi32) DelEdgeU(u, v VIdx) {
-	m.SetEdgeU(u, v, m.del)
 }
 
 func (m *AdjMxUi32) Edge(u, v VIdx) (w int32, ok bool) {

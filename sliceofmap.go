@@ -146,11 +146,9 @@ func (g *SoMDi32) SetEdge(u, v VIdx, w int32) {
 	row[v] = w
 }
 
-func (g *SoMDi32) DelEdge(u, v VIdx) { delete(g.ws[u], v) }
-
 func (g *SoMDi32) SetWeight(u, v VIdx, w interface{}) {
 	if w == nil {
-		g.DelEdge(u, v)
+		delete(g.ws[u], v)
 	} else {
 		g.SetEdge(u, v, w.(int32))
 	}
@@ -215,18 +213,6 @@ func (g *SoMUi32) SetEdge(u, v VIdx, w int32) {
 		g.SetEdgeU(u, v, w)
 	} else {
 		g.SetEdgeU(v, u, w)
-	}
-}
-
-func (g *SoMUi32) DelEdgeU(u, v VIdx) {
-	g.SoMDi32.DelEdge(u, v)
-}
-
-func (g *SoMUi32) DelEdge(u, v VIdx) {
-	if u > v {
-		g.DelEdgeU(u, v)
-	} else {
-		g.DelEdgeU(v, u)
 	}
 }
 
@@ -297,11 +283,9 @@ func (g *SoMDf32) SetEdge(u, v VIdx, w float32) {
 	row[v] = w
 }
 
-func (g *SoMDf32) DelEdge(u, v VIdx) { delete(g.ws[u], v) }
-
 func (g *SoMDf32) SetWeight(u, v VIdx, w interface{}) {
 	if w == nil {
-		g.DelEdge(u, v)
+		delete(g.ws[u], v)
 	} else {
 		g.SetEdge(u, v, w.(float32))
 	}

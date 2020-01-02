@@ -53,7 +53,7 @@ func TestSoMDi32(t *testing.T) {
 	g := NewSoMDi32(testSizeSetDel, nil)
 	t.Run("is WGi32", func(t *testing.T) { testIsWGi32(t, g) })
 	testDSetDel(t, g,
-		func(i, j VIdx) { g.DelEdge(i, j) },
+		func(i, j VIdx) { g.SetWeight(i, j, nil) },
 		func(w interface{}) bool { return w == nil },
 		func(i, j VIdx) interface{} { g.SetEdge(i, j, testProbeI32); return testProbeI32 },
 		func(i, j VIdx) interface{} { return g.Weight(i, j) },
@@ -64,7 +64,7 @@ func TestSoMUi32(t *testing.T) {
 	u := NewSoMUi32(testSizeSetDel, nil)
 	t.Run("is WUi32", func(t *testing.T) { testIsWUi32(t, u) })
 	testUSetDel(t, u,
-		func(i, j VIdx) { u.DelEdgeU(i, j) },
+		func(i, j VIdx) { u.SetWeightU(i, j, nil) },
 		func(w interface{}) bool { return w == nil },
 		func(i, j VIdx) interface{} { u.SetEdgeU(i, j, testProbeI32); return testProbeI32 },
 		func(i, j VIdx) interface{} {

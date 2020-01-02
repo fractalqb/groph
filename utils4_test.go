@@ -246,7 +246,7 @@ func testIsWGi32(t *testing.T, g WGi32) {
 	for i := V0; i < g.Order(); i++ {
 		for j := V0; j < g.Order(); j++ {
 			g.SetEdge(i, j, 4711)
-			g.DelEdge(i, j)
+			g.SetWeight(i, j, nil)
 			if w, ok := g.Edge(i, j); ok {
 				t.Errorf("del edge (%d,%d) returns edge weight %d", i, j, w)
 			}

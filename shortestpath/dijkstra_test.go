@@ -15,7 +15,7 @@ func TestDijkstrai32_toFW(t *testing.T) {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
 			if rand.Intn(100) < 20 {
-				g.DelEdge(i, j)
+				g.SetWeight(i, j, nil)
 			} else {
 				g.SetEdge(i, j, int32(1+rand.Intn(20)))
 			}
@@ -50,7 +50,7 @@ func TestDijkstrai32_paths(t *testing.T) {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
 			if rand.Intn(100) < 20 {
-				g.DelEdge(i, j)
+				g.SetWeight(i, j, nil)
 			} else {
 				g.SetEdge(i, j, int32(1+rand.Intn(20)))
 			}
