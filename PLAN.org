@@ -1,0 +1,13 @@
+#+TITLE: Plans for groph
+
+* TODO Change Visited att of traversal.Search from Bitset to Heap
+- After fnishing one cluster finding the next start vertex is a linear
+  search on Visited. This does not scale.
+- Having a hit counter for each vertex lets one detect cycles easily
+- Putting the hit counter in a heap make the whole this scale better
+
+*Note:* To do cycle detection on /undirected/ graphs one must not
+count a hit when gonig v0 -> v1 -> v0.
+
+* DONE Remove DelEdge from WGi32
+=DelEdge= is redundant, one can already use =SetWeight(u, v, nil)=.

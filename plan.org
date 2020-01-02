@@ -1,4 +1,0 @@
-#+TITLE: Plans for groph
-
-* DONE Remove DelEdge from WGi32
-=DelEdge= is redundant, one can already use =SetWeight(u, v, nil)=.

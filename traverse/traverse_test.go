@@ -6,7 +6,7 @@ import (
 	"git.fractalqb.de/fractalqb/groph"
 )
 
-func ExampleTraversal_Depth1stAt() {
+func ExampleSearch_Depth1stAt() {
 	g := groph.NewAdjMxUbool(7, nil)
 	type E = groph.Edge
 	groph.Set(g, true,
@@ -15,10 +15,11 @@ func ExampleTraversal_Depth1stAt() {
 		E{2, 5},
 		E{3, 6},
 	)
-	t := NewTraversal(g)
+	t := NewSearch(g)
 	t.SortBy = func(u, v1, v2 groph.VIdx) bool { return v1 < v2 }
-	hits := t.Depth1stAt(0, func(v groph.VIdx) {
+	hits, _ := t.Depth1stAt(0, func(v groph.VIdx) bool {
 		fmt.Printf(" %d", v)
+		return false
 	})
 	fmt.Println("\nhits:", hits)
 	// Output:
@@ -26,7 +27,7 @@ func ExampleTraversal_Depth1stAt() {
 	// hits: 7
 }
 
-func ExampleTraversal_Breadth1stAt() {
+func ExampleSearch_Breadth1stAt() {
 	g := groph.NewAdjMxUbool(7, nil)
 	type E = groph.Edge
 	groph.Set(g, true,
@@ -35,8 +36,9 @@ func ExampleTraversal_Breadth1stAt() {
 		E{2, 5},
 		E{3, 6},
 	)
-	hits := NewTraversal(g).Breadth1stAt(0, func(v groph.VIdx) {
+	hits, _ := NewSearch(g).Breadth1stAt(0, func(v groph.VIdx) bool {
 		fmt.Printf(" %d", v)
+		return false
 	})
 	fmt.Println("\nhits:", hits)
 	// Output:

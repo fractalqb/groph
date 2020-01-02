@@ -7,7 +7,11 @@ import (
 	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
 )
 
-type Traversal struct {
+type VisitVertex = func(v groph.VIdx) (stop bool)
+
+type VisitInCluster = func(n groph.VIdx, cluster int) (stop bool)
+
+type Search struct {
 	g    groph.RGraph
 	mem  []groph.VIdx
 	tail int
@@ -17,50 +21,51 @@ type Traversal struct {
 	Visited groph.BitSet
 }
 
-func NewTraversal(g groph.RGraph) *Traversal {
-	res := &Traversal{
+func NewSearch(g groph.RGraph) *Search {
+	res := &Search{
 		g:       g,
 		Visited: groph.NewBitSet(g.Order()),
 	}
 	return res
 }
 
-func (df *Traversal) Reset(g groph.RGraph) {
+func (df *Search) Reset(g groph.RGraph) {
 	df.g = g
 	df.Visited = iutil.U64Slice(df.Visited, groph.BitSetWords(g.Order()))
 }
 
-func (df *Traversal) push(v groph.VIdx) {
+func (df *Search) push(v groph.VIdx) {
 	df.mem = append(df.mem, v)
 }
 
-func (df *Traversal) pop() (res groph.VIdx) {
+func (df *Search) pop() (res groph.VIdx) {
 	l := len(df.mem) - 1
 	res = df.mem[l]
 	df.mem = df.mem[:l]
 	return res
 }
 
-func (df *Traversal) take() (res groph.VIdx) {
+func (df *Search) take() (res groph.VIdx) {
 	res = df.mem[df.tail]
 	df.tail++
 	return res
 }
 
-func (df *Traversal) Depth1stAt(start groph.VIdx, do groph.VisitVertex) int {
+func (df *Search) Depth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
 	if df.Visited.Get(start) {
-		return 0
+		return 0, false
 	}
 	if df.mem != nil {
 		df.mem = df.mem[:0]
 	}
 	df.push(start)
 	df.Visited.Set(start)
-	count := 0
 	for len(df.mem) > 0 {
 		start = df.pop()
-		do(start)
-		count++
+		if do(start) {
+			return hits + 1, true
+		}
+		hits++
 		sortStart := len(df.mem)
 		groph.EachOutgoing(df.g, start, func(n groph.VIdx) {
 			if !df.Visited.Get(n) {
@@ -74,23 +79,39 @@ func (df *Traversal) Depth1stAt(start groph.VIdx, do groph.VisitVertex) int {
 			})
 		}
 	}
-	return count
+	return hits, false
 }
 
-func (df *Traversal) Depth1st(do func(n groph.VIdx, cluster int)) {
+func (df *Search) Depth1st(do VisitInCluster, stopToNextCluster bool) (stopped bool) {
 	cluster := 0
-	cdo := func(n groph.VIdx) { do(n, cluster) }
-	count := df.Depth1stAt(0, cdo)
-	for count < df.g.Order() {
-		cluster++
-		start := df.Visited.FirstUnset()
-		count += df.Depth1stAt(start, cdo)
+	cdo := func(n groph.VIdx) bool { return do(n, cluster) }
+	hits, stop := df.Depth1stAt(0, cdo)
+	if stop {
+		if !stopToNextCluster {
+			return true
+		}
+		cluster = -1
 	}
+	for hits < df.g.Order() {
+		if cluster >= 0 {
+			cluster++
+		}
+		start := df.Visited.FirstUnset()
+		n, stop := df.Depth1stAt(start, cdo)
+		if stop {
+			if !stopToNextCluster {
+				return true
+			}
+			cluster = -1
+		}
+		hits += n
+	}
+	return false
 }
 
-func (df *Traversal) Breadth1stAt(start groph.VIdx, do groph.VisitVertex) int {
+func (df *Search) Breadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
 	if df.Visited.Get(start) {
-		return 0
+		return 0, false
 	}
 	if df.mem != nil {
 		df.mem = df.mem[:0]
@@ -98,11 +119,12 @@ func (df *Traversal) Breadth1stAt(start groph.VIdx, do groph.VisitVertex) int {
 	df.tail = 0
 	df.push(start)
 	df.Visited.Set(start)
-	count := 0
 	for df.tail < len(df.mem) {
 		start = df.take()
-		do(start)
-		count++
+		if do(start) {
+			return hits + 1, true
+		}
+		hits++
 		sortStart := len(df.mem)
 		groph.EachOutgoing(df.g, start, func(n groph.VIdx) {
 			if !df.Visited.Get(n) {
@@ -116,16 +138,32 @@ func (df *Traversal) Breadth1stAt(start groph.VIdx, do groph.VisitVertex) int {
 			})
 		}
 	}
-	return count
+	return hits, false
 }
 
-func (df *Traversal) Breadth1st(do func(n groph.VIdx, cluster int)) {
+func (df *Search) Breadth1st(do VisitInCluster, stopToNextCluster bool) (stopped bool) {
 	cluster := 0
-	cdo := func(n groph.VIdx) { do(n, cluster) }
-	count := df.Breadth1stAt(0, cdo)
-	for count < df.g.Order() {
-		cluster++
-		start := df.Visited.FirstUnset()
-		count += df.Breadth1stAt(start, cdo)
+	cdo := func(n groph.VIdx) bool { return do(n, cluster) }
+	hits, stop := df.Breadth1stAt(0, cdo)
+	if stop {
+		if !stopToNextCluster {
+			return true
+		}
+		cluster = -1
 	}
+	for hits < df.g.Order() {
+		if cluster >= 0 {
+			cluster++
+		}
+		start := df.Visited.FirstUnset()
+		n, stop := df.Breadth1stAt(start, cdo)
+		if stop {
+			if !stopToNextCluster {
+				return true
+			}
+			cluster = -1
+		}
+		hits += n
+	}
+	return false
 }

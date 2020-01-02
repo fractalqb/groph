@@ -1,10 +1,10 @@
 package groph
 
-// EachOutgoing calls onDest on each node d that is a neighbour of 'from' in
-// graph g. Vertex d is a neighbour of from, iff g contains the edge (d,from).
+// EachOutgoing calls onDest on each vertex d where the edge (from,d) is in
+// graph g.
 //
-// For undirected graphs that are no NeighbourListers EachNeighbour
-// guarantees to call WeightU with v ≥ u to detect neighbours.
+// For undirected graphs EachOutgoing calls WeightU with v ≥ u to detect
+// neighbours.
 func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) {
 	switch gi := g.(type) {
 	case OutLister:
@@ -34,11 +34,11 @@ func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) {
 	}
 }
 
-// EachIncoming calls onSource on each node s that is a neighbour of 'to' in
-// graph g. Vertex s is a neighbour of to, iff g contains the edge (s,to).
+// EachIncoming calls onSource on each vertex s where the edge (s,to) is in
+// graph g.
 //
-// For undirected graphs that are no NeighbourListers EachNeighbour
-// guarantees to call WeightU with v ≥ u to detect neighbours.
+// For undirected graphs EachIncoming calls WeightU with v ≥ u to detect
+// neighbours.
 func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) {
 	switch gi := g.(type) {
 	case InLister:
