@@ -1,6 +1,7 @@
 package groph
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -57,28 +58,28 @@ func TestEachIncoming_undirected(t *testing.T) {
 	}
 }
 
-func TestEachEdge_directed(t *testing.T) {
+func ExampleEachEdge_directed() {
 	g, _ := AsAdjMxDbool(nil, []bool{
 		false, true, false,
 		false, false, false,
 		true, false, false,
 	})
-	var ns []VIdx
-	EachEdge(g, func(u, v VIdx) { ns = append(ns, u, v) })
-	if !reflect.DeepEqual(ns, []VIdx{0, 1, 2, 0}) {
-		t.Errorf("expected [0 1 2 0], got %v", ns)
-	}
+	var ns []Edge
+	EachEdge(g, func(u, v VIdx) { ns = append(ns, Edge{u, v}) })
+	fmt.Println(ns)
+	// Output:
+	// [{0 1} {2 0}]
 }
 
-func TestEachEdge_undirected(t *testing.T) {
+func ExampleEachEdge_undirected() {
 	g, _ := AsAdjMxUbool(nil, []bool{
 		false,
 		true, false,
 		false, true, false,
 	})
-	var ns []VIdx
-	EachEdge(g, func(u, v VIdx) { ns = append(ns, u, v) })
-	if !reflect.DeepEqual(ns, []VIdx{1, 0, 2, 1}) {
-		t.Errorf("expected [1 0 2 1], got %v", ns)
-	}
+	var ns []Edge
+	EachEdge(g, func(u, v VIdx) { ns = append(ns, Edge{u, v}) })
+	fmt.Println(ns)
+	// Output:
+	// [{1 0} {2 1}]
 }

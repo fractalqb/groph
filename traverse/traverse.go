@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"git.fractalqb.de/fractalqb/groph"
+	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
 )
 
 type VisitVertex = func(v groph.VIdx) (stop bool)
@@ -25,12 +26,13 @@ type Search struct {
 
 func NewSearch(g groph.RGraph) *Search {
 	res := &Search{g: g}
+	res.visit.reset(g.Order())
 	return res
 }
 
 func (df *Search) Reset(g groph.RGraph) {
 	df.g = g
-	df.visit.reset()
+	df.visit.reset(g.Order())
 }
 
 // Depth1stAt performs a depth-first search on the respective
@@ -230,29 +232,22 @@ type hitPq struct {
 	is  []hitPqItem
 }
 
-func (pq *hitPq) reset() {
-	if pq.v2i != nil {
-		pq.v2i = pq.v2i[:0]
+func (pq *hitPq) reset(ord groph.VIdx) {
+	pq.v2i = iutil.IntSlice(pq.v2i, ord)
+	if pq.is == nil || cap(pq.is) < ord {
+		pq.is = make([]hitPqItem, ord)
+	} else {
+		pq.is = pq.is[:ord]
 	}
-	if pq.is != nil {
-		pq.is = pq.is[:0]
+	for i := range pq.is {
+		pq.v2i[i] = i
+		pq.is[i] = hitPqItem{hits: 0, v: i}
 	}
 }
 
 func (pq *hitPq) top() groph.VIdx { return pq.is[0].v }
 
-func (pq *hitPq) hits(v groph.VIdx) int {
-	if v < len(pq.v2i) {
-		ii := pq.v2i[v]
-		if ii < 0 {
-			heap.Push(pq, hitPqItem{v: v, hits: 0})
-		} else {
-			return pq.is[pq.v2i[v]].hits
-		}
-	}
-	heap.Push(pq, hitPqItem{v: v, hits: 0})
-	return 0
-}
+func (pq *hitPq) hits(v groph.VIdx) int { return pq.is[pq.v2i[v]].hits }
 
 func (pq *hitPq) setHits(v groph.VIdx, hits int) {
 	ii := pq.v2i[v]
@@ -272,18 +267,20 @@ func (pq *hitPq) Swap(i, j int) {
 }
 
 func (pq *hitPq) Push(x interface{}) {
-	pqItem := x.(hitPqItem)
-	for pqItem.v >= len(pq.v2i) {
-		pq.v2i = append(pq.v2i, -1)
-	}
-	pq.v2i[pqItem.v] = len(pq.is)
-	pq.is = append(pq.is, pqItem)
+	panic("must not be called")
+	// pqItem := x.(hitPqItem)
+	// for pqItem.v >= len(pq.v2i) {
+	// 	pq.v2i = append(pq.v2i, -1)
+	// }
+	// pq.v2i[pqItem.v] = len(pq.is)
+	// pq.is = append(pq.is, pqItem)
 }
 
 func (pq *hitPq) Pop() interface{} {
-	lm1 := len(pq.is) - 1
-	res := pq.is[lm1]
-	pq.is = pq.is[:lm1]
-	pq.v2i[res.v] = -1
-	return res
+	panic("must not be called")
+	// lm1 := len(pq.is) - 1
+	// res := pq.is[lm1]
+	// pq.is = pq.is[:lm1]
+	// pq.v2i[res.v] = -1
+	// return res
 }

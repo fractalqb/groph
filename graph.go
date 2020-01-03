@@ -33,7 +33,8 @@ func WeightOr(g RGraph, u, v VIdx, or interface{}) interface{} {
 }
 
 // RUndirected represents an undirected graph that allows read only
-// access to the edge weights.
+// access to the edge weights. For undirected graphs each edge (u,v) is
+// considered outgiong as well as incoming for both, vertex u and vertext v.
 type RUndirected interface {
 	RGraph
 	// Weight must only be called when u ≥ v.  Otherwise WeightU's
@@ -112,15 +113,16 @@ func Size(g RGraph) (res int) {
 		return xl.Size()
 	case RUndirected:
 		ord := g.Order()
-		if ol, ok := g.(OutLister); ok {
+		switch ls := g.(type) {
+		case OutLister:
 			for v := V0; v < ord; v++ {
-				res += ol.OutDegree(v)
+				res += ls.OutDegree(v)
 			}
-		} else if il, ok := g.(InLister); ok {
+		case InLister:
 			for v := V0; v < ord; v++ {
-				res += il.InDegree(v)
+				res += ls.InDegree(v)
 			}
-		} else {
+		default:
 			for i := V0; i < ord; i++ {
 				for j := V0; j <= i; j++ {
 					if xl.WeightU(i, j) != nil {
