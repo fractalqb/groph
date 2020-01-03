@@ -102,8 +102,9 @@ func eachUAdj(u RUndirected, v VIdx, on VisitVertex) {
 	}
 }
 
-// TODO optimize with In-/OutLister
+// EachEdge call onEdge for every edge in graph g.
 func EachEdge(g RGraph, onEdge VisitEdge) {
+	// TODO optimize with In-/OutLister
 	switch ge := g.(type) {
 	case EdgeLister:
 		ge.EachEdge(onEdge)

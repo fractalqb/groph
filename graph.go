@@ -61,6 +61,9 @@ type OutLister interface {
 	OutDegree(v VIdx) int
 }
 
+// OutDegree returns the number of outgoing edges of vertex v in graph
+// g. Note that for undirected graphs each edge is also considered to
+// be an outgoing edge.
 func OutDegree(g RGraph, v VIdx) (res int) {
 	if ol, ok := g.(OutLister); ok {
 		return ol.OutDegree(v)
@@ -83,6 +86,9 @@ type InLister interface {
 	InDegree(v VIdx) int
 }
 
+// InDegree returns the number of incoming edges of vertex v in graph
+// g. Note that for undirected graphs each edge is also considered to
+// be an incoming edge.
 func InDegree(g RGraph, v VIdx) (res int) {
 	if il, ok := g.(InLister); ok {
 		return il.InDegree(v)
@@ -107,6 +113,7 @@ type EdgeLister interface {
 	Size() int
 }
 
+// Size returns the number of edges in the graph g.
 func Size(g RGraph) (res int) {
 	switch xl := g.(type) {
 	case EdgeLister:
@@ -175,6 +182,7 @@ type WUndirected interface {
 // Reset clears a WGraph while keeping the original order.
 func Reset(g WGraph) { g.Reset(g.Order()) }
 
+// Set sets the weight of all passed edges to w.
 func Set(g WGraph, w interface{}, edges ...Edge) {
 	for _, e := range edges {
 		g.SetWeight(e.U, e.V, w)

@@ -68,7 +68,7 @@ func (df *Search) Depth1stAt(start groph.VIdx, do VisitVertex) (hits int, stoppe
 		}
 		hits++
 		sortStart := len(df.mem)
-		groph.EachOutgoing(df.g, start, onDest)
+		groph.EachAdjacent(df.g, start, onDest)
 		if df.SortBy != nil {
 			sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool {
 				return !df.SortBy(start, v1, v2)
@@ -140,7 +140,7 @@ func (df *Search) Breadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stop
 		}
 		hits++
 		sortStart := len(df.mem)
-		groph.EachOutgoing(df.g, start, onDest)
+		groph.EachAdjacent(df.g, start, onDest)
 		if df.SortBy != nil {
 			sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool {
 				return df.SortBy(start, v1, v2)
