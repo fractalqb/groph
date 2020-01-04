@@ -50,14 +50,14 @@ func Directed(g RGraph) bool {
 	return !ok
 }
 
-type VisitVertex = func(neighbour VIdx)
+type VisitVertex = func(neighbour VIdx) (stop bool)
 
 // OutLister is implemented by graph implementations that can easily iterate
 // over all outgoing edges of one node.
 //
 // See also OutDegree and traverse.EachOutgoing function.
 type OutLister interface {
-	EachOutgoing(from VIdx, onDest VisitVertex)
+	EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool)
 	OutDegree(v VIdx) int
 }
 
@@ -82,7 +82,7 @@ func OutDegree(g RGraph, v VIdx) (res int) {
 //
 // See also InDegree and traverse.EachIncoming function.
 type InLister interface {
-	EachIncoming(to VIdx, onSource VisitVertex)
+	EachIncoming(to VIdx, onSource VisitVertex) (stopped bool)
 	InDegree(v VIdx) int
 }
 

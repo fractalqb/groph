@@ -41,6 +41,6 @@
 // either 'R' or 'W' to indicate read-only respectively read-write
 // graphs. The second letter is either 'G' or 'U' to distinguish
 // general graph interfaces from undirected interfaces. Finally comes
-// in indicator for the edge weights, e.g. “bool”, “i32” for int32 or
-// “f32” for float32.
+// an indicator for the edge weights, e.g. “i32” for int32 or
+// “f32” for float32 or “bool” for just bool.
 package groph

@@ -20,15 +20,19 @@ func ExampleSearch_Depth1stAt() {
 		e(2, 5),
 		e(3, 6),
 	)
-	t := NewSearch(g)
-	t.SortBy = func(u, v1, v2 groph.VIdx) bool { return v1 < v2 }
-	hits, _ := t.Depth1stAt(0, func(v groph.VIdx) bool {
-		fmt.Printf(" %d", v)
+	search := NewSearch(g)
+	search.SortBy = func(u, v1, v2 groph.VIdx) bool { return v1 < v2 }
+	hits, _ := search.AdjDepth1stAt(0, func(u, v groph.VIdx, c bool) bool {
+		if c {
+			fmt.Printf("[%d %d]", u, v)
+		} else {
+			fmt.Printf("(%d %d)", u, v)
+		}
 		return false
 	})
 	fmt.Println("\nhits:", hits)
 	// Output:
-	// 0 1 4 5 2 3 6
+	// (-1 0)(0 1)(1 4)(1 5)[5 2](0 2)[2 5](0 3)(3 6)
 	// hits: 7
 }
 
@@ -40,13 +44,17 @@ func ExampleSearch_Breadth1stAt() {
 		e(2, 5),
 		e(3, 6),
 	)
-	hits, _ := NewSearch(g).Breadth1stAt(0, func(v groph.VIdx) bool {
-		fmt.Printf(" %d", v)
+	hits, _ := NewSearch(g).AdjBreadth1stAt(0, func(u, v groph.VIdx, c bool) bool {
+		if c {
+			fmt.Printf("[%d %d]", u, v)
+		} else {
+			fmt.Printf("(%d %d)", u, v)
+		}
 		return false
 	})
 	fmt.Println("\nhits:", hits)
 	// Output:
-	// 0 1 2 3 4 5 6
+	// (-1 0)(0 1)(0 2)[2 5](0 3)(1 4)(1 5)[5 2](3 6)
 	// hits: 7
 }
 
@@ -54,8 +62,8 @@ func TestSearch_Depth1st_avoid_loop_and_parent(t *testing.T) {
 	g := groph.NewAdjMxUbool(2, nil)
 	groph.Set(g, true, e(0, 1), e(1, 1))
 	search := NewSearch(g)
-	stopped := search.Depth1st(false,
-		func(v groph.VIdx, c int) bool { return false })
+	stopped := search.AdjDepth1st(false,
+		func(_, _ groph.VIdx, c bool, _ int) bool { return false })
 	if stopped {
 		t.Fatal("search was stopped unexpectedly")
 	}
@@ -70,8 +78,8 @@ func TestSearch_Breadth1st_avoid_loop_and_parent(t *testing.T) {
 	g := groph.NewAdjMxUbool(2, nil)
 	groph.Set(g, true, e(0, 1), e(1, 1))
 	search := NewSearch(g)
-	stopped := search.Breadth1st(false,
-		func(v groph.VIdx, c int) bool { return false })
+	stopped := search.AdjBreadth1st(false,
+		func(_, _ groph.VIdx, c bool, _ int) bool { return false })
 	if stopped {
 		t.Fatal("search was stopped unexpectedly")
 	}
@@ -88,14 +96,22 @@ func TestSearch_Depth1st_dir_find_clusters(t *testing.T) {
 	test := func() {
 		search.Reset(g)
 		hits := 0
+		circ := 0
 		clusters := make(map[int]bool)
-		search.Depth1st(false, func(v groph.VIdx, c int) bool {
-			hits++
-			clusters[c] = true
+		search.AdjDepth1st(false, func(_, _ groph.VIdx, ci bool, cl int) bool {
+			if ci {
+				circ++
+			} else {
+				hits++
+			}
+			clusters[cl] = true
 			return false
 		})
 		if hits != 2 {
 			t.Errorf("unexpected number of hits: %d, want 2", hits)
+		}
+		if circ != 1 {
+			t.Errorf("unexpected number of circles: %d, want 1", circ)
 		}
 		if len(clusters) != 1 {
 			t.Errorf("found wrong clusters: %v", clusters)
@@ -115,15 +131,22 @@ func TestSearch_Breadth1st_dir_find_clusters(t *testing.T) {
 	search := NewSearch(g)
 	test := func() {
 		search.Reset(g)
-		hits := 0
+		hits, circ := 0, 0
 		clusters := make(map[int]bool)
-		search.Breadth1st(false, func(v groph.VIdx, c int) bool {
-			hits++
-			clusters[c] = true
+		search.AdjBreadth1st(false, func(_, _ groph.VIdx, ci bool, cl int) bool {
+			if ci {
+				circ++
+			} else {
+				hits++
+			}
+			clusters[cl] = true
 			return false
 		})
 		if hits != 2 {
 			t.Errorf("unexpected number of hits: %d, want 2", hits)
+		}
+		if circ != 1 {
+			t.Errorf("unexpected number of circles: %d, want 1", circ)
 		}
 		if len(clusters) != 1 {
 			t.Errorf("found wrong clusters: %v", clusters)

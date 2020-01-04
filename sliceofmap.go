@@ -48,12 +48,15 @@ func (g *SoMD) Reset(order VIdx) {
 	}
 }
 
-func (g *SoMD) EachOutgoing(from VIdx, onDest VisitVertex) {
+func (g *SoMD) EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool) {
 	if row := g.ws[from]; row != nil {
 		for n := range row {
-			onDest(n)
+			if onDest(n) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 func (g *SoMD) OutDegree(v VIdx) int {
@@ -165,12 +168,15 @@ func (g *SoMDi32) Reset(order VIdx) {
 	}
 }
 
-func (g *SoMDi32) EachOutgoing(from VIdx, onDest VisitVertex) {
+func (g *SoMDi32) EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool) {
 	if row := g.ws[from]; row != nil {
 		for n := range row {
-			onDest(n)
+			if onDest(n) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 func (g *SoMDi32) OutDegree(v VIdx) int {
@@ -302,12 +308,15 @@ func (g *SoMDf32) Reset(order VIdx) {
 	}
 }
 
-func (g *SoMDf32) EachOutgoing(from VIdx, onDest VisitVertex) {
+func (g *SoMDf32) EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool) {
 	if row := g.ws[from]; row != nil {
 		for n := range row {
-			onDest(n)
+			if onDest(n) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 func (g *SoMDf32) OutDegree(v VIdx) int {

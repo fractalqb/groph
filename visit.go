@@ -2,104 +2,122 @@ package groph
 
 // EachOutgoing calls onDest on each vertex d where the edge (from,d) is in
 // graph g.
-func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) {
+func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) (stopped bool) {
 	switch gi := g.(type) {
 	case OutLister:
-		gi.EachOutgoing(from, onDest)
+		return gi.EachOutgoing(from, onDest)
 	case RUndirected:
-		eachUAdj(gi, from, onDest)
+		return eachUAdj(gi, from, onDest)
 	default:
-		eachDOut(g, from, onDest)
+		return eachDOut(g, from, onDest)
 	}
 }
 
-func eachDOut(g RGraph, from VIdx, onDest VisitVertex) {
+func eachDOut(g RGraph, from VIdx, onDest VisitVertex) bool {
 	vno := g.Order()
 	for n := V0; n < vno; n++ {
 		if g.Weight(from, n) != nil {
-			onDest(n)
+			if onDest(n) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 // EachIncoming calls onSource on each vertex s where the edge (s,to) is in
 // graph g.
-func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) {
+func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) (stopped bool) {
 	switch gi := g.(type) {
 	case InLister:
-		gi.EachIncoming(to, onSource)
+		return gi.EachIncoming(to, onSource)
 	case RUndirected:
-		eachUAdj(gi, to, onSource)
+		return eachUAdj(gi, to, onSource)
 	default:
-		eachDIn(g, to, onSource)
+		return eachDIn(g, to, onSource)
 	}
 }
 
-func eachDIn(g RGraph, to VIdx, onSource VisitVertex) {
+func eachDIn(g RGraph, to VIdx, onSource VisitVertex) bool {
 	vno := g.Order()
 	for n := V0; n < vno; n++ {
 		if g.Weight(n, to) != nil {
-			onSource(n)
+			if onSource(n) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 // EachAdjacent calls onOther on each vertex o where at least one of the edges
 // (this,o) and (o,this) is in graph g.
-func EachAdjacent(g RGraph, this VIdx, onOther VisitVertex) {
+func EachAdjacent(g RGraph, this VIdx, onOther VisitVertex) (stopped bool) {
 	switch u := g.(type) {
 	case RUndirected:
 		switch ls := u.(type) {
 		case OutLister:
-			ls.EachOutgoing(this, onOther)
+			return ls.EachOutgoing(this, onOther)
 		case InLister:
-			ls.EachIncoming(this, onOther)
+			return ls.EachIncoming(this, onOther)
 		default:
-			eachUAdj(u, this, onOther)
+			return eachUAdj(u, this, onOther)
 		}
 	case OutLister:
-		u.EachOutgoing(this, onOther)
+		if u.EachOutgoing(this, onOther) {
+			return true
+		}
 		if il, ok := g.(InLister); ok {
-			il.EachIncoming(this, onOther)
+			return il.EachIncoming(this, onOther)
 		} else {
-			eachDIn(g, this, onOther)
+			return eachDIn(g, this, onOther)
 		}
 	case InLister:
-		u.EachIncoming(this, onOther)
+		if u.EachIncoming(this, onOther) {
+			return true
+		}
 		if ol, ok := g.(OutLister); ok {
-			ol.EachOutgoing(this, onOther)
+			return ol.EachOutgoing(this, onOther)
 		} else {
-			eachDOut(g, this, onOther)
+			return eachDOut(g, this, onOther)
 		}
 	default:
-		eachDAdj(g, this, onOther)
+		return eachDAdj(g, this, onOther)
 	}
 }
 
-func eachDAdj(g RGraph, v VIdx, on VisitVertex) {
+func eachDAdj(g RGraph, v VIdx, on VisitVertex) bool {
 	ord := g.Order()
 	for u := V0; u < ord; u++ {
 		if g.Weight(v, u) != nil || g.Weight(u, v) != nil {
-			on(u)
+			if on(u) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
-func eachUAdj(u RUndirected, v VIdx, on VisitVertex) {
+func eachUAdj(u RUndirected, v VIdx, on VisitVertex) bool {
 	vno := u.Order()
 	n := V0
 	for n < v {
 		if u.WeightU(v, n) != nil {
-			on(n)
+			if on(n) {
+				return true
+			}
 		}
 		n++
 	}
 	for n < vno {
 		if u.WeightU(n, v) != nil {
-			on(n)
+			if on(n) {
+				return true
+			}
 		}
 		n++
 	}
+	return false
 }
 
 // EachEdge call onEdge for every edge in graph g.

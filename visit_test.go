@@ -13,7 +13,7 @@ func TestEachOutgoing_directed(t *testing.T) {
 		true, false, false,
 	})
 	var ns []VIdx
-	EachOutgoing(g, 0, func(d VIdx) { ns = append(ns, d) })
+	EachOutgoing(g, 0, func(d VIdx) bool { ns = append(ns, d); return false })
 	if !reflect.DeepEqual(ns, []VIdx{1}) {
 		t.Errorf("expected [1], got %v", ns)
 	}
@@ -26,7 +26,7 @@ func TestEachOutgoing_undirected(t *testing.T) {
 		false, true, false,
 	})
 	var ns []VIdx
-	EachOutgoing(g, 1, func(d VIdx) { ns = append(ns, d) })
+	EachOutgoing(g, 1, func(d VIdx) bool { ns = append(ns, d); return false })
 	if !reflect.DeepEqual(ns, []VIdx{0, 2}) {
 		t.Errorf("expected [0 2], got %v", ns)
 	}
@@ -39,7 +39,7 @@ func TestEachIncoming_directed(t *testing.T) {
 		true, false, false,
 	})
 	var ns []VIdx
-	EachIncoming(g, 0, func(d VIdx) { ns = append(ns, d) })
+	EachIncoming(g, 0, func(d VIdx) bool { ns = append(ns, d); return false })
 	if !reflect.DeepEqual(ns, []VIdx{2}) {
 		t.Errorf("expected [1], got %v", ns)
 	}
@@ -52,7 +52,7 @@ func TestEachIncoming_undirected(t *testing.T) {
 		false, true, false,
 	})
 	var ns []VIdx
-	EachIncoming(g, 1, func(d VIdx) { ns = append(ns, d) })
+	EachIncoming(g, 1, func(d VIdx) bool { ns = append(ns, d); return false })
 	if !reflect.DeepEqual(ns, []VIdx{0, 2}) {
 		t.Errorf("expected [0 2], got %v", ns)
 	}

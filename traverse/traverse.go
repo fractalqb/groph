@@ -8,15 +8,15 @@ import (
 	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
 )
 
-type VisitVertex = func(v groph.VIdx) (stop bool)
+type VisitVertex = func(pred, v groph.VIdx, circle bool) (stop bool)
 
-type VisitInCluster = func(n groph.VIdx, cluster int) (stop bool)
+type VisitInCluster = func(pred, v groph.VIdx, circle bool, cluster int) (stop bool)
 
 // Search performs depth-first or breadth-breadth searches of
 // groph.RGraph objects.
 type Search struct {
 	g     groph.RGraph
-	mem   []groph.VIdx
+	mem   []groph.Edge
 	tail  int
 	visit hitPq
 	// If not nil SortBy is used to sort the neighbours v of node u. SortBy
@@ -35,54 +35,84 @@ func (df *Search) Reset(g groph.RGraph) {
 	df.visit.reset(g.Order())
 }
 
+type stepFn = func(g groph.RGraph, v groph.VIdx, on groph.VisitVertex) bool
+
 // Depth1stAt performs a depth-first search on the respective
 // RGraph. The search starts at vertex start and terminates when no
 // further vertices can be reached via an edge of the graph. It
 // returns the number of distinct vertex hits during the search and
 // an indicator if the visit function 'do' stopped the search.
-func (df *Search) Depth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
+func (df *Search) AdjDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
+	return df.d1stAt(start, do, groph.EachAdjacent)
+}
+
+func (df *Search) OutDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
+	return df.d1stAt(start, do, groph.EachOutgoing)
+}
+
+func (df *Search) InDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
+	return df.d1stAt(start, do, groph.EachIncoming)
+}
+
+func (df *Search) d1stAt(
+	start groph.VIdx,
+	do VisitVertex,
+	eachNext stepFn,
+) (hits int, stopped bool) {
 	if h := df.visit.hits(start); h > 0 {
 		return 0, false
 	}
 	if df.mem != nil {
 		df.mem = df.mem[:0]
 	}
-	df.push(start)
+	step := groph.Edge{U: -1, V: start}
+	df.push(step)
 	df.visit.setHits(start, 1)
-	last := groph.VIdx(-1)
-	var onDest func(n groph.VIdx)
+	var onDest func(d groph.VIdx) (stop bool)
 	if groph.Directed(df.g) {
-		onDest = df.chechDest
+		onDest = func(d groph.VIdx) bool { return df.checkDDest(step, d, do) }
 	} else {
-		onDest = func(n groph.VIdx) {
-			if n == last || n == start {
-				return
-			}
-			df.chechDest(n)
-		}
+		onDest = func(d groph.VIdx) bool { return df.checkUDest(step, d, do) }
 	}
 	for len(df.mem) > 0 {
-		start = df.pop()
-		if do(start) {
+		step = df.pop()
+		if do(step.U, step.V, false) {
 			return hits + 1, true
 		}
 		hits++
 		sortStart := len(df.mem)
-		groph.EachAdjacent(df.g, start, onDest)
+		if eachNext(df.g, step.V, onDest) {
+			return hits, true
+		}
 		if df.SortBy != nil {
 			sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool {
-				return !df.SortBy(start, v1, v2)
+				return !df.SortBy(step.V, v1, v2)
 			})
 		}
-		last = start
 	}
 	return hits, false
 }
 
-func (df *Search) Depth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
+func (df *Search) AdjDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
+	return df.d1st(stopToNextCluster, do, groph.EachAdjacent)
+}
+
+func (df *Search) OutDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
+	return df.d1st(stopToNextCluster, do, groph.EachOutgoing)
+}
+
+func (df *Search) InDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
+	return df.d1st(stopToNextCluster, do, groph.EachIncoming)
+}
+
+func (df *Search) d1st(
+	stopToNextCluster bool,
+	do VisitInCluster,
+	eachNext stepFn,
+) (stopped bool) {
 	cluster := 0
-	cdo := func(n groph.VIdx) bool { return do(n, cluster) }
-	hits, stop := df.Depth1stAt(0, cdo)
+	cdo := func(p, n groph.VIdx, c bool) bool { return do(p, n, c, cluster) }
+	hits, stop := df.d1stAt(0, cdo, eachNext)
 	if stop {
 		if !stopToNextCluster {
 			return true
@@ -94,7 +124,7 @@ func (df *Search) Depth1st(stopToNextCluster bool, do VisitInCluster) (stopped b
 			cluster++
 		}
 		start := df.visit.top() // TODO assert hits(start) == 0
-		n, stop := df.Depth1stAt(start, cdo)
+		n, stop := df.d1stAt(start, cdo, eachNext)
 		if stop {
 			if !stopToNextCluster {
 				return true
@@ -111,7 +141,24 @@ func (df *Search) Depth1st(stopToNextCluster bool, do VisitInCluster) (stopped b
 // further vertices can be reached via an edge of the graph. It
 // returns the number of distinct vertex hits during the search and an
 // indicator if the visit function 'do' stopped the search.
-func (df *Search) Breadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
+
+func (df *Search) AdjBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
+	return df.b1stAt(start, do, groph.EachAdjacent)
+}
+
+func (df *Search) OutBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
+	return df.b1stAt(start, do, groph.EachOutgoing)
+}
+
+func (df *Search) InBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
+	return df.b1stAt(start, do, groph.EachIncoming)
+}
+
+func (df *Search) b1stAt(
+	start groph.VIdx,
+	do VisitVertex,
+	eachNext stepFn,
+) (hits int, stopped bool) {
 	if h := df.visit.hits(start); h > 0 {
 		return 0, false
 	}
@@ -119,42 +166,54 @@ func (df *Search) Breadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stop
 		df.mem = df.mem[:0]
 	}
 	df.tail = 0
-	df.push(start)
+	step := groph.Edge{U: -1, V: start}
+	df.push(step)
 	df.visit.setHits(start, 1)
-	last := groph.VIdx(-1)
-	var onDest func(n groph.VIdx)
+	var onDest func(d groph.VIdx) (stop bool)
 	if groph.Directed(df.g) {
-		onDest = df.chechDest
+		onDest = func(d groph.VIdx) bool { return df.checkDDest(step, d, do) }
 	} else {
-		onDest = func(n groph.VIdx) {
-			if n == last || n == start {
-				return
-			}
-			df.chechDest(n)
-		}
+		onDest = func(d groph.VIdx) bool { return df.checkUDest(step, d, do) }
 	}
 	for df.tail < len(df.mem) {
-		start = df.take()
-		if do(start) {
+		step = df.take()
+		if do(step.U, step.V, false) {
 			return hits + 1, true
 		}
 		hits++
 		sortStart := len(df.mem)
-		groph.EachAdjacent(df.g, start, onDest)
+		if eachNext(df.g, step.V, onDest) {
+			return hits, true
+		}
 		if df.SortBy != nil {
 			sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool {
-				return df.SortBy(start, v1, v2)
+				return df.SortBy(step.V, v1, v2)
 			})
 		}
-		last = start
 	}
 	return hits, false
 }
 
-func (df *Search) Breadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
+func (df *Search) AdjBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
+	return df.b1st(stopToNextCluster, do, groph.EachAdjacent)
+}
+
+func (df *Search) OutBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
+	return df.b1st(stopToNextCluster, do, groph.EachOutgoing)
+}
+
+func (df *Search) InBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
+	return df.b1st(stopToNextCluster, do, groph.EachIncoming)
+}
+
+func (df *Search) b1st(
+	stopToNextCluster bool,
+	do VisitInCluster,
+	eachNext stepFn,
+) (stopped bool) {
 	cluster := 0
-	cdo := func(n groph.VIdx) bool { return do(n, cluster) }
-	hits, stop := df.Breadth1stAt(0, cdo)
+	cdo := func(p, n groph.VIdx, c bool) bool { return do(p, n, c, cluster) }
+	hits, stop := df.b1stAt(0, cdo, eachNext)
 	if stop {
 		if !stopToNextCluster {
 			return true
@@ -166,7 +225,7 @@ func (df *Search) Breadth1st(stopToNextCluster bool, do VisitInCluster) (stopped
 			cluster++
 		}
 		start := df.visit.top() // TODO assert hits(start) == 0
-		n, stop := df.Breadth1stAt(start, cdo)
+		n, stop := df.b1stAt(start, cdo, eachNext)
 		if stop {
 			if !stopToNextCluster {
 				return true
@@ -197,29 +256,39 @@ func (df *Search) LeastHits() (v groph.VIdx, hits int) {
 	return item.v, item.hits
 }
 
-func (df *Search) push(v groph.VIdx) {
-	df.mem = append(df.mem, v)
-}
-
-func (df *Search) pop() (res groph.VIdx) {
-	l := len(df.mem) - 1
-	res = df.mem[l]
-	df.mem = df.mem[:l]
-	return res
-}
-
-func (df *Search) take() (res groph.VIdx) {
-	res = df.mem[df.tail]
-	df.tail++
-	return res
-}
-
-func (df *Search) chechDest(n groph.VIdx) {
-	h := df.visit.hits(n)
+func (df *Search) checkDDest(pre groph.Edge, d groph.VIdx, do VisitVertex) bool {
+	h := df.visit.hits(d)
 	if h == 0 {
-		df.push(n)
+		df.push(groph.Edge{U: pre.V, V: d})
+	} else {
+		return do(pre.V, d, true)
 	}
-	df.visit.setHits(n, h+1)
+	df.visit.setHits(d, h+1)
+	return false
+}
+
+func (df *Search) checkUDest(pre groph.Edge, d groph.VIdx, do VisitVertex) bool {
+	if d == pre.U || d == pre.V {
+		return false
+	}
+	return df.checkDDest(pre, d, do)
+}
+
+func (df *Search) push(e groph.Edge) {
+	df.mem = append(df.mem, e)
+}
+
+func (df *Search) pop() (step groph.Edge) {
+	l := len(df.mem) - 1
+	step = df.mem[l]
+	df.mem = df.mem[:l]
+	return step
+}
+
+func (df *Search) take() (step groph.Edge) {
+	step = df.mem[df.tail]
+	df.tail++
+	return step
 }
 
 type hitPqItem struct {

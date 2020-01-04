@@ -97,10 +97,10 @@ func (dij *Dijkstrai32) On(
 	}
 	for dij.pq.Len() != 0 {
 		u := heap.Pop(&dij.pq).(pqItemi32).v
-		groph.EachOutgoing(g, u, func(n groph.VIdx) {
+		groph.EachOutgoing(g, u, func(n groph.VIdx) (stop bool) {
 			alt := dist[u]
 			if alt < 0 {
-				return
+				return false
 			}
 			e, _ := g.Edge(u, n) // TODO EdgeD?
 			alt += e
@@ -111,6 +111,7 @@ func (dij *Dijkstrai32) On(
 				}
 				dij.pq.update(n, alt)
 			}
+			return false
 		})
 	}
 	return dist, prev
@@ -194,7 +195,7 @@ func (dij *Dijkstraf32) On(
 	}
 	for dij.pq.Len() != 0 {
 		u := heap.Pop(&dij.pq).(pqItemf32).v
-		groph.EachOutgoing(g, u, func(n groph.VIdx) {
+		groph.EachOutgoing(g, u, func(n groph.VIdx) (stop bool) {
 			alt := dist[u] + g.Edge(u, n) // TODO EdgeU?
 			if alt < dist[n] {
 				dist[n] = alt
@@ -203,6 +204,7 @@ func (dij *Dijkstraf32) On(
 				}
 				dij.pq.update(n, alt)
 			}
+			return false
 		})
 	}
 	return dist, prev
