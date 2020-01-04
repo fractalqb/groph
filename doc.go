@@ -1,4 +1,4 @@
-// Package groph is yet another graph library for go.
+// Package groph is a pure Go library for graph data and algorithms.
 //
 // It provides an abstract graph model through some interfaces
 // described below, a set of different implementations for those graph

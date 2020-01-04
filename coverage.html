@@ -58,9 +58,9 @@
 				
 				<option value="file1">git.fractalqb.de/fractalqb/groph/bitset.go (84.2%)</option>
 				
-				<option value="file2">git.fractalqb.de/fractalqb/groph/copy.go (0.0%)</option>
+				<option value="file2">git.fractalqb.de/fractalqb/groph/copy.go (68.8%)</option>
 				
-				<option value="file3">git.fractalqb.de/fractalqb/groph/graph.go (47.5%)</option>
+				<option value="file3">git.fractalqb.de/fractalqb/groph/graph.go (51.4%)</option>
 				
 				<option value="file4">git.fractalqb.de/fractalqb/groph/internal/test/d2graph.go (0.0%)</option>
 				
@@ -68,17 +68,17 @@
 				
 				<option value="file6">git.fractalqb.de/fractalqb/groph/minspantree/kruskal.go (81.8%)</option>
 				
-				<option value="file7">git.fractalqb.de/fractalqb/groph/misc.go (62.5%)</option>
+				<option value="file7">git.fractalqb.de/fractalqb/groph/misc.go (87.5%)</option>
 				
 				<option value="file8">git.fractalqb.de/fractalqb/groph/paths.go (88.9%)</option>
 				
-				<option value="file9">git.fractalqb.de/fractalqb/groph/shortestpath/dijkstra.go (98.9%)</option>
+				<option value="file9">git.fractalqb.de/fractalqb/groph/shortestpath/dijkstra.go (99.0%)</option>
 				
 				<option value="file10">git.fractalqb.de/fractalqb/groph/shortestpath/floyd_warshall.go (80.7%)</option>
 				
-				<option value="file11">git.fractalqb.de/fractalqb/groph/sliceofmap.go (82.4%)</option>
+				<option value="file11">git.fractalqb.de/fractalqb/groph/sliceofmap.go (79.2%)</option>
 				
-				<option value="file12">git.fractalqb.de/fractalqb/groph/traverse/traverse.go (71.7%)</option>
+				<option value="file12">git.fractalqb.de/fractalqb/groph/traverse/traverse.go (68.0%)</option>
 				
 				<option value="file13">git.fractalqb.de/fractalqb/groph/tree.go (0.0%)</option>
 				
@@ -88,13 +88,17 @@
 				
 				<option value="file16">git.fractalqb.de/fractalqb/groph/util/adapt.go (38.7%)</option>
 				
-				<option value="file17">git.fractalqb.de/fractalqb/groph/util/readasundir.go (87.5%)</option>
+				<option value="file17">git.fractalqb.de/fractalqb/groph/util/graphio.go (0.0%)</option>
 				
-				<option value="file18">git.fractalqb.de/fractalqb/groph/util/subgraph.go (0.0%)</option>
+				<option value="file18">git.fractalqb.de/fractalqb/groph/util/misc.go (0.0%)</option>
 				
-				<option value="file19">git.fractalqb.de/fractalqb/groph/util/writegv.go (59.1%)</option>
+				<option value="file19">git.fractalqb.de/fractalqb/groph/util/readasundir.go (87.5%)</option>
 				
-				<option value="file20">git.fractalqb.de/fractalqb/groph/visit.go (62.5%)</option>
+				<option value="file20">git.fractalqb.de/fractalqb/groph/util/subgraph.go (0.0%)</option>
+				
+				<option value="file21">git.fractalqb.de/fractalqb/groph/util/writegv.go (58.9%)</option>
+				
+				<option value="file22">git.fractalqb.de/fractalqb/groph/visit.go (55.7%)</option>
 				
 				</select>
 			</div>
@@ -123,20 +127,21 @@ type adjMx struct {
 
 func (m *adjMx) Order() VIdx <span class="cov8" title="1">{ return m.ord }</span>
 
-// AdjMxDbitmap is a directed WGraph with boolean edge weights implemented as
-// bitmap. This sacrifices runtime performance for lesser memory usage.
+// AdjMxDbitmap implements WGbool as a bitmap based adjacency
+// matrix. Compared to AdjMxbool, this sacrifices runtime performance
+// for lesser memory usage.
 type AdjMxDbitmap struct {
         adjMx
-        bs BitSet
+        bs bitSet
 }
 
 func NewAdjMxDbitmap(order VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap <span class="cov8" title="1">{
         sz := order * order
-        sz = BitSetWords(sz)
+        sz = bitSetWords(sz)
         if reuse == nil </span><span class="cov8" title="1">{
                 reuse = &amp;AdjMxDbitmap{
                         adjMx: adjMx{ord: order},
-                        bs:    make(BitSet, sz),
+                        bs:    make(bitSet, sz),
                 }
         }</span> else<span class="cov0" title="0"> {
                 reuse.ord = order
@@ -179,15 +184,15 @@ func (m *AdjMxDbitmap) SetWeight(i, j VIdx, w interface{}) <span class="cov8" ti
 }
 
 func (m *AdjMxDbitmap) Edge(i, j VIdx) (w bool) <span class="cov8" title="1">{
-        w = m.bs.Get(m.ord*i + j)
+        w = m.bs.get(m.ord*i + j)
         return w
 }</span>
 
 func (m *AdjMxDbitmap) SetEdge(i, j VIdx, w bool) <span class="cov8" title="1">{
         if w </span><span class="cov8" title="1">{
-                m.bs.Set(m.ord*i + j)
+                m.bs.set(m.ord*i + j)
         }</span> else<span class="cov8" title="1"> {
-                m.bs.Unset(m.ord*i + j)
+                m.bs.unset(m.ord*i + j)
         }</span>
 }
 
@@ -715,38 +720,38 @@ const (
         wordShift = 6
 )
 
-type BitSet []bitsWord
+type bitSet []bitsWord
 
-func BitSetWords(setSize int) int <span class="cov8" title="1">{
+func bitSetWords(setSize int) int <span class="cov8" title="1">{
         return (setSize + (wordBits - 1)) / wordBits
 }</span>
 
-func NewBitSet(setSize int) BitSet <span class="cov0" title="0">{ return make(BitSet, BitSetWords(setSize))}</span>
+func newBitSet(setSize int) bitSet <span class="cov0" title="0">{ return make(bitSet, bitSetWords(setSize))}</span>
 
-func (bs BitSet) Cap() int <span class="cov8" title="1">{ return len(bs) * wordBits }</span>
+func (bs bitSet) cap() int <span class="cov8" title="1">{ return len(bs) * wordBits }</span>
 
-func (bs BitSet) Get(i int) bool <span class="cov8" title="1">{
+func (bs bitSet) get(i int) bool <span class="cov8" title="1">{
         w, b := i&gt;&gt;wordShift, i&amp;wordMask
         return bs[w]&amp;(1&lt;&lt;b) != 0
 }</span>
 
-func (bs BitSet) Set(i int) <span class="cov8" title="1">{
+func (bs bitSet) set(i int) <span class="cov8" title="1">{
         w, b := i&gt;&gt;wordShift, i&amp;wordMask
         bs[w] |= 1 &lt;&lt; b
 }</span>
 
-func (bs BitSet) Unset(i int) <span class="cov8" title="1">{
+func (bs bitSet) unset(i int) <span class="cov8" title="1">{
         w, b := i&gt;&gt;wordShift, i&amp;wordMask
         bs[w] &amp;= ^(1 &lt;&lt; b)
 }</span>
 
-func (bs BitSet) Clear() <span class="cov0" title="0">{
+func (bs bitSet) clear() <span class="cov0" title="0">{
         for i := range bs </span><span class="cov0" title="0">{
                 bs[i] = 0
         }</span>
 }
 
-func (bs BitSet) FirstUnset() (res int) <span class="cov8" title="1">{
+func (bs bitSet) firstUnset() (res int) <span class="cov8" title="1">{
         var w bitsWord
         for res, w = range bs </span><span class="cov8" title="1">{
                 if w != wordAll </span><span class="cov8" title="1">{
@@ -818,44 +823,44 @@ func MustCp(g WGraph, err error) WGraph <span class="cov0" title="0">{
 // Vertices are identified by their index, i.e. the user has to take care of
 // the vertex order. If the number of vertices in the graph differs the smaller
 // graph determines how many edge weights are copied.
-func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) <span class="cov0" title="0">{
+func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) <span class="cov8" title="1">{
         sz := dst.Order()
         if src.Order() &lt; sz </span><span class="cov0" title="0">{
                 sz = src.Order()
         }</span>
-        <span class="cov0" title="0">if udst, ok := dst.(WUndirected); ok </span><span class="cov0" title="0">{
-                if usrc, ok := src.(RUndirected); ok </span><span class="cov0" title="0">{
-                        for i := V0; i &lt; sz; i++ </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if udst, ok := dst.(WUndirected); ok </span><span class="cov8" title="1">{
+                if usrc, ok := src.(RUndirected); ok </span><span class="cov8" title="1">{
+                        for i := V0; i &lt; sz; i++ </span><span class="cov8" title="1">{
                                 udst.SetWeightU(i, i, usrc.WeightU(i, i))
-                                for j := V0; j &lt; i; j++ </span><span class="cov0" title="0">{
+                                for j := V0; j &lt; i; j++ </span><span class="cov8" title="1">{
                                         udst.SetWeightU(i, j, usrc.WeightU(i, j))
                                 }</span>
                         }
-                } else<span class="cov0" title="0"> {
+                } else<span class="cov8" title="1"> {
                         return dst, errors.New("cannot copy from directed to undirected graph")
                 }</span>
-        } else<span class="cov0" title="0"> if usrc, ok := src.(RUndirected); ok </span><span class="cov0" title="0">{
-                for i := V0; i &lt; sz; i++ </span><span class="cov0" title="0">{
+        } else<span class="cov8" title="1"> if usrc, ok := src.(RUndirected); ok </span><span class="cov8" title="1">{
+                for i := V0; i &lt; sz; i++ </span><span class="cov8" title="1">{
                         dst.SetWeight(i, i, usrc.WeightU(i, i))
-                        for j := V0; j &lt; i; j++ </span><span class="cov0" title="0">{
+                        for j := V0; j &lt; i; j++ </span><span class="cov8" title="1">{
                                 w := usrc.WeightU(i, j)
                                 dst.SetWeight(i, j, w)
                                 dst.SetWeight(j, i, w)
                         }</span>
                 }
-        } else<span class="cov0" title="0"> {
-                for i := V0; i &lt; sz; i++ </span><span class="cov0" title="0">{
-                        for j := V0; j &lt; sz; j++ </span><span class="cov0" title="0">{
+        } else<span class="cov8" title="1"> {
+                for i := V0; i &lt; sz; i++ </span><span class="cov8" title="1">{
+                        for j := V0; j &lt; sz; j++ </span><span class="cov8" title="1">{
                                 dst.SetWeight(i, j, src.Weight(i, j))
                         }</span>
                 }
         }
-        <span class="cov0" title="0">sderr := SrcDstError{Src: errState(src), Dst: errState(dst)}
+        <span class="cov8" title="1">sderr := SrcDstError{Src: errState(src), Dst: errState(dst)}
         if sderr.Src != nil || sderr.Dst != nil </span><span class="cov0" title="0">{
                 return dst, sderr
         }</span>
-        <span class="cov0" title="0">vnd := dst.Order() - src.Order()
-        if vnd == 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">vnd := dst.Order() - src.Order()
+        if vnd == 0 </span><span class="cov8" title="1">{
                 return dst, nil
         }</span>
         <span class="cov0" title="0">return dst, ClipError(vnd)</span>
@@ -870,8 +875,8 @@ func CpXWeights(
         dst WGraph,
         src RGraph,
         xf func(in interface{}) interface{},
-) (dstout WGraph, err error) <span class="cov0" title="0">{
-        defer func() </span><span class="cov0" title="0">{
+) (dstout WGraph, err error) <span class="cov8" title="1">{
+        defer func() </span><span class="cov8" title="1">{
                 if p := recover(); p != nil </span><span class="cov0" title="0">{
                         switch e := p.(type) </span>{
                         case error:<span class="cov0" title="0">
@@ -881,44 +886,44 @@ func CpXWeights(
                         }
                 }
         }()
-        <span class="cov0" title="0">sz := dst.Order()
+        <span class="cov8" title="1">sz := dst.Order()
         if src.Order() &lt; sz </span><span class="cov0" title="0">{
                 sz = src.Order()
         }</span>
-        <span class="cov0" title="0">var w interface{}
-        if udst, ok := dst.(WUndirected); ok </span><span class="cov0" title="0">{
-                if usrc, ok := src.(RUndirected); ok </span><span class="cov0" title="0">{
-                        for i := V0; i &lt; sz; i++ </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">var w interface{}
+        if udst, ok := dst.(WUndirected); ok </span><span class="cov8" title="1">{
+                if usrc, ok := src.(RUndirected); ok </span><span class="cov8" title="1">{
+                        for i := V0; i &lt; sz; i++ </span><span class="cov8" title="1">{
                                 w = usrc.WeightU(i, i)
                                 udst.SetWeightU(i, i, xf(w))
-                                for j := V0; j &lt; i; j++ </span><span class="cov0" title="0">{
+                                for j := V0; j &lt; i; j++ </span><span class="cov8" title="1">{
                                         w = usrc.WeightU(i, j)
                                         udst.SetWeightU(i, j, xf(w))
                                 }</span>
                         }
-                } else<span class="cov0" title="0"> {
+                } else<span class="cov8" title="1"> {
                         return dst, errors.New("cannot copy from directed to undirected graph")
                 }</span>
-        } else<span class="cov0" title="0"> if usrc, ok := src.(RUndirected); ok </span><span class="cov0" title="0">{
-                for i := V0; i &lt; sz; i++ </span><span class="cov0" title="0">{
+        } else<span class="cov8" title="1"> if usrc, ok := src.(RUndirected); ok </span><span class="cov8" title="1">{
+                for i := V0; i &lt; sz; i++ </span><span class="cov8" title="1">{
                         w = usrc.WeightU(i, i)
                         dst.SetWeight(i, i, xf(w))
-                        for j := V0; j &lt; i; j++ </span><span class="cov0" title="0">{
+                        for j := V0; j &lt; i; j++ </span><span class="cov8" title="1">{
                                 w := xf(usrc.WeightU(i, j))
                                 dst.SetWeight(i, j, w)
                                 dst.SetWeight(j, i, w)
                         }</span>
                 }
-        } else<span class="cov0" title="0"> {
-                for i := V0; i &lt; sz; i++ </span><span class="cov0" title="0">{
-                        for j := V0; j &lt; sz; j++ </span><span class="cov0" title="0">{
+        } else<span class="cov8" title="1"> {
+                for i := V0; i &lt; sz; i++ </span><span class="cov8" title="1">{
+                        for j := V0; j &lt; sz; j++ </span><span class="cov8" title="1">{
                                 w = src.Weight(i, j)
                                 dst.SetWeight(i, j, xf(w))
                         }</span>
                 }
         }
-        <span class="cov0" title="0">vnd := dst.Order() - src.Order()
-        if vnd == 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">vnd := dst.Order() - src.Order()
+        if vnd == 0 </span><span class="cov8" title="1">{
                 return dst, nil
         }</span>
         <span class="cov0" title="0">return dst, ClipError(vnd)</span>
@@ -952,13 +957,6 @@ type RGraph interface {
         Weight(u, v VIdx) interface{}
 }
 
-func WeightOr(g RGraph, u, v VIdx, or interface{}) interface{} <span class="cov0" title="0">{
-        if res := g.Weight(u, v); res != nil </span><span class="cov0" title="0">{
-                return res
-        }</span>
-        <span class="cov0" title="0">return or</span>
-}
-
 // RUndirected represents an undirected graph that allows read only
 // access to the edge weights. For undirected graphs each edge (u,v) is
 // considered outgiong as well as incoming for both, vertex u and vertext v.
@@ -977,17 +975,20 @@ func Directed(g RGraph) bool <span class="cov8" title="1">{
         return !ok
 }</span>
 
-type VisitVertex = func(neighbour VIdx)
+type VisitVertex = func(neighbour VIdx) (stop bool)
 
 // OutLister is implemented by graph implementations that can easily iterate
 // over all outgoing edges of one node.
 //
 // See also OutDegree and traverse.EachOutgoing function.
 type OutLister interface {
-        EachOutgoing(from VIdx, onDest VisitVertex)
+        EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool)
         OutDegree(v VIdx) int
 }
 
+// OutDegree returns the number of outgoing edges of vertex v in graph
+// g. Note that for undirected graphs each edge is also considered to
+// be an outgoing edge.
 func OutDegree(g RGraph, v VIdx) (res int) <span class="cov0" title="0">{
         if ol, ok := g.(OutLister); ok </span><span class="cov0" title="0">{
                 return ol.OutDegree(v)
@@ -1006,10 +1007,13 @@ func OutDegree(g RGraph, v VIdx) (res int) <span class="cov0" title="0">{
 //
 // See also InDegree and traverse.EachIncoming function.
 type InLister interface {
-        EachIncoming(to VIdx, onSource VisitVertex)
+        EachIncoming(to VIdx, onSource VisitVertex) (stopped bool)
         InDegree(v VIdx) int
 }
 
+// InDegree returns the number of incoming edges of vertex v in graph
+// g. Note that for undirected graphs each edge is also considered to
+// be an incoming edge.
 func InDegree(g RGraph, v VIdx) (res int) <span class="cov0" title="0">{
         if il, ok := g.(InLister); ok </span><span class="cov0" title="0">{
                 return il.InDegree(v)
@@ -1023,17 +1027,18 @@ func InDegree(g RGraph, v VIdx) (res int) <span class="cov0" title="0">{
         <span class="cov0" title="0">return res</span>
 }
 
-type VisitEdge = func(u, v VIdx)
+type VisitEdge = func(u, v VIdx) (stop bool)
 
 // InLister is implemented by graph implementations that can easily iterate
 // over all edges of the graph.
 //
 // See also Size and traverse.EachEdge function.
 type EdgeLister interface {
-        EachEdge(onEdge VisitEdge)
+        EachEdge(onEdge VisitEdge) (stop bool)
         Size() int
 }
 
+// Size returns the number of edges in the graph g.
 func Size(g RGraph) (res int) <span class="cov8" title="1">{
         switch xl := g.(type) </span>{
         case EdgeLister:<span class="cov0" title="0">
@@ -1099,9 +1104,11 @@ type WUndirected interface {
         SetWeightU(u, v VIdx, w interface{})
 }
 
-// Reset clears a WGraph while keeping the original order.
+// Reset clears a WGraph while keeping the original order. This is the same as
+// calling g.Reset(g.Order()).
 func Reset(g WGraph) <span class="cov0" title="0">{ g.Reset(g.Order()) }</span>
 
+// Set sets the weight of all passed edges to w.
 func Set(g WGraph, w interface{}, edges ...Edge) <span class="cov8" title="1">{
         for _, e := range edges </span><span class="cov8" title="1">{
                 g.SetWeight(e.U, e.V, w)
@@ -1365,19 +1372,28 @@ import (
         "math"
 )
 
+// I32Del is used by default in adjacency matrices with edge weight
+// type 'int32' to mark edges that do not exist.
+//
+// See AdjMxDi32 and AdjMxUi32
 const I32Del = -2147483648 // min{ int32 }
 
 var nan32 = float32(math.NaN())
 
+// NaN32 is used by adjacency matrices with edge weight type 'float32'
+// to mark edges that do not exist.
+//
+// See AdjMxDf32 and AdjMxUf32
 func NaN32() float32 <span class="cov8" title="1">{ return nan32 }</span>
 
+// IsNaN32 test is x is NaN (no a number). See also NaN32.
 func IsNaN32(x float32) bool <span class="cov8" title="1">{ return math.IsNaN(float64(x)) }</span>
 
-func errState(v interface{}) error <span class="cov0" title="0">{
+func errState(v interface{}) error <span class="cov8" title="1">{
         if es, ok := v.(interface{ ErrState() error }); ok </span><span class="cov0" title="0">{
                 return es.ErrState()
         }</span>
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // nSum computes the sum of the n 1st integers, i.e. 1+2+3+…+n
@@ -1509,10 +1525,10 @@ func (dij *Dijkstrai32) On(
         }
         <span class="cov8" title="1">for dij.pq.Len() != 0 </span><span class="cov8" title="1">{
                 u := heap.Pop(&amp;dij.pq).(pqItemi32).v
-                groph.EachOutgoing(g, u, func(n groph.VIdx) </span><span class="cov8" title="1">{
+                groph.EachOutgoing(g, u, func(n groph.VIdx) (stop bool) </span><span class="cov8" title="1">{
                         alt := dist[u]
                         if alt &lt; 0 </span><span class="cov0" title="0">{
-                                return
+                                return false
                         }</span>
                         <span class="cov8" title="1">e, _ := g.Edge(u, n) // TODO EdgeD?
                         alt += e
@@ -1523,6 +1539,7 @@ func (dij *Dijkstrai32) On(
                                 }</span>
                                 <span class="cov8" title="1">dij.pq.update(n, alt)</span>
                         }
+                        <span class="cov8" title="1">return false</span>
                 })
         }
         <span class="cov8" title="1">return dist, prev</span>
@@ -1606,7 +1623,7 @@ func (dij *Dijkstraf32) On(
         }
         <span class="cov8" title="1">for dij.pq.Len() != 0 </span><span class="cov8" title="1">{
                 u := heap.Pop(&amp;dij.pq).(pqItemf32).v
-                groph.EachOutgoing(g, u, func(n groph.VIdx) </span><span class="cov8" title="1">{
+                groph.EachOutgoing(g, u, func(n groph.VIdx) (stop bool) </span><span class="cov8" title="1">{
                         alt := dist[u] + g.Edge(u, n) // TODO EdgeU?
                         if alt &lt; dist[n] </span><span class="cov8" title="1">{
                                 dist[n] = alt
@@ -1615,6 +1632,7 @@ func (dij *Dijkstraf32) On(
                                 }</span>
                                 <span class="cov8" title="1">dij.pq.update(n, alt)</span>
                         }
+                        <span class="cov8" title="1">return false</span>
                 })
         }
         <span class="cov8" title="1">return dist, prev</span>
@@ -1782,12 +1800,15 @@ func (g *SoMD) Reset(order VIdx) <span class="cov8" title="1">{
         }
 }
 
-func (g *SoMD) EachOutgoing(from VIdx, onDest VisitVertex) <span class="cov0" title="0">{
+func (g *SoMD) EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool) <span class="cov0" title="0">{
         if row := g.ws[from]; row != nil </span><span class="cov0" title="0">{
                 for n := range row </span><span class="cov0" title="0">{
-                        onDest(n)
-                }</span>
+                        if onDest(n) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
         }
+        <span class="cov0" title="0">return false</span>
 }
 
 func (g *SoMD) OutDegree(v VIdx) int <span class="cov0" title="0">{
@@ -1899,12 +1920,15 @@ func (g *SoMDi32) Reset(order VIdx) <span class="cov8" title="1">{
         }
 }
 
-func (g *SoMDi32) EachOutgoing(from VIdx, onDest VisitVertex) <span class="cov0" title="0">{
+func (g *SoMDi32) EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool) <span class="cov0" title="0">{
         if row := g.ws[from]; row != nil </span><span class="cov0" title="0">{
                 for n := range row </span><span class="cov0" title="0">{
-                        onDest(n)
-                }</span>
+                        if onDest(n) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
         }
+        <span class="cov0" title="0">return false</span>
 }
 
 func (g *SoMDi32) OutDegree(v VIdx) int <span class="cov8" title="1">{
@@ -2036,12 +2060,15 @@ func (g *SoMDf32) Reset(order VIdx) <span class="cov8" title="1">{
         }
 }
 
-func (g *SoMDf32) EachOutgoing(from VIdx, onDest VisitVertex) <span class="cov0" title="0">{
+func (g *SoMDf32) EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool) <span class="cov0" title="0">{
         if row := g.ws[from]; row != nil </span><span class="cov0" title="0">{
                 for n := range row </span><span class="cov0" title="0">{
-                        onDest(n)
-                }</span>
+                        if onDest(n) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
         }
+        <span class="cov0" title="0">return false</span>
 }
 
 func (g *SoMDf32) OutDegree(v VIdx) int <span class="cov0" title="0">{
@@ -2121,15 +2148,15 @@ import (
         iutil "git.fractalqb.de/fractalqb/groph/internal/util"
 )
 
-type VisitVertex = func(v groph.VIdx) (stop bool)
+type VisitVertex = func(pred, v groph.VIdx, circle bool) (stop bool)
 
-type VisitInCluster = func(n groph.VIdx, cluster int) (stop bool)
+type VisitInCluster = func(pred, v groph.VIdx, circle bool, cluster int) (stop bool)
 
 // Search performs depth-first or breadth-breadth searches of
 // groph.RGraph objects.
 type Search struct {
         g     groph.RGraph
-        mem   []groph.VIdx
+        mem   []groph.Edge
         tail  int
         visit hitPq
         // If not nil SortBy is used to sort the neighbours v of node u. SortBy
@@ -2148,54 +2175,84 @@ func (df *Search) Reset(g groph.RGraph) <span class="cov8" title="1">{
         df.visit.reset(g.Order())
 }</span>
 
+type stepFn = func(g groph.RGraph, v groph.VIdx, on groph.VisitVertex) bool
+
 // Depth1stAt performs a depth-first search on the respective
 // RGraph. The search starts at vertex start and terminates when no
 // further vertices can be reached via an edge of the graph. It
 // returns the number of distinct vertex hits during the search and
 // an indicator if the visit function 'do' stopped the search.
-func (df *Search) Depth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov8" title="1">{
+func (df *Search) AdjDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov8" title="1">{
+        return df.d1stAt(start, do, groph.EachAdjacent)
+}</span>
+
+func (df *Search) OutDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov0" title="0">{
+        return df.d1stAt(start, do, groph.EachOutgoing)
+}</span>
+
+func (df *Search) InDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov0" title="0">{
+        return df.d1stAt(start, do, groph.EachIncoming)
+}</span>
+
+func (df *Search) d1stAt(
+        start groph.VIdx,
+        do VisitVertex,
+        eachNext stepFn,
+) (hits int, stopped bool) <span class="cov8" title="1">{
         if h := df.visit.hits(start); h &gt; 0 </span><span class="cov0" title="0">{
                 return 0, false
         }</span>
         <span class="cov8" title="1">if df.mem != nil </span><span class="cov8" title="1">{
                 df.mem = df.mem[:0]
         }</span>
-        <span class="cov8" title="1">df.push(start)
+        <span class="cov8" title="1">step := groph.Edge{U: -1, V: start}
+        df.push(step)
         df.visit.setHits(start, 1)
-        last := groph.VIdx(-1)
-        var onDest func(n groph.VIdx)
+        var onDest func(d groph.VIdx) (stop bool)
         if groph.Directed(df.g) </span><span class="cov8" title="1">{
-                onDest = df.chechDest
-        }</span> else<span class="cov8" title="1"> {
-                onDest = func(n groph.VIdx) </span><span class="cov8" title="1">{
-                        if n == last || n == start </span><span class="cov8" title="1">{
-                                return
-                        }</span>
-                        <span class="cov8" title="1">df.chechDest(n)</span>
-                }
+                onDest = func(d groph.VIdx) bool </span><span class="cov8" title="1">{ return df.checkDDest(step, d, do) }</span>
+        } else<span class="cov8" title="1"> {
+                onDest = func(d groph.VIdx) bool </span><span class="cov8" title="1">{ return df.checkUDest(step, d, do) }</span>
         }
         <span class="cov8" title="1">for len(df.mem) &gt; 0 </span><span class="cov8" title="1">{
-                start = df.pop()
-                if do(start) </span><span class="cov0" title="0">{
+                step = df.pop()
+                if do(step.U, step.V, false) </span><span class="cov0" title="0">{
                         return hits + 1, true
                 }</span>
                 <span class="cov8" title="1">hits++
                 sortStart := len(df.mem)
-                groph.EachAdjacent(df.g, start, onDest)
-                if df.SortBy != nil </span><span class="cov8" title="1">{
+                if eachNext(df.g, step.V, onDest) </span><span class="cov0" title="0">{
+                        return hits, true
+                }</span>
+                <span class="cov8" title="1">if df.SortBy != nil </span><span class="cov8" title="1">{
                         sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool </span><span class="cov8" title="1">{
-                                return !df.SortBy(start, v1, v2)
+                                return !df.SortBy(step.V, v1, v2)
                         }</span>)
                 }
-                <span class="cov8" title="1">last = start</span>
         }
         <span class="cov8" title="1">return hits, false</span>
 }
 
-func (df *Search) Depth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov8" title="1">{
+func (df *Search) AdjDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov8" title="1">{
+        return df.d1st(stopToNextCluster, do, groph.EachAdjacent)
+}</span>
+
+func (df *Search) OutDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov0" title="0">{
+        return df.d1st(stopToNextCluster, do, groph.EachOutgoing)
+}</span>
+
+func (df *Search) InDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov0" title="0">{
+        return df.d1st(stopToNextCluster, do, groph.EachIncoming)
+}</span>
+
+func (df *Search) d1st(
+        stopToNextCluster bool,
+        do VisitInCluster,
+        eachNext stepFn,
+) (stopped bool) <span class="cov8" title="1">{
         cluster := 0
-        cdo := func(n groph.VIdx) bool </span><span class="cov8" title="1">{ return do(n, cluster) }</span>
-        <span class="cov8" title="1">hits, stop := df.Depth1stAt(0, cdo)
+        cdo := func(p, n groph.VIdx, c bool) bool </span><span class="cov8" title="1">{ return do(p, n, c, cluster) }</span>
+        <span class="cov8" title="1">hits, stop := df.d1stAt(0, cdo, eachNext)
         if stop </span><span class="cov0" title="0">{
                 if !stopToNextCluster </span><span class="cov0" title="0">{
                         return true
@@ -2207,7 +2264,7 @@ func (df *Search) Depth1st(stopToNextCluster bool, do VisitInCluster) (stopped b
                         cluster++
                 }</span>
                 <span class="cov0" title="0">start := df.visit.top() // TODO assert hits(start) == 0
-                n, stop := df.Depth1stAt(start, cdo)
+                n, stop := df.d1stAt(start, cdo, eachNext)
                 if stop </span><span class="cov0" title="0">{
                         if !stopToNextCluster </span><span class="cov0" title="0">{
                                 return true
@@ -2224,7 +2281,24 @@ func (df *Search) Depth1st(stopToNextCluster bool, do VisitInCluster) (stopped b
 // further vertices can be reached via an edge of the graph. It
 // returns the number of distinct vertex hits during the search and an
 // indicator if the visit function 'do' stopped the search.
-func (df *Search) Breadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov8" title="1">{
+
+func (df *Search) AdjBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov8" title="1">{
+        return df.b1stAt(start, do, groph.EachAdjacent)
+}</span>
+
+func (df *Search) OutBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov0" title="0">{
+        return df.b1stAt(start, do, groph.EachOutgoing)
+}</span>
+
+func (df *Search) InBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov0" title="0">{
+        return df.b1stAt(start, do, groph.EachIncoming)
+}</span>
+
+func (df *Search) b1stAt(
+        start groph.VIdx,
+        do VisitVertex,
+        eachNext stepFn,
+) (hits int, stopped bool) <span class="cov8" title="1">{
         if h := df.visit.hits(start); h &gt; 0 </span><span class="cov0" title="0">{
                 return 0, false
         }</span>
@@ -2232,42 +2306,54 @@ func (df *Search) Breadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stop
                 df.mem = df.mem[:0]
         }</span>
         <span class="cov8" title="1">df.tail = 0
-        df.push(start)
+        step := groph.Edge{U: -1, V: start}
+        df.push(step)
         df.visit.setHits(start, 1)
-        last := groph.VIdx(-1)
-        var onDest func(n groph.VIdx)
+        var onDest func(d groph.VIdx) (stop bool)
         if groph.Directed(df.g) </span><span class="cov8" title="1">{
-                onDest = df.chechDest
-        }</span> else<span class="cov8" title="1"> {
-                onDest = func(n groph.VIdx) </span><span class="cov8" title="1">{
-                        if n == last || n == start </span><span class="cov8" title="1">{
-                                return
-                        }</span>
-                        <span class="cov8" title="1">df.chechDest(n)</span>
-                }
+                onDest = func(d groph.VIdx) bool </span><span class="cov8" title="1">{ return df.checkDDest(step, d, do) }</span>
+        } else<span class="cov8" title="1"> {
+                onDest = func(d groph.VIdx) bool </span><span class="cov8" title="1">{ return df.checkUDest(step, d, do) }</span>
         }
         <span class="cov8" title="1">for df.tail &lt; len(df.mem) </span><span class="cov8" title="1">{
-                start = df.take()
-                if do(start) </span><span class="cov0" title="0">{
+                step = df.take()
+                if do(step.U, step.V, false) </span><span class="cov0" title="0">{
                         return hits + 1, true
                 }</span>
                 <span class="cov8" title="1">hits++
                 sortStart := len(df.mem)
-                groph.EachAdjacent(df.g, start, onDest)
-                if df.SortBy != nil </span><span class="cov0" title="0">{
+                if eachNext(df.g, step.V, onDest) </span><span class="cov0" title="0">{
+                        return hits, true
+                }</span>
+                <span class="cov8" title="1">if df.SortBy != nil </span><span class="cov0" title="0">{
                         sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool </span><span class="cov0" title="0">{
-                                return df.SortBy(start, v1, v2)
+                                return df.SortBy(step.V, v1, v2)
                         }</span>)
                 }
-                <span class="cov8" title="1">last = start</span>
         }
         <span class="cov8" title="1">return hits, false</span>
 }
 
-func (df *Search) Breadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov8" title="1">{
+func (df *Search) AdjBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov8" title="1">{
+        return df.b1st(stopToNextCluster, do, groph.EachAdjacent)
+}</span>
+
+func (df *Search) OutBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov0" title="0">{
+        return df.b1st(stopToNextCluster, do, groph.EachOutgoing)
+}</span>
+
+func (df *Search) InBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov0" title="0">{
+        return df.b1st(stopToNextCluster, do, groph.EachIncoming)
+}</span>
+
+func (df *Search) b1st(
+        stopToNextCluster bool,
+        do VisitInCluster,
+        eachNext stepFn,
+) (stopped bool) <span class="cov8" title="1">{
         cluster := 0
-        cdo := func(n groph.VIdx) bool </span><span class="cov8" title="1">{ return do(n, cluster) }</span>
-        <span class="cov8" title="1">hits, stop := df.Breadth1stAt(0, cdo)
+        cdo := func(p, n groph.VIdx, c bool) bool </span><span class="cov8" title="1">{ return do(p, n, c, cluster) }</span>
+        <span class="cov8" title="1">hits, stop := df.b1stAt(0, cdo, eachNext)
         if stop </span><span class="cov0" title="0">{
                 if !stopToNextCluster </span><span class="cov0" title="0">{
                         return true
@@ -2279,7 +2365,7 @@ func (df *Search) Breadth1st(stopToNextCluster bool, do VisitInCluster) (stopped
                         cluster++
                 }</span>
                 <span class="cov0" title="0">start := df.visit.top() // TODO assert hits(start) == 0
-                n, stop := df.Breadth1stAt(start, cdo)
+                n, stop := df.b1stAt(start, cdo, eachNext)
                 if stop </span><span class="cov0" title="0">{
                         if !stopToNextCluster </span><span class="cov0" title="0">{
                                 return true
@@ -2310,30 +2396,40 @@ func (df *Search) LeastHits() (v groph.VIdx, hits int) <span class="cov0" title=
         return item.v, item.hits</span>
 }
 
-func (df *Search) push(v groph.VIdx) <span class="cov8" title="1">{
-        df.mem = append(df.mem, v)
-}</span>
-
-func (df *Search) pop() (res groph.VIdx) <span class="cov8" title="1">{
-        l := len(df.mem) - 1
-        res = df.mem[l]
-        df.mem = df.mem[:l]
-        return res
-}</span>
-
-func (df *Search) take() (res groph.VIdx) <span class="cov8" title="1">{
-        res = df.mem[df.tail]
-        df.tail++
-        return res
-}</span>
-
-func (df *Search) chechDest(n groph.VIdx) <span class="cov8" title="1">{
-        h := df.visit.hits(n)
+func (df *Search) checkDDest(pre groph.Edge, d groph.VIdx, do VisitVertex) bool <span class="cov8" title="1">{
+        h := df.visit.hits(d)
         if h == 0 </span><span class="cov8" title="1">{
-                df.push(n)
+                df.push(groph.Edge{U: pre.V, V: d})
+        }</span> else<span class="cov8" title="1"> {
+                return do(pre.V, d, true)
         }</span>
-        <span class="cov8" title="1">df.visit.setHits(n, h+1)</span>
+        <span class="cov8" title="1">df.visit.setHits(d, h+1)
+        return false</span>
 }
+
+func (df *Search) checkUDest(pre groph.Edge, d groph.VIdx, do VisitVertex) bool <span class="cov8" title="1">{
+        if d == pre.U || d == pre.V </span><span class="cov8" title="1">{
+                return false
+        }</span>
+        <span class="cov8" title="1">return df.checkDDest(pre, d, do)</span>
+}
+
+func (df *Search) push(e groph.Edge) <span class="cov8" title="1">{
+        df.mem = append(df.mem, e)
+}</span>
+
+func (df *Search) pop() (step groph.Edge) <span class="cov8" title="1">{
+        l := len(df.mem) - 1
+        step = df.mem[l]
+        df.mem = df.mem[:l]
+        return step
+}</span>
+
+func (df *Search) take() (step groph.Edge) <span class="cov8" title="1">{
+        step = df.mem[df.tail]
+        df.tail++
+        return step
+}</span>
 
 type hitPqItem struct {
         hits int
@@ -2441,10 +2537,13 @@ func (t Tree) Weight(u, v VIdx) interface{} <span class="cov0" title="0">{
         <span class="cov0" title="0">return nil</span>
 }
 
-func (t Tree) EachOutgoing(from VIdx, onDest VisitVertex) <span class="cov0" title="0">{
+func (t Tree) EachOutgoing(from VIdx, onDest VisitVertex) (stop bool) <span class="cov0" title="0">{
         if dest := t[from]; dest &gt;= 0 </span><span class="cov0" title="0">{
-                onDest(dest)
-        }</span>
+                if onDest(dest) </span><span class="cov0" title="0">{
+                        return true
+                }</span>
+        }
+        <span class="cov0" title="0">return false</span>
 }
 
 func (t Tree) OutDegree(v VIdx) int <span class="cov0" title="0">{
@@ -2454,12 +2553,15 @@ func (t Tree) OutDegree(v VIdx) int <span class="cov0" title="0">{
         <span class="cov0" title="0">return 1</span>
 }
 
-func (t Tree) EachEdge(onEdge VisitEdge) <span class="cov0" title="0">{
+func (t Tree) EachEdge(onEdge VisitEdge) (stop bool) <span class="cov0" title="0">{
         for u, v := range t </span><span class="cov0" title="0">{
                 if v &gt;= 0 </span><span class="cov0" title="0">{
-                        onEdge(u, v)
-                }</span>
+                        if onEdge(u, v) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
         }
+        <span class="cov0" title="0">return false</span>
 }
 
 func (t Tree) Size() int <span class="cov0" title="0">{ return len(t) - 1 }</span>
@@ -2814,6 +2916,48 @@ func (g *PointsNDist) WeightU(u, v groph.VIdx) interface{} <span class="cov0" ti
 
 import (
         "fmt"
+        "io"
+
+        "git.fractalqb.de/fractalqb/groph"
+)
+
+func WriteSparse(wr io.Writer, g groph.RGraph) <span class="cov0" title="0">{
+        fmt.Fprint(wr, "groph edges")
+        if groph.Directed(g) </span><span class="cov0" title="0">{
+                fmt.Fprint(wr, "directed")
+        }</span> else<span class="cov0" title="0"> {
+                fmt.Fprint(wr, "undirected")
+        }</span>
+        <span class="cov0" title="0">fmt.Fprintf(wr, " order=%d\n", g.Order())
+        groph.EachEdge(g, func(u, v groph.VIdx) bool </span><span class="cov0" title="0">{
+                if w := g.Weight(u, v); w != nil </span><span class="cov0" title="0">{
+                        fmt.Fprintf(wr, "%d %d %v", u, v, w)
+                }</span>
+                <span class="cov0" title="0">return false</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package util
+
+import (
+        "git.fractalqb.de/fractalqb/groph"
+)
+
+// WeightOr returns parameter 'or' when the edge (u,v) is not in graph g.
+// Otherwise the weight of edge (u,v) is returned.
+func WeightOr(g groph.RGraph, u, v groph.VIdx, or interface{}) interface{} <span class="cov0" title="0">{
+        if res := g.Weight(u, v); res != nil </span><span class="cov0" title="0">{
+                return res
+        }</span>
+        <span class="cov0" title="0">return or</span>
+}
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package util
+
+import (
+        "fmt"
 
         "git.fractalqb.de/fractalqb/groph"
 )
@@ -2870,7 +3014,7 @@ func MergeEqual(w1, w2 interface{}) (interface{}, error) <span class="cov8" titl
 }
 </pre>
 		
-		<pre class="file" id="file18" style="display: none">package util
+		<pre class="file" id="file20" style="display: none">package util
 
 import "git.fractalqb.de/fractalqb/groph"
 
@@ -2956,7 +3100,7 @@ func (g WSubgraph) SetWeight(u, v groph.VIdx, w interface{}) <span class="cov0" 
 // }
 </pre>
 		
-		<pre class="file" id="file19" style="display: none">package util
+		<pre class="file" id="file21" style="display: none">package util
 
 import (
         "fmt"
@@ -3072,13 +3216,14 @@ func (gv *GraphViz) dwrite(
                         }</span>
                 }
         }
-        <span class="cov8" title="1">groph.EachEdge(g, func(u, v groph.VIdx) </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">groph.EachEdge(g, func(u, v groph.VIdx) bool </span><span class="cov8" title="1">{
                 atts := gv.eAtts(g, u, v)
                 if atts == "" </span><span class="cov8" title="1">{
                         fmt.Fprintf(tw, "\t%d -&gt; %d;\n", u, v)
                 }</span> else<span class="cov8" title="1"> {
                         fmt.Fprintf(tw, "\t%d -&gt; %d [%s];\n", u, v, atts)
                 }</span>
+                <span class="cov8" title="1">return false</span>
         })
         <span class="cov8" title="1">fmt.Fprintln(tw, "}")</span>
 }
@@ -3105,8 +3250,9 @@ func (gv *GraphViz) uwrite(
                         }</span>
                 }
         }
-        <span class="cov0" title="0">groph.EachEdge(g, func(u, v groph.VIdx) </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">groph.EachEdge(g, func(u, v groph.VIdx) bool </span><span class="cov0" title="0">{
                 fmt.Fprintf(tw, "\t%d -- %d [label=\"%v\"];\n", u, v, g.Weight(u, v))
+                return false
         }</span>)
         <span class="cov0" title="0">fmt.Fprintln(tw, "}")</span>
 }
@@ -3135,122 +3281,143 @@ func gvWriteAtts(
 }
 </pre>
 		
-		<pre class="file" id="file20" style="display: none">package groph
+		<pre class="file" id="file22" style="display: none">package groph
 
 // EachOutgoing calls onDest on each vertex d where the edge (from,d) is in
 // graph g.
-func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) <span class="cov8" title="1">{
+func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) (stopped bool) <span class="cov8" title="1">{
         switch gi := g.(type) </span>{
         case OutLister:<span class="cov0" title="0">
-                gi.EachOutgoing(from, onDest)</span>
+                return gi.EachOutgoing(from, onDest)</span>
         case RUndirected:<span class="cov8" title="1">
-                eachUAdj(gi, from, onDest)</span>
+                return eachUAdj(gi, from, onDest)</span>
         default:<span class="cov8" title="1">
-                eachDOut(g, from, onDest)</span>
+                return eachDOut(g, from, onDest)</span>
         }
 }
 
-func eachDOut(g RGraph, from VIdx, onDest VisitVertex) <span class="cov8" title="1">{
+func eachDOut(g RGraph, from VIdx, onDest VisitVertex) bool <span class="cov8" title="1">{
         vno := g.Order()
         for n := V0; n &lt; vno; n++ </span><span class="cov8" title="1">{
                 if g.Weight(from, n) != nil </span><span class="cov8" title="1">{
-                        onDest(n)
-                }</span>
+                        if onDest(n) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
         }
+        <span class="cov8" title="1">return false</span>
 }
 
 // EachIncoming calls onSource on each vertex s where the edge (s,to) is in
 // graph g.
-func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) <span class="cov8" title="1">{
+func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) (stopped bool) <span class="cov8" title="1">{
         switch gi := g.(type) </span>{
         case InLister:<span class="cov0" title="0">
-                gi.EachIncoming(to, onSource)</span>
+                return gi.EachIncoming(to, onSource)</span>
         case RUndirected:<span class="cov8" title="1">
-                eachUAdj(gi, to, onSource)</span>
+                return eachUAdj(gi, to, onSource)</span>
         default:<span class="cov8" title="1">
-                eachDIn(g, to, onSource)</span>
+                return eachDIn(g, to, onSource)</span>
         }
 }
 
-func eachDIn(g RGraph, to VIdx, onSource VisitVertex) <span class="cov8" title="1">{
+func eachDIn(g RGraph, to VIdx, onSource VisitVertex) bool <span class="cov8" title="1">{
         vno := g.Order()
         for n := V0; n &lt; vno; n++ </span><span class="cov8" title="1">{
                 if g.Weight(n, to) != nil </span><span class="cov8" title="1">{
-                        onSource(n)
-                }</span>
+                        if onSource(n) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
         }
+        <span class="cov8" title="1">return false</span>
 }
 
 // EachAdjacent calls onOther on each vertex o where at least one of the edges
 // (this,o) and (o,this) is in graph g.
-func EachAdjacent(g RGraph, this VIdx, onOther VisitVertex) <span class="cov0" title="0">{
+func EachAdjacent(g RGraph, this VIdx, onOther VisitVertex) (stopped bool) <span class="cov0" title="0">{
         switch u := g.(type) </span>{
         case RUndirected:<span class="cov0" title="0">
                 switch ls := u.(type) </span>{
                 case OutLister:<span class="cov0" title="0">
-                        ls.EachOutgoing(this, onOther)</span>
+                        return ls.EachOutgoing(this, onOther)</span>
                 case InLister:<span class="cov0" title="0">
-                        ls.EachIncoming(this, onOther)</span>
+                        return ls.EachIncoming(this, onOther)</span>
                 default:<span class="cov0" title="0">
-                        eachUAdj(u, this, onOther)</span>
+                        return eachUAdj(u, this, onOther)</span>
                 }
         case OutLister:<span class="cov0" title="0">
-                u.EachOutgoing(this, onOther)
-                if il, ok := g.(InLister); ok </span><span class="cov0" title="0">{
-                        il.EachIncoming(this, onOther)
+                if u.EachOutgoing(this, onOther) </span><span class="cov0" title="0">{
+                        return true
+                }</span>
+                <span class="cov0" title="0">if il, ok := g.(InLister); ok </span><span class="cov0" title="0">{
+                        return il.EachIncoming(this, onOther)
                 }</span> else<span class="cov0" title="0"> {
-                        eachDIn(g, this, onOther)
+                        return eachDIn(g, this, onOther)
                 }</span>
         case InLister:<span class="cov0" title="0">
-                u.EachIncoming(this, onOther)
-                if ol, ok := g.(OutLister); ok </span><span class="cov0" title="0">{
-                        ol.EachOutgoing(this, onOther)
+                if u.EachIncoming(this, onOther) </span><span class="cov0" title="0">{
+                        return true
+                }</span>
+                <span class="cov0" title="0">if ol, ok := g.(OutLister); ok </span><span class="cov0" title="0">{
+                        return ol.EachOutgoing(this, onOther)
                 }</span> else<span class="cov0" title="0"> {
-                        eachDOut(g, this, onOther)
+                        return eachDOut(g, this, onOther)
                 }</span>
         default:<span class="cov0" title="0">
-                eachDAdj(g, this, onOther)</span>
+                return eachDAdj(g, this, onOther)</span>
         }
 }
 
-func eachDAdj(g RGraph, v VIdx, on VisitVertex) <span class="cov0" title="0">{
+func eachDAdj(g RGraph, v VIdx, on VisitVertex) bool <span class="cov0" title="0">{
         ord := g.Order()
         for u := V0; u &lt; ord; u++ </span><span class="cov0" title="0">{
                 if g.Weight(v, u) != nil || g.Weight(u, v) != nil </span><span class="cov0" title="0">{
-                        on(u)
-                }</span>
+                        if on(u) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
         }
+        <span class="cov0" title="0">return false</span>
 }
 
-func eachUAdj(u RUndirected, v VIdx, on VisitVertex) <span class="cov8" title="1">{
+func eachUAdj(u RUndirected, v VIdx, on VisitVertex) bool <span class="cov8" title="1">{
         vno := u.Order()
         n := V0
         for n &lt; v </span><span class="cov8" title="1">{
                 if u.WeightU(v, n) != nil </span><span class="cov8" title="1">{
-                        on(n)
-                }</span>
+                        if on(n) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
                 <span class="cov8" title="1">n++</span>
         }
         <span class="cov8" title="1">for n &lt; vno </span><span class="cov8" title="1">{
                 if u.WeightU(n, v) != nil </span><span class="cov8" title="1">{
-                        on(n)
-                }</span>
+                        if on(n) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
                 <span class="cov8" title="1">n++</span>
         }
+        <span class="cov8" title="1">return false</span>
 }
 
-// TODO optimize with In-/OutLister
-func EachEdge(g RGraph, onEdge VisitEdge) <span class="cov8" title="1">{
+// EachEdge call onEdge for every edge in graph g.
+func EachEdge(g RGraph, onEdge VisitEdge) (stopped bool) <span class="cov8" title="1">{
+        // TODO optimize with In-/OutLister
         switch ge := g.(type) </span>{
         case EdgeLister:<span class="cov0" title="0">
-                ge.EachEdge(onEdge)</span>
+                return ge.EachEdge(onEdge)</span>
         case RUndirected:<span class="cov8" title="1">
                 vno := ge.Order()
                 for i := V0; i &lt; vno; i++ </span><span class="cov8" title="1">{
                         for j := V0; j &lt;= i; j++ </span><span class="cov8" title="1">{
                                 if w := ge.WeightU(i, j); w != nil </span><span class="cov8" title="1">{
-                                        onEdge(i, j)
-                                }</span>
+                                        if onEdge(i, j) </span><span class="cov0" title="0">{
+                                                return true
+                                        }</span>
+                                }
                         }
                 }
         default:<span class="cov8" title="1">
@@ -3258,11 +3425,14 @@ func EachEdge(g RGraph, onEdge VisitEdge) <span class="cov8" title="1">{
                 for i := V0; i &lt; vno; i++ </span><span class="cov8" title="1">{
                         for j := V0; j &lt; vno; j++ </span><span class="cov8" title="1">{
                                 if w := g.Weight(i, j); w != nil </span><span class="cov8" title="1">{
-                                        onEdge(i, j)
-                                }</span>
+                                        if onEdge(i, j) </span><span class="cov0" title="0">{
+                                                return true
+                                        }</span>
+                                }
                         }
                 }
         }
+        <span class="cov8" title="1">return false</span>
 }
 </pre>
 		

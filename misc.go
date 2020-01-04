@@ -18,7 +18,7 @@ var nan32 = float32(math.NaN())
 // See AdjMxDf32 and AdjMxUf32
 func NaN32() float32 { return nan32 }
 
-// IsNaN32 test is x is NaN (no a number).
+// IsNaN32 test is x is NaN (no a number). See also NaN32.
 func IsNaN32(x float32) bool { return math.IsNaN(float64(x)) }
 
 func errState(v interface{}) error {

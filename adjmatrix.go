@@ -13,20 +13,21 @@ type adjMx struct {
 
 func (m *adjMx) Order() VIdx { return m.ord }
 
-// AdjMxDbitmap is a directed WGraph with boolean edge weights implemented as
-// bitmap. This sacrifices runtime performance for lesser memory usage.
+// AdjMxDbitmap implements WGbool as a bitmap based adjacency
+// matrix. Compared to AdjMxbool, this sacrifices runtime performance
+// for lesser memory usage.
 type AdjMxDbitmap struct {
 	adjMx
-	bs BitSet
+	bs bitSet
 }
 
 func NewAdjMxDbitmap(order VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 	sz := order * order
-	sz = BitSetWords(sz)
+	sz = bitSetWords(sz)
 	if reuse == nil {
 		reuse = &AdjMxDbitmap{
 			adjMx: adjMx{ord: order},
-			bs:    make(BitSet, sz),
+			bs:    make(bitSet, sz),
 		}
 	} else {
 		reuse.ord = order
@@ -69,15 +70,15 @@ func (m *AdjMxDbitmap) SetWeight(i, j VIdx, w interface{}) {
 }
 
 func (m *AdjMxDbitmap) Edge(i, j VIdx) (w bool) {
-	w = m.bs.Get(m.ord*i + j)
+	w = m.bs.get(m.ord*i + j)
 	return w
 }
 
 func (m *AdjMxDbitmap) SetEdge(i, j VIdx, w bool) {
 	if w {
-		m.bs.Set(m.ord*i + j)
+		m.bs.set(m.ord*i + j)
 	} else {
-		m.bs.Unset(m.ord*i + j)
+		m.bs.unset(m.ord*i + j)
 	}
 }
 

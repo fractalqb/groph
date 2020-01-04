@@ -25,13 +25,6 @@ type RGraph interface {
 	Weight(u, v VIdx) interface{}
 }
 
-func WeightOr(g RGraph, u, v VIdx, or interface{}) interface{} {
-	if res := g.Weight(u, v); res != nil {
-		return res
-	}
-	return or
-}
-
 // RUndirected represents an undirected graph that allows read only
 // access to the edge weights. For undirected graphs each edge (u,v) is
 // considered outgiong as well as incoming for both, vertex u and vertext v.
@@ -102,14 +95,14 @@ func InDegree(g RGraph, v VIdx) (res int) {
 	return res
 }
 
-type VisitEdge = func(u, v VIdx)
+type VisitEdge = func(u, v VIdx) (stop bool)
 
 // InLister is implemented by graph implementations that can easily iterate
 // over all edges of the graph.
 //
 // See also Size and traverse.EachEdge function.
 type EdgeLister interface {
-	EachEdge(onEdge VisitEdge)
+	EachEdge(onEdge VisitEdge) (stop bool)
 	Size() int
 }
 
@@ -179,7 +172,8 @@ type WUndirected interface {
 	SetWeightU(u, v VIdx, w interface{})
 }
 
-// Reset clears a WGraph while keeping the original order.
+// Reset clears a WGraph while keeping the original order. This is the same as
+// calling g.Reset(g.Order()).
 func Reset(g WGraph) { g.Reset(g.Order()) }
 
 // Set sets the weight of all passed edges to w.

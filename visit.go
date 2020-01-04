@@ -121,17 +121,19 @@ func eachUAdj(u RUndirected, v VIdx, on VisitVertex) bool {
 }
 
 // EachEdge call onEdge for every edge in graph g.
-func EachEdge(g RGraph, onEdge VisitEdge) {
+func EachEdge(g RGraph, onEdge VisitEdge) (stopped bool) {
 	// TODO optimize with In-/OutLister
 	switch ge := g.(type) {
 	case EdgeLister:
-		ge.EachEdge(onEdge)
+		return ge.EachEdge(onEdge)
 	case RUndirected:
 		vno := ge.Order()
 		for i := V0; i < vno; i++ {
 			for j := V0; j <= i; j++ {
 				if w := ge.WeightU(i, j); w != nil {
-					onEdge(i, j)
+					if onEdge(i, j) {
+						return true
+					}
 				}
 			}
 		}
@@ -140,9 +142,12 @@ func EachEdge(g RGraph, onEdge VisitEdge) {
 		for i := V0; i < vno; i++ {
 			for j := V0; j < vno; j++ {
 				if w := g.Weight(i, j); w != nil {
-					onEdge(i, j)
+					if onEdge(i, j) {
+						return true
+					}
 				}
 			}
 		}
 	}
+	return false
 }

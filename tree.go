@@ -40,10 +40,13 @@ func (t Tree) Weight(u, v VIdx) interface{} {
 	return nil
 }
 
-func (t Tree) EachOutgoing(from VIdx, onDest VisitVertex) {
+func (t Tree) EachOutgoing(from VIdx, onDest VisitVertex) (stop bool) {
 	if dest := t[from]; dest >= 0 {
-		onDest(dest)
+		if onDest(dest) {
+			return true
+		}
 	}
+	return false
 }
 
 func (t Tree) OutDegree(v VIdx) int {
@@ -53,12 +56,15 @@ func (t Tree) OutDegree(v VIdx) int {
 	return 1
 }
 
-func (t Tree) EachEdge(onEdge VisitEdge) {
+func (t Tree) EachEdge(onEdge VisitEdge) (stop bool) {
 	for u, v := range t {
 		if v >= 0 {
-			onEdge(u, v)
+			if onEdge(u, v) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 func (t Tree) Size() int { return len(t) - 1 }

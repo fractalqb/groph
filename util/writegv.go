@@ -114,13 +114,14 @@ func (gv *GraphViz) dwrite(
 			}
 		}
 	}
-	groph.EachEdge(g, func(u, v groph.VIdx) {
+	groph.EachEdge(g, func(u, v groph.VIdx) bool {
 		atts := gv.eAtts(g, u, v)
 		if atts == "" {
 			fmt.Fprintf(tw, "\t%d -> %d;\n", u, v)
 		} else {
 			fmt.Fprintf(tw, "\t%d -> %d [%s];\n", u, v, atts)
 		}
+		return false
 	})
 	fmt.Fprintln(tw, "}")
 }
@@ -147,8 +148,9 @@ func (gv *GraphViz) uwrite(
 			}
 		}
 	}
-	groph.EachEdge(g, func(u, v groph.VIdx) {
+	groph.EachEdge(g, func(u, v groph.VIdx) bool {
 		fmt.Fprintf(tw, "\t%d -- %d [label=\"%v\"];\n", u, v, g.Weight(u, v))
+		return false
 	})
 	fmt.Fprintln(tw, "}")
 }

@@ -9,38 +9,38 @@ const (
 	wordShift = 6
 )
 
-type BitSet []bitsWord
+type bitSet []bitsWord
 
-func BitSetWords(setSize int) int {
+func bitSetWords(setSize int) int {
 	return (setSize + (wordBits - 1)) / wordBits
 }
 
-func NewBitSet(setSize int) BitSet { return make(BitSet, BitSetWords(setSize))}
+func newBitSet(setSize int) bitSet { return make(bitSet, bitSetWords(setSize))}
 
-func (bs BitSet) Cap() int { return len(bs) * wordBits }
+func (bs bitSet) cap() int { return len(bs) * wordBits }
 
-func (bs BitSet) Get(i int) bool {
+func (bs bitSet) get(i int) bool {
 	w, b := i>>wordShift, i&wordMask
 	return bs[w]&(1<<b) != 0
 }
 
-func (bs BitSet) Set(i int) {
+func (bs bitSet) set(i int) {
 	w, b := i>>wordShift, i&wordMask
 	bs[w] |= 1 << b
 }
 
-func (bs BitSet) Unset(i int) {
+func (bs bitSet) unset(i int) {
 	w, b := i>>wordShift, i&wordMask
 	bs[w] &= ^(1 << b)
 }
 
-func (bs BitSet) Clear() {
+func (bs bitSet) clear() {
 	for i := range bs {
 		bs[i] = 0
 	}
 }
 
-func (bs BitSet) FirstUnset() (res int) {
+func (bs bitSet) firstUnset() (res int) {
 	var w bitsWord
 	for res, w = range bs {
 		if w != wordAll {

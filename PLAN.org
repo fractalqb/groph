@@ -1,4 +1,12 @@
 #+TITLE: Plans for groph
+#+ARCHIVE: ::* Archive
+
+Plans for groph are documented in this file to keep the project
+independent from specific VCS hosting platforms. … Why? – See “The
+Mission” on [[https://blog.codeberg.org/codebergorg-launched.html][codeberg.org]].
+
+* TODO Adhere to Graph Theory Terms
+see [[https://en.wikipedia.org/wiki/Glossary_of_graph_theory_terms][Wikipedia]]
 
 * TODO Decide on keeping type VIdx
 The original idea of VIdx was to be able to change to uint, just in
@@ -9,17 +17,37 @@ Even if not VIdx is use in many place where it does not denote a
 Vertext, e.g. for ord parameters. Using VIdx for vertices only would
 give VIdx a good documentation aspect.
 
-* TODO Adehere to Graph Theory Terms
-see [[https://en.wikipedia.org/wiki/Glossary_of_graph_theory_terms][Wikipedia]]
+* TODO Move graph implementations to separate packages
+- This could make for a nicer API
+- General graph test could (hopefully) be made available also to
+  external graph implementations
 
-* DONE Change Visited att of traversal.Search from Bitset to Heap
-- After fnishing one cluster finding the next start vertex is a linear
-  search on Visited. This does not scale.
-- Having a hit counter for each vertex lets one detect cycles easily
-- Putting the hit counter in a heap make the whole this scale better
+*Problem:* Tests for groph package require graph implementations →
+cyclic dependencies.
 
-*Note:* To do cycle detection on /undirected/ graphs one must not
-count a hit when gonig v0 -> v1 -> v0. And of course loops also!
+* Archive                                                           :ARCHIVE:
 
-* DONE Remove DelEdge from WGi32
-=DelEdge= is redundant, one can already use =SetWeight(u, v, nil)=.
+** DONE Change Visited att of traversal.Search from Bitset to Heap
+   :PROPERTIES:
+   :ARCHIVE_TIME: 2020-01-05 So 13:12
+   :ARCHIVE_FILE: ~/gows/src/git.fractalqb.de/fractalqb/groph/PLAN.org
+   :ARCHIVE_CATEGORY: PLAN
+   :ARCHIVE_TODO: DONE
+   :END:
+ - After fnishing one cluster finding the next start vertex is a linear
+   search on Visited. This does not scale.
+ - Having a hit counter for each vertex lets one detect cycles easily
+ - Putting the hit counter in a heap make the whole this scale better
+
+ *Note:* To do cycle detection on /undirected/ graphs one must not
+ count a hit when gonig v0 -> v1 -> v0. And of course loops also!
+
+** DONE Remove DelEdge from WGi32
+   :PROPERTIES:
+   :ARCHIVE_TIME: 2020-01-05 So 13:13
+   :ARCHIVE_FILE: ~/gows/src/git.fractalqb.de/fractalqb/groph/PLAN.org
+   :ARCHIVE_CATEGORY: PLAN
+   :ARCHIVE_TODO: DONE
+   :END:
+ =DelEdge= is redundant, one can already use =SetWeight(u, v, nil)=.
+

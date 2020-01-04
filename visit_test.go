@@ -65,7 +65,7 @@ func ExampleEachEdge_directed() {
 		true, false, false,
 	})
 	var ns []Edge
-	EachEdge(g, func(u, v VIdx) { ns = append(ns, Edge{u, v}) })
+	EachEdge(g, func(u, v VIdx) bool { ns = append(ns, Edge{u, v}); return false })
 	fmt.Println(ns)
 	// Output:
 	// [{0 1} {2 0}]
@@ -78,7 +78,7 @@ func ExampleEachEdge_undirected() {
 		false, true, false,
 	})
 	var ns []Edge
-	EachEdge(g, func(u, v VIdx) { ns = append(ns, Edge{u, v}) })
+	EachEdge(g, func(u, v VIdx) bool { ns = append(ns, Edge{u, v}); return false })
 	fmt.Println(ns)
 	// Output:
 	// [{1 0} {2 1}]
