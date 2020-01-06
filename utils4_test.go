@@ -94,6 +94,22 @@ func testDSetDel(
 			clear(wi, wj)
 		}
 	}
+	for i := V0; i < vno; i++ {
+		for j := V0; j < vno; j++ {
+			set(i, j)
+		}
+	}
+	Reset(g)
+	if g.Order() != vno {
+		t.Fatal("Reset changed graph size")
+	}
+	for i := V0; i < vno; i++ {
+		for j := V0; j < vno; j++ {
+			if g.Weight(i, j) != nil {
+				t.Fatalf("Reset() did not clear the graph at (%d,%d)", i, j)
+			}
+		}
+	}
 }
 
 func testUSetDel(
@@ -154,6 +170,22 @@ func testUSetDel(
 				}
 			}
 			clear(wi, wj)
+		}
+	}
+	for i := V0; i < vno; i++ {
+		for j := V0; j <= i; j++ {
+			set(i, j)
+		}
+	}
+	Reset(g)
+	if g.Order() != vno {
+		t.Fatal("Reset changed graph size")
+	}
+	for i := V0; i < vno; i++ {
+		for j := V0; j <= i; j++ {
+			if g.Weight(i, j) != nil {
+				t.Fatalf("Reset() did not clear the graph at (%d,%d)", i, j)
+			}
 		}
 	}
 }

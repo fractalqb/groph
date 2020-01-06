@@ -190,7 +190,10 @@ func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 {
 	return m
 }
 
-func (m *AdjMxDi32) Reset(order VIdx) { NewAdjMxDi32(order, m.del, m) }
+func (m *AdjMxDi32) Reset(order VIdx) {
+	NewAdjMxDi32(order, m.del, m)
+	m.Init(m.del)
+}
 
 func (m *AdjMxDi32) Weight(u, v VIdx) interface{} {
 	res, ok := m.Edge(u, v)
@@ -255,7 +258,10 @@ func (m *AdjMxDf32) Init(w float32) *AdjMxDf32 {
 	return m
 }
 
-func (m *AdjMxDf32) Reset(order VIdx) { NewAdjMxDf32(order, m) }
+func (m *AdjMxDf32) Reset(order VIdx) {
+	NewAdjMxDf32(order, m)
+	m.Init(NaN32())
+}
 
 func (m *AdjMxDf32) Weight(u, v VIdx) interface{} {
 	w := m.Edge(u, v)
@@ -320,7 +326,10 @@ func (m *AdjMxUbool) Init(w bool) *AdjMxUbool {
 	return m
 }
 
-func (m *AdjMxUbool) Reset(order VIdx) { NewAdjMxUbool(order, m) }
+func (m *AdjMxUbool) Reset(order VIdx) {
+	NewAdjMxUbool(order, m)
+	m.Init(false)
+}
 
 func (m *AdjMxUbool) Weight(u, v VIdx) interface{} {
 	if m.Edge(u, v) {
@@ -414,7 +423,10 @@ func (m *AdjMxUi32) Init(w int32) *AdjMxUi32 {
 	return m
 }
 
-func (m *AdjMxUi32) Reset(order VIdx) { NewAdjMxUi32(order, m.del, m) }
+func (m *AdjMxUi32) Reset(order VIdx) {
+	NewAdjMxUi32(order, m.del, m)
+	m.Init(m.del)
+}
 
 func (m *AdjMxUi32) Weight(u, v VIdx) interface{} {
 	if w, ok := m.Edge(u, v); ok {
@@ -513,7 +525,10 @@ func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 {
 	return m
 }
 
-func (m *AdjMxUf32) Reset(order VIdx) { NewAdjMxUf32(order, m) }
+func (m *AdjMxUf32) Reset(order VIdx) {
+	NewAdjMxUf32(order, m)
+	m.Init(NaN32())
+}
 
 func (m *AdjMxUf32) Weight(i, j VIdx) interface{} {
 	w := m.Edge(i, j)

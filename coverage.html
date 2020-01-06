@@ -54,13 +54,13 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">git.fractalqb.de/fractalqb/groph/adjmatrix.go (65.0%)</option>
+				<option value="file0">git.fractalqb.de/fractalqb/groph/adjmatrix.go (83.3%)</option>
 				
 				<option value="file1">git.fractalqb.de/fractalqb/groph/bitset.go (84.2%)</option>
 				
 				<option value="file2">git.fractalqb.de/fractalqb/groph/copy.go (68.8%)</option>
 				
-				<option value="file3">git.fractalqb.de/fractalqb/groph/graph.go (51.4%)</option>
+				<option value="file3">git.fractalqb.de/fractalqb/groph/graph.go (54.1%)</option>
 				
 				<option value="file4">git.fractalqb.de/fractalqb/groph/internal/test/d2graph.go (0.0%)</option>
 				
@@ -76,7 +76,7 @@
 				
 				<option value="file10">git.fractalqb.de/fractalqb/groph/shortestpath/floyd_warshall.go (80.7%)</option>
 				
-				<option value="file11">git.fractalqb.de/fractalqb/groph/sliceofmap.go (79.2%)</option>
+				<option value="file11">git.fractalqb.de/fractalqb/groph/sliceofmap.go (85.1%)</option>
 				
 				<option value="file12">git.fractalqb.de/fractalqb/groph/traverse/traverse.go (68.0%)</option>
 				
@@ -88,7 +88,7 @@
 				
 				<option value="file16">git.fractalqb.de/fractalqb/groph/util/adapt.go (38.7%)</option>
 				
-				<option value="file17">git.fractalqb.de/fractalqb/groph/util/graphio.go (0.0%)</option>
+				<option value="file17">git.fractalqb.de/fractalqb/groph/util/graphio.go (75.5%)</option>
 				
 				<option value="file18">git.fractalqb.de/fractalqb/groph/util/misc.go (0.0%)</option>
 				
@@ -143,27 +143,27 @@ func NewAdjMxDbitmap(order VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap <span class=
                         adjMx: adjMx{ord: order},
                         bs:    make(bitSet, sz),
                 }
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 reuse.ord = order
                 reuse.bs = iutil.U64Slice(reuse.bs, int(sz))
         }</span>
         <span class="cov8" title="1">return reuse</span>
 }
 
-func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap <span class="cov0" title="0">{
+func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap <span class="cov8" title="1">{
         if flag </span><span class="cov0" title="0">{
                 for i := range m.bs </span><span class="cov0" title="0">{
                         m.bs[i] = ^uint64(0)
                 }</span>
-        } else<span class="cov0" title="0"> {
-                for i := range m.bs </span><span class="cov0" title="0">{
+        } else<span class="cov8" title="1"> {
+                for i := range m.bs </span><span class="cov8" title="1">{
                         m.bs[i] = 0
                 }</span>
         }
-        <span class="cov0" title="0">return m</span>
+        <span class="cov8" title="1">return m</span>
 }
 
-func (m *AdjMxDbitmap) Reset(order VIdx) <span class="cov0" title="0">{
+func (m *AdjMxDbitmap) Reset(order VIdx) <span class="cov8" title="1">{
         NewAdjMxDbitmap(order, m)
         m.Init(false)
 }</span>
@@ -208,7 +208,7 @@ func NewAdjMxDbool(order VIdx, reuse *AdjMxDbool) *AdjMxDbool <span class="cov8"
                         adjMx: adjMx{ord: order},
                         bs:    make([]bool, sz),
                 }
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 reuse.ord = order
                 reuse.bs = iutil.BoolSlice(reuse.bs, int(sz))
         }</span>
@@ -228,14 +228,14 @@ func AsAdjMxDbool(reuse *AdjMxDbool, weights []bool) (*AdjMxDbool, error) <span 
         return reuse, nil</span>
 }
 
-func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool <span class="cov0" title="0">{
-        for i := range m.bs </span><span class="cov0" title="0">{
+func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool <span class="cov8" title="1">{
+        for i := range m.bs </span><span class="cov8" title="1">{
                 m.bs[i] = flag
         }</span>
-        <span class="cov0" title="0">return m</span>
+        <span class="cov8" title="1">return m</span>
 }
 
-func (m *AdjMxDbool) Reset(order VIdx) <span class="cov0" title="0">{
+func (m *AdjMxDbool) Reset(order VIdx) <span class="cov8" title="1">{
         NewAdjMxDbool(order, m)
         m.Init(false)
 }</span>
@@ -276,7 +276,7 @@ func NewAdjMxDi32(order VIdx, del int32, reuse *AdjMxDi32) *AdjMxDi32 <span clas
                         ws:    make([]int32, order*order),
                         del:   del,
                 }
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 reuse.ord = order
                 reuse.ws = iutil.I32Slice(reuse.ws, int(order*order))
         }</span>
@@ -297,14 +297,17 @@ func AsAdjMxDi32(reuse *AdjMxDi32, del int32, weights []int32) (*AdjMxDi32, erro
         return reuse, nil</span>
 }
 
-func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 <span class="cov0" title="0">{
-        for i := range m.ws </span><span class="cov0" title="0">{
+func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 <span class="cov8" title="1">{
+        for i := range m.ws </span><span class="cov8" title="1">{
                 m.ws[i] = w
         }</span>
-        <span class="cov0" title="0">return m</span>
+        <span class="cov8" title="1">return m</span>
 }
 
-func (m *AdjMxDi32) Reset(order VIdx) <span class="cov0" title="0">{ NewAdjMxDi32(order, m.del, m) }</span>
+func (m *AdjMxDi32) Reset(order VIdx) <span class="cov8" title="1">{
+        NewAdjMxDi32(order, m.del, m)
+        m.Init(m.del)
+}</span>
 
 func (m *AdjMxDi32) Weight(u, v VIdx) interface{} <span class="cov8" title="1">{
         res, ok := m.Edge(u, v)
@@ -342,7 +345,7 @@ func NewAdjMxDf32(order VIdx, reuse *AdjMxDf32) *AdjMxDf32 <span class="cov8" ti
                         adjMx: adjMx{ord: order},
                         ws:    make([]float32, order*order),
                 }
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 reuse.ord = order
                 reuse.ws = iutil.F32Slice(reuse.ws, int(order*order))
         }</span>
@@ -362,14 +365,17 @@ func AsAdjMxDf32(reuse *AdjMxDf32, weights []float32) (*AdjMxDf32, error) <span 
         return reuse, nil</span>
 }
 
-func (m *AdjMxDf32) Init(w float32) *AdjMxDf32 <span class="cov0" title="0">{
-        for i := range m.ws </span><span class="cov0" title="0">{
+func (m *AdjMxDf32) Init(w float32) *AdjMxDf32 <span class="cov8" title="1">{
+        for i := range m.ws </span><span class="cov8" title="1">{
                 m.ws[i] = w
         }</span>
-        <span class="cov0" title="0">return m</span>
+        <span class="cov8" title="1">return m</span>
 }
 
-func (m *AdjMxDf32) Reset(order VIdx) <span class="cov0" title="0">{ NewAdjMxDf32(order, m) }</span>
+func (m *AdjMxDf32) Reset(order VIdx) <span class="cov8" title="1">{
+        NewAdjMxDf32(order, m)
+        m.Init(NaN32())
+}</span>
 
 func (m *AdjMxDf32) Weight(u, v VIdx) interface{} <span class="cov8" title="1">{
         w := m.Edge(u, v)
@@ -407,7 +413,7 @@ func NewAdjMxUbool(order VIdx, reuse *AdjMxUbool) *AdjMxUbool <span class="cov8"
                         adjMx: adjMx{ord: order},
                         ws:    make([]bool, nSum(order)),
                 }
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 reuse.ord = order
                 reuse.ws = iutil.BoolSlice(reuse.ws, int(nSum(order)))
         }</span>
@@ -427,14 +433,17 @@ func AsAdjMxUbool(reuse *AdjMxUbool, weights []bool) (*AdjMxUbool, error) <span 
         return reuse, nil</span>
 }
 
-func (m *AdjMxUbool) Init(w bool) *AdjMxUbool <span class="cov0" title="0">{
-        for i := range m.ws </span><span class="cov0" title="0">{
+func (m *AdjMxUbool) Init(w bool) *AdjMxUbool <span class="cov8" title="1">{
+        for i := range m.ws </span><span class="cov8" title="1">{
                 m.ws[i] = w
         }</span>
-        <span class="cov0" title="0">return m</span>
+        <span class="cov8" title="1">return m</span>
 }
 
-func (m *AdjMxUbool) Reset(order VIdx) <span class="cov0" title="0">{ NewAdjMxUbool(order, m) }</span>
+func (m *AdjMxUbool) Reset(order VIdx) <span class="cov8" title="1">{
+        NewAdjMxUbool(order, m)
+        m.Init(false)
+}</span>
 
 func (m *AdjMxUbool) Weight(u, v VIdx) interface{} <span class="cov8" title="1">{
         if m.Edge(u, v) </span><span class="cov8" title="1">{
@@ -500,7 +509,7 @@ func NewAdjMxUi32(order VIdx, del int32, reuse *AdjMxUi32) *AdjMxUi32 <span clas
                         ws:    make([]int32, nSum(order)),
                         del:   del,
                 }
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 reuse.ord = order
                 reuse.ws = iutil.I32Slice(reuse.ws, int(nSum(order)))
         }</span>
@@ -528,7 +537,10 @@ func (m *AdjMxUi32) Init(w int32) *AdjMxUi32 <span class="cov8" title="1">{
         <span class="cov8" title="1">return m</span>
 }
 
-func (m *AdjMxUi32) Reset(order VIdx) <span class="cov0" title="0">{ NewAdjMxUi32(order, m.del, m) }</span>
+func (m *AdjMxUi32) Reset(order VIdx) <span class="cov8" title="1">{
+        NewAdjMxUi32(order, m.del, m)
+        m.Init(m.del)
+}</span>
 
 func (m *AdjMxUi32) Weight(u, v VIdx) interface{} <span class="cov8" title="1">{
         if w, ok := m.Edge(u, v); ok </span><span class="cov8" title="1">{
@@ -600,7 +612,7 @@ func NewAdjMxUf32(order VIdx, reuse *AdjMxUf32) *AdjMxUf32 <span class="cov8" ti
                         adjMx: adjMx{ord: order},
                         ws:    make([]float32, nSum(order)),
                 }
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 reuse.ord = order
                 reuse.ws = iutil.F32Slice(reuse.ws, int(nSum(order)))
         }</span>
@@ -620,14 +632,17 @@ func AsAdjMxUf32(reuse *AdjMxUf32, weights []float32) (*AdjMxUf32, error) <span 
         return reuse, nil</span>
 }
 
-func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 <span class="cov0" title="0">{
-        for i := range m.ws </span><span class="cov0" title="0">{
+func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 <span class="cov8" title="1">{
+        for i := range m.ws </span><span class="cov8" title="1">{
                 m.ws[i] = w
         }</span>
-        <span class="cov0" title="0">return m</span>
+        <span class="cov8" title="1">return m</span>
 }
 
-func (m *AdjMxUf32) Reset(order VIdx) <span class="cov0" title="0">{ NewAdjMxUf32(order, m) }</span>
+func (m *AdjMxUf32) Reset(order VIdx) <span class="cov8" title="1">{
+        NewAdjMxUf32(order, m)
+        m.Init(NaN32())
+}</span>
 
 func (m *AdjMxUf32) Weight(i, j VIdx) interface{} <span class="cov8" title="1">{
         w := m.Edge(i, j)
@@ -1106,7 +1121,7 @@ type WUndirected interface {
 
 // Reset clears a WGraph while keeping the original order. This is the same as
 // calling g.Reset(g.Order()).
-func Reset(g WGraph) <span class="cov0" title="0">{ g.Reset(g.Order()) }</span>
+func Reset(g WGraph) <span class="cov8" title="1">{ g.Reset(g.Order()) }</span>
 
 // Set sets the weight of all passed edges to w.
 func Set(g WGraph, w interface{}, edges ...Edge) <span class="cov8" title="1">{
@@ -1792,9 +1807,9 @@ func (g *SoMD) SetWeight(u, v VIdx, w interface{}) <span class="cov8" title="1">
 func (g *SoMD) Reset(order VIdx) <span class="cov8" title="1">{
         if g.ws == nil || cap(g.ws) &lt; order </span><span class="cov8" title="1">{
                 g.ws = make([]spmro, order)
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 g.ws = g.ws[:order]
-                for i := range g.ws </span><span class="cov0" title="0">{
+                for i := range g.ws </span><span class="cov8" title="1">{
                         g.ws[i] = nil
                 }</span>
         }
@@ -1912,9 +1927,9 @@ func (g *SoMDi32) SetWeight(u, v VIdx, w interface{}) <span class="cov8" title="
 func (g *SoMDi32) Reset(order VIdx) <span class="cov8" title="1">{
         if g.ws == nil || cap(g.ws) &lt; order </span><span class="cov8" title="1">{
                 g.ws = make([]spmroi32, order)
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 g.ws = g.ws[:order]
-                for i := range g.ws </span><span class="cov0" title="0">{
+                for i := range g.ws </span><span class="cov8" title="1">{
                         g.ws[i] = nil
                 }</span>
         }
@@ -2052,9 +2067,9 @@ func (g *SoMDf32) SetWeight(u, v VIdx, w interface{}) <span class="cov8" title="
 func (g *SoMDf32) Reset(order VIdx) <span class="cov8" title="1">{
         if g.ws == nil || cap(g.ws) &lt; order </span><span class="cov8" title="1">{
                 g.ws = make([]spmrof32, order)
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 g.ws = g.ws[:order]
-                for i := range g.ws </span><span class="cov0" title="0">{
+                for i := range g.ws </span><span class="cov8" title="1">{
                         g.ws[i] = nil
                 }</span>
         }
@@ -2915,26 +2930,106 @@ func (g *PointsNDist) WeightU(u, v groph.VIdx) interface{} <span class="cov0" ti
 		<pre class="file" id="file17" style="display: none">package util
 
 import (
+        "bufio"
+        "errors"
         "fmt"
         "io"
+        "strconv"
+        "strings"
 
         "git.fractalqb.de/fractalqb/groph"
 )
 
-func WriteSparse(wr io.Writer, g groph.RGraph) <span class="cov0" title="0">{
-        fmt.Fprint(wr, "groph edges")
-        if groph.Directed(g) </span><span class="cov0" title="0">{
+func WriteSparse(wr io.Writer, g groph.RGraph) error <span class="cov8" title="1">{
+        fmt.Fprint(wr, "groph ")
+        if groph.Directed(g) </span><span class="cov8" title="1">{
                 fmt.Fprint(wr, "directed")
         }</span> else<span class="cov0" title="0"> {
                 fmt.Fprint(wr, "undirected")
         }</span>
-        <span class="cov0" title="0">fmt.Fprintf(wr, " order=%d\n", g.Order())
-        groph.EachEdge(g, func(u, v groph.VIdx) bool </span><span class="cov0" title="0">{
-                if w := g.Weight(u, v); w != nil </span><span class="cov0" title="0">{
-                        fmt.Fprintf(wr, "%d %d %v", u, v, w)
+        <span class="cov8" title="1">fmt.Fprintf(wr, " edges order=%d\n", g.Order())
+        groph.EachEdge(g, func(u, v groph.VIdx) bool </span><span class="cov8" title="1">{
+                if w := g.Weight(u, v); w != nil </span><span class="cov8" title="1">{
+                        fmt.Fprintf(wr, "%d %d %v\n", u, v, w)
                 }</span>
-                <span class="cov0" title="0">return false</span>
+                <span class="cov8" title="1">return false</span>
         })
+        <span class="cov8" title="1">return nil</span> // TODO detect errors
+}
+
+func readOdrer(prop string) (order int) <span class="cov8" title="1">{
+        if !strings.HasPrefix(prop, "order=") </span><span class="cov0" title="0">{
+                return -1
+        }</span>
+        <span class="cov8" title="1">order, err := strconv.Atoi(prop[6:])
+        if err != nil </span><span class="cov0" title="0">{
+                return -1
+        }</span>
+        <span class="cov8" title="1">return order</span>
+}
+
+type WeightParse = func(string) (interface{}, error)
+
+func ParseI32(s string) (interface{}, error) <span class="cov8" title="1">{
+        i, err := strconv.ParseInt(s, 10, 32)
+        return int32(i), err
+}</span>
+
+func ReadGraph(into groph.WGraph, rd io.Reader, wParse WeightParse) error <span class="cov8" title="1">{
+        scn := bufio.NewScanner(rd)
+        if !scn.Scan() </span><span class="cov0" title="0">{
+                return errors.New("empty input")
+        }</span>
+        <span class="cov8" title="1">hdr := strings.Split(scn.Text(), " ")
+        if len(hdr) != 4 </span><span class="cov0" title="0">{
+                return fmt.Errorf("synax error in graph header: has %d fields, not 4", len(hdr))
+        }</span>
+        <span class="cov8" title="1">if hdr[0] != "groph" </span><span class="cov0" title="0">{
+                return errors.New("no groph file indicator")
+        }</span>
+        <span class="cov8" title="1">if hdr[1] == "directed" &amp;&amp; !groph.Directed(into) </span><span class="cov0" title="0">{
+                return fmt.Errorf(
+                        "cannot read directed graph data into undirected graph implementaton")
+        }</span>
+        <span class="cov8" title="1">ord := readOdrer(hdr[3])
+        if ord &lt; 0 </span><span class="cov0" title="0">{
+                return errors.New("cannot read odrer of graph")
+        }</span>
+        <span class="cov8" title="1">into.Reset(ord)
+        switch hdr[2] </span>{
+        case "edges":<span class="cov8" title="1">
+                return readEdges(into, scn, wParse)</span>
+        default:<span class="cov0" title="0">
+                return fmt.Errorf("unknown graph format: '%s'", hdr[2])</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func readEdges(g groph.WGraph, scn *bufio.Scanner, wParse WeightParse) error <span class="cov8" title="1">{
+        count := 0
+        for scn.Scan() </span><span class="cov8" title="1">{
+                count++
+                fields := strings.Split(scn.Text(), " ")
+                if len(fields) != 3 </span><span class="cov0" title="0">{
+                        return fmt.Errorf("syntax error in edge %d: has %d fields, not 3",
+                                count,
+                                len(fields))
+                }</span>
+                <span class="cov8" title="1">u, err := strconv.Atoi(strings.TrimSpace(fields[0]))
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("syntax error in edge %d: %s", count, err)
+                }</span>
+                <span class="cov8" title="1">v, err := strconv.Atoi(strings.TrimSpace(fields[1]))
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("syntax error in edge %d: %s", count, err)
+                }</span>
+                <span class="cov8" title="1">var w interface{} = fields[2]
+                if wParse != nil </span><span class="cov8" title="1">{
+                        w, err = wParse(fields[2])
+                }</span>
+                <span class="cov8" title="1">g.SetWeight(u, v, w)</span>
+        }
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
