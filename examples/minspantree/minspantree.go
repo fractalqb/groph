@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"git.fractalqb.de/fractalqb/groph/shortestpath"
-
 	"git.fractalqb.de/fractalqb/groph"
-	"git.fractalqb.de/fractalqb/groph/util"
+	"git.fractalqb.de/fractalqb/groph/shortestpath"
+	"git.fractalqb.de/fractalqb/groph/util/graphviz"
 )
 
 type E = groph.Edge
@@ -24,20 +23,20 @@ func main() {
 
 	var mst = groph.Tree{}
 	var dists []int
-	dot := util.GraphViz{
-		PerNodeAtts: func(g groph.RGraph, v groph.VIdx) util.GvAtts {
-			res := util.GvAtts{"label": fmt.Sprintf("%c / %d", 'a'+v, v)}
+	dot := graphviz.Writer{
+		PerNodeAtts: func(g groph.RGraph, v groph.VIdx) graphviz.Attributes {
+			res := graphviz.Attributes{"label": fmt.Sprintf("%c / %d", 'a'+v, v)}
 			if v == mst.Root() {
 				res["shape"] = "diamond"
 			}
 			return res
 		},
-		PerEdgeAtts: func(g groph.RGraph, u, v groph.VIdx) (res util.GvAtts) {
+		PerEdgeAtts: func(g groph.RGraph, u, v groph.VIdx) (res graphviz.Attributes) {
 			if mst.Edge(u, v) {
-				res = util.GvAtts{"label": fmt.Sprint(dists[v])}
+				res = graphviz.Attributes{"label": fmt.Sprint(dists[v])}
 				res["color"] = "blue"
 			} else {
-				res = util.GvAtts{"label": util.GvNoLabel}
+				res = graphviz.Attributes{"label": graphviz.NoLabel}
 				res["color"] = "gray"
 			}
 			return res

@@ -1,4 +1,4 @@
-package util
+package graphviz
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ func ExampleGraphViz_Write() {
 		4, 0, 7, 0,
 		0, 2, 9, 0,
 	})
-	gv := GraphViz{
+	gv := Writer{
 		PerNodeAtts: func(g groph.RGraph, v groph.VIdx) map[string]interface{} {
 			return map[string]interface{}{"label": fmt.Sprintf("Node %d", v)}
 		},

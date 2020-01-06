@@ -1,4 +1,4 @@
-package util
+package graphviz
 
 import (
 	"fmt"
@@ -9,35 +9,35 @@ import (
 	"git.fractalqb.de/fractalqb/groph"
 )
 
-type GvAtts = map[string]interface{}
+type Attributes = map[string]interface{}
 
-type GraphViz struct {
-	GraphAtts   func(g groph.RGraph) GvAtts
-	NodeAtts    func(g groph.RGraph) GvAtts
-	EdgeAtts    func(g groph.RGraph) GvAtts
-	PerNodeAtts func(g groph.RGraph, v groph.VIdx) GvAtts
-	PerEdgeAtts func(g groph.RGraph, u, v groph.VIdx) GvAtts
+type Writer struct {
+	GraphAtts   func(g groph.RGraph) Attributes
+	NodeAtts    func(g groph.RGraph) Attributes
+	EdgeAtts    func(g groph.RGraph) Attributes
+	PerNodeAtts func(g groph.RGraph, v groph.VIdx) Attributes
+	PerEdgeAtts func(g groph.RGraph, u, v groph.VIdx) Attributes
 }
 
-const GvNoLabel = ""
+const NoLabel = ""
 
-var gvNoLbl = GvAtts{"label": GvNoLabel}
+var gvNoLbl = Attributes{"label": NoLabel}
 
 func NoEdgeLabel(_ groph.RGraph, _, _ groph.VIdx) map[string]interface{} {
 	return gvNoLbl
 }
 
-func GvAttMap(maps ...GvAtts) func(groph.RGraph) GvAtts {
-	atts := make(GvAtts)
+func AttMap(maps ...Attributes) func(groph.RGraph) Attributes {
+	atts := make(Attributes)
 	for _, m := range maps {
 		for k, v := range m {
 			atts[k] = v
 		}
 	}
-	return func(_ groph.RGraph) GvAtts { return atts }
+	return func(_ groph.RGraph) Attributes { return atts }
 }
 
-func (gv *GraphViz) Write(
+func (gv Writer) Write(
 	wr io.Writer,
 	g groph.RGraph,
 	name string,
@@ -50,7 +50,7 @@ func (gv *GraphViz) Write(
 	}
 }
 
-func (gv *GraphViz) nAtts(g groph.RGraph, v groph.VIdx, vlbs []interface{}) string {
+func (gv *Writer) nAtts(g groph.RGraph, v groph.VIdx, vlbs []interface{}) string {
 	var label interface{}
 	if v < len(vlbs) {
 		label = vlbs[v]
@@ -82,7 +82,7 @@ func (gv *GraphViz) nAtts(g groph.RGraph, v groph.VIdx, vlbs []interface{}) stri
 	return sb.String()
 }
 
-func (gv *GraphViz) eAtts(g groph.RGraph, u, v groph.VIdx) string {
+func (gv *Writer) eAtts(g groph.RGraph, u, v groph.VIdx) string {
 	w := g.Weight(u, v)
 	if gv.PerEdgeAtts == nil {
 		return fmt.Sprintf("label=\"%v\"", w)
@@ -112,7 +112,7 @@ func (gv *GraphViz) eAtts(g groph.RGraph, u, v groph.VIdx) string {
 	return sb.String()
 }
 
-func (gv *GraphViz) dwrite(
+func (gv *Writer) dwrite(
 	wr io.Writer,
 	g groph.RGraph,
 	name string,
@@ -146,7 +146,7 @@ func (gv *GraphViz) dwrite(
 	fmt.Fprintln(tw, "}")
 }
 
-func (gv *GraphViz) uwrite(
+func (gv *Writer) uwrite(
 	wr io.Writer,
 	g groph.RUndirected,
 	name string,
