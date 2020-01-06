@@ -25,7 +25,7 @@ func TestDijkstrai32_toFW(t *testing.T) {
 	groph.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDi32(fwDs)
 	var (
-		dijkstra Dijkstrai32
+		dijkstra DijkstraI32
 		dist     []int32
 	)
 	for start := groph.V0; start < VNo; start++ {
@@ -57,7 +57,7 @@ func TestDijkstrai32_paths(t *testing.T) {
 		}
 	}
 	var (
-		dijkstra Dijkstrai32
+		dijkstra DijkstraI32
 		dist     []int32
 		path     = []groph.VIdx{}
 	)
@@ -101,7 +101,7 @@ func TestDijkstraf32_toFW(t *testing.T) {
 	groph.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDf32(fwDs)
 	var (
-		dijkstra Dijkstraf32
+		dijkstra DijkstraF32
 		dist     []float32
 	)
 	for start := groph.V0; start < VNo; start++ {
@@ -133,7 +133,7 @@ func TestDijkstraf32_paths(t *testing.T) {
 		}
 	}
 	var (
-		dijkstra Dijkstraf32
+		dijkstra DijkstraF32
 		dist     []float32
 		path     = []groph.VIdx{}
 	)

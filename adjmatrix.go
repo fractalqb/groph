@@ -183,6 +183,8 @@ func AsAdjMxDi32(reuse *AdjMxDi32, del int32, weights []int32) (*AdjMxDi32, erro
 	return reuse, nil
 }
 
+func (m *AdjMxDi32) Del() int32 { return m.del }
+
 func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 {
 	for i := range m.ws {
 		m.ws[i] = w
@@ -415,6 +417,8 @@ func AsAdjMxUi32(reuse *AdjMxUi32, del int32, weights []int32) (*AdjMxUi32, erro
 	reuse.del = del
 	return reuse, nil
 }
+
+func (m *AdjMxUi32) Del() int32 { return m.del }
 
 func (m *AdjMxUi32) Init(w int32) *AdjMxUi32 {
 	for i := range m.ws {

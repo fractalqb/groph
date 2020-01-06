@@ -5,6 +5,35 @@ Plans for groph are documented in this file to keep the project
 independent from specific VCS hosting platforms. … Why? – See “The
 Mission” on [[https://blog.codeberg.org/codebergorg-launched.html][codeberg.org]].
 
+* TODO Subpackages in util for clear API naming
+Adapt to the Go convention of using the package name for clear
+identification. E.g.:
+
+Have
+#+BEGIN_SRC go
+  dot := graphviz.Dot{
+	  PerNodeAtts: func(g groph.RGraph, v groph.VIdx) graphviz.Atts {
+		  res := graphviz.Atts{"label": fmt.Sprintf("%c / %d", 'a'+v, v)}
+		  if v == mst.Root() {
+			  res["shape"] = "diamond"
+		  }
+		  return res
+	  }
+  }
+#+END_SRC
+instead of
+#+BEGIN_SRC go
+  dot := util.GraphViz{
+	  PerNodeAtts: func(g groph.RGraph, v groph.VIdx) util.GvAtts {
+		  res := util.GvAtts{"label": fmt.Sprintf("%c / %d", 'a'+v, v)}
+		  if v == mst.Root() {
+			  res["shape"] = "diamond"
+		  }
+		  return res
+	  }
+  }
+#+END_SRC
+
 * TODO Adhere to Graph Theory Terms
 see [[https://en.wikipedia.org/wiki/Glossary_of_graph_theory_terms][Wikipedia]]
 

@@ -9,12 +9,32 @@ import (
 	"git.fractalqb.de/fractalqb/groph"
 )
 
+type GvAtts = map[string]interface{}
+
 type GraphViz struct {
-	GraphAtts   func(g groph.RGraph) map[string]interface{}
-	NodeAtts    func(g groph.RGraph) map[string]interface{}
-	EdgeAtts    func(g groph.RGraph) map[string]interface{}
-	PerNodeAtts func(g groph.RGraph, v groph.VIdx) map[string]interface{}
-	PerEdgeAtts func(g groph.RGraph, u, v groph.VIdx) map[string]interface{}
+	GraphAtts   func(g groph.RGraph) GvAtts
+	NodeAtts    func(g groph.RGraph) GvAtts
+	EdgeAtts    func(g groph.RGraph) GvAtts
+	PerNodeAtts func(g groph.RGraph, v groph.VIdx) GvAtts
+	PerEdgeAtts func(g groph.RGraph, u, v groph.VIdx) GvAtts
+}
+
+const GvNoLabel = ""
+
+var gvNoLbl = GvAtts{"label": GvNoLabel}
+
+func NoEdgeLabel(_ groph.RGraph, _, _ groph.VIdx) map[string]interface{} {
+	return gvNoLbl
+}
+
+func GvAttMap(maps ...GvAtts) func(groph.RGraph) GvAtts {
+	atts := make(GvAtts)
+	for _, m := range maps {
+		for k, v := range m {
+			atts[k] = v
+		}
+	}
+	return func(_ groph.RGraph) GvAtts { return atts }
 }
 
 func (gv *GraphViz) Write(
@@ -65,7 +85,7 @@ func (gv *GraphViz) nAtts(g groph.RGraph, v groph.VIdx, vlbs []interface{}) stri
 func (gv *GraphViz) eAtts(g groph.RGraph, u, v groph.VIdx) string {
 	w := g.Weight(u, v)
 	if gv.PerEdgeAtts == nil {
-		return fmt.Sprintf("label=\"%s\"", w)
+		return fmt.Sprintf("label=\"%v\"", w)
 	}
 	atts := gv.PerEdgeAtts(g, u, v)
 	var sb strings.Builder
@@ -76,7 +96,7 @@ func (gv *GraphViz) eAtts(g groph.RGraph, u, v groph.VIdx) string {
 			sep = true
 		}
 	} else {
-		fmt.Fprintf(&sb, "label=\"%s\"", w)
+		fmt.Fprintf(&sb, "label=\"%v\"", w)
 		sep = true
 	}
 	for k, att := range atts {
@@ -149,7 +169,12 @@ func (gv *GraphViz) uwrite(
 		}
 	}
 	groph.EachEdge(g, func(u, v groph.VIdx) bool {
-		fmt.Fprintf(tw, "\t%d -- %d [label=\"%v\"];\n", u, v, g.Weight(u, v))
+		atts := gv.eAtts(g, u, v)
+		if atts == "" {
+			fmt.Fprintf(tw, "\t%d -- %d;\n", u, v)
+		} else {
+			fmt.Fprintf(tw, "\t%d -- %d [%s];\n", u, v, atts)
+		}
 		return false
 	})
 	fmt.Fprintln(tw, "}")
