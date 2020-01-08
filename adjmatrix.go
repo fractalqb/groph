@@ -8,10 +8,10 @@ import (
 )
 
 type adjMx struct {
-	ord VIdx
+	ord int
 }
 
-func (m *adjMx) Order() VIdx { return m.ord }
+func (m *adjMx) Order() int { return m.ord }
 
 // AdjMxDbitmap implements WGbool as a bitmap based adjacency
 // matrix. Compared to AdjMxbool, this sacrifices runtime performance
@@ -21,7 +21,7 @@ type AdjMxDbitmap struct {
 	bs bitSet
 }
 
-func NewAdjMxDbitmap(order VIdx, reuse *AdjMxDbitmap) *AdjMxDbitmap {
+func NewAdjMxDbitmap(order int, reuse *AdjMxDbitmap) *AdjMxDbitmap {
 	sz := order * order
 	sz = bitSetWords(sz)
 	if reuse == nil {
@@ -49,7 +49,7 @@ func (m *AdjMxDbitmap) Init(flag bool) *AdjMxDbitmap {
 	return m
 }
 
-func (m *AdjMxDbitmap) Reset(order VIdx) {
+func (m *AdjMxDbitmap) Reset(order int) {
 	NewAdjMxDbitmap(order, m)
 	m.Init(false)
 }
@@ -87,7 +87,7 @@ type AdjMxDbool struct {
 	bs []bool
 }
 
-func NewAdjMxDbool(order VIdx, reuse *AdjMxDbool) *AdjMxDbool {
+func NewAdjMxDbool(order int, reuse *AdjMxDbool) *AdjMxDbool {
 	sz := order * order
 	if reuse == nil {
 		reuse = &AdjMxDbool{
@@ -121,7 +121,7 @@ func (m *AdjMxDbool) Init(flag bool) *AdjMxDbool {
 	return m
 }
 
-func (m *AdjMxDbool) Reset(order VIdx) {
+func (m *AdjMxDbool) Reset(order int) {
 	NewAdjMxDbool(order, m)
 	m.Init(false)
 }
@@ -155,7 +155,7 @@ type AdjMxDi32 struct {
 	del int32
 }
 
-func NewAdjMxDi32(order VIdx, del int32, reuse *AdjMxDi32) *AdjMxDi32 {
+func NewAdjMxDi32(order int, del int32, reuse *AdjMxDi32) *AdjMxDi32 {
 	if reuse == nil {
 		reuse = &AdjMxDi32{
 			adjMx: adjMx{ord: order},
@@ -192,7 +192,7 @@ func (m *AdjMxDi32) Init(w int32) *AdjMxDi32 {
 	return m
 }
 
-func (m *AdjMxDi32) Reset(order VIdx) {
+func (m *AdjMxDi32) Reset(order int) {
 	NewAdjMxDi32(order, m.del, m)
 	m.Init(m.del)
 }
@@ -227,7 +227,7 @@ type AdjMxDf32 struct {
 	ws []float32
 }
 
-func NewAdjMxDf32(order VIdx, reuse *AdjMxDf32) *AdjMxDf32 {
+func NewAdjMxDf32(order int, reuse *AdjMxDf32) *AdjMxDf32 {
 	if reuse == nil {
 		reuse = &AdjMxDf32{
 			adjMx: adjMx{ord: order},
@@ -260,7 +260,7 @@ func (m *AdjMxDf32) Init(w float32) *AdjMxDf32 {
 	return m
 }
 
-func (m *AdjMxDf32) Reset(order VIdx) {
+func (m *AdjMxDf32) Reset(order int) {
 	NewAdjMxDf32(order, m)
 	m.Init(NaN32())
 }
@@ -295,7 +295,7 @@ type AdjMxUbool struct {
 	ws []bool
 }
 
-func NewAdjMxUbool(order VIdx, reuse *AdjMxUbool) *AdjMxUbool {
+func NewAdjMxUbool(order int, reuse *AdjMxUbool) *AdjMxUbool {
 	if reuse == nil {
 		reuse = &AdjMxUbool{
 			adjMx: adjMx{ord: order},
@@ -328,7 +328,7 @@ func (m *AdjMxUbool) Init(w bool) *AdjMxUbool {
 	return m
 }
 
-func (m *AdjMxUbool) Reset(order VIdx) {
+func (m *AdjMxUbool) Reset(order int) {
 	NewAdjMxUbool(order, m)
 	m.Init(false)
 }
@@ -390,7 +390,7 @@ type AdjMxUi32 struct {
 	del int32
 }
 
-func NewAdjMxUi32(order VIdx, del int32, reuse *AdjMxUi32) *AdjMxUi32 {
+func NewAdjMxUi32(order int, del int32, reuse *AdjMxUi32) *AdjMxUi32 {
 	if reuse == nil {
 		reuse = &AdjMxUi32{
 			adjMx: adjMx{ord: order},
@@ -427,7 +427,7 @@ func (m *AdjMxUi32) Init(w int32) *AdjMxUi32 {
 	return m
 }
 
-func (m *AdjMxUi32) Reset(order VIdx) {
+func (m *AdjMxUi32) Reset(order int) {
 	NewAdjMxUi32(order, m.del, m)
 	m.Init(m.del)
 }
@@ -472,7 +472,6 @@ func (m *AdjMxUi32) Edge(u, v VIdx) (w int32, ok bool) {
 	return w, w != m.del
 }
 
-// EdgeU is used iff i >= j
 func (m *AdjMxUi32) EdgeU(u, v VIdx) (w int32, ok bool) {
 	w = m.ws[uIdx(u, v)]
 	return w, w != m.del
@@ -486,7 +485,6 @@ func (m *AdjMxUi32) SetEdge(i, j VIdx, w int32) {
 	}
 }
 
-// SetEdgeU is used iff i >= j
 func (m *AdjMxUi32) SetEdgeU(u, v VIdx, w int32) {
 	m.ws[uIdx(u, v)] = w
 }
@@ -496,7 +494,7 @@ type AdjMxUf32 struct {
 	ws []float32
 }
 
-func NewAdjMxUf32(order VIdx, reuse *AdjMxUf32) *AdjMxUf32 {
+func NewAdjMxUf32(order int, reuse *AdjMxUf32) *AdjMxUf32 {
 	if reuse == nil {
 		reuse = &AdjMxUf32{
 			adjMx: adjMx{ord: order},
@@ -529,7 +527,7 @@ func (m *AdjMxUf32) Init(w float32) *AdjMxUf32 {
 	return m
 }
 
-func (m *AdjMxUf32) Reset(order VIdx) {
+func (m *AdjMxUf32) Reset(order int) {
 	NewAdjMxUf32(order, m)
 	m.Init(NaN32())
 }

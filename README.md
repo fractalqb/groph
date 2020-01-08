@@ -49,25 +49,25 @@ func writeFancy(wr io.Writer) {
 		GraphAtts: graphviz.AttMap(graphviz.Attributes{"rankdir": "LR"}),
 		NodeAtts:  graphviz.AttMap(graphviz.Attributes{"shape": "box"}),
 		PerNodeAtts: func(g groph.RGraph, v groph.VIdx) graphviz.Attributes {
-			res := graphviz.Attributes{"label": fmt.Sprintf("%c / %d", 'a'+v, v)}
+			atts := graphviz.Attributes{"label": fmt.Sprintf("%c / %d", 'a'+v, v)}
 			if v == mst.Root() {
-				res["shape"] = "circle"
+				atts["shape"] = "circle"
 			} else if groph.Degree(mst, v) == 1 {
-				res["shape"] = "doublecircle"
+				atts["shape"] = "doublecircle"
 			}
-			return res
+			return atts
 		},
-		PerEdgeAtts: func(g groph.RGraph, u, v groph.VIdx) (res graphviz.Attributes) {
+		PerEdgeAtts: func(g groph.RGraph, u, v groph.VIdx) (atts graphviz.Attributes) {
 			if mst.Edge(v, u) {
-				res = graphviz.Attributes{
+				atts = graphviz.Attributes{
 					"label": fmt.Sprint(dists[v]),
 					"color": "blue"}
 			} else {
-				res = graphviz.Attributes{
+				atts = graphviz.Attributes{
 					"label": graphviz.NoLabel,
 					"color": "gray"}
 			}
-			return res
+			return atts
 		},
 	}
 

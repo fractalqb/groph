@@ -6,7 +6,7 @@ type SoMD struct {
 	ws []spmro
 }
 
-func NewSoMD(order VIdx, reuse *SoMD) *SoMD {
+func NewSoMD(order int, reuse *SoMD) *SoMD {
 	if reuse == nil {
 		return &SoMD{make([]spmro, order)}
 	}
@@ -14,7 +14,7 @@ func NewSoMD(order VIdx, reuse *SoMD) *SoMD {
 	return reuse
 }
 
-func (g *SoMD) Order() VIdx { return len(g.ws) }
+func (g *SoMD) Order() int { return len(g.ws) }
 
 func (g *SoMD) Weight(u, v VIdx) interface{} {
 	row := g.ws[u]
@@ -37,7 +37,7 @@ func (g *SoMD) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SoMD) Reset(order VIdx) {
+func (g *SoMD) Reset(order int) {
 	if g.ws == nil || cap(g.ws) < order {
 		g.ws = make([]spmro, order)
 	} else {
@@ -71,7 +71,7 @@ type SoMU struct {
 	SoMD
 }
 
-func NewSoMU(order VIdx, reuse *SoMU) *SoMU {
+func NewSoMU(order int, reuse *SoMU) *SoMU {
 	if reuse == nil {
 		reuse = new(SoMU)
 	}
@@ -109,7 +109,7 @@ type SoMDi32 struct {
 	Del int32
 }
 
-func NewSoMDi32(order VIdx, reuse *SoMDi32) *SoMDi32 {
+func NewSoMDi32(order int, reuse *SoMDi32) *SoMDi32 {
 	if reuse == nil {
 		return &SoMDi32{
 			ws:  make([]spmroi32, order),
@@ -120,7 +120,7 @@ func NewSoMDi32(order VIdx, reuse *SoMDi32) *SoMDi32 {
 	return reuse
 }
 
-func (g *SoMDi32) Order() VIdx { return len(g.ws) }
+func (g *SoMDi32) Order() int { return len(g.ws) }
 
 func (m *SoMDi32) Edge(u, v VIdx) (w int32, exists bool) {
 	row := m.ws[u]
@@ -157,7 +157,7 @@ func (g *SoMDi32) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SoMDi32) Reset(order VIdx) {
+func (g *SoMDi32) Reset(order int) {
 	if g.ws == nil || cap(g.ws) < order {
 		g.ws = make([]spmroi32, order)
 	} else {
@@ -191,7 +191,7 @@ type SoMUi32 struct {
 	SoMDi32
 }
 
-func NewSoMUi32(order VIdx, reuse *SoMUi32) *SoMUi32 {
+func NewSoMUi32(order int, reuse *SoMUi32) *SoMUi32 {
 	if reuse == nil {
 		reuse = new(SoMUi32)
 	}
@@ -251,7 +251,7 @@ type SoMDf32 struct {
 	ws []spmrof32
 }
 
-func NewSoMDf32(order VIdx, reuse *SoMDf32) *SoMDf32 {
+func NewSoMDf32(order int, reuse *SoMDf32) *SoMDf32 {
 	if reuse == nil {
 		return &SoMDf32{make([]spmrof32, order)}
 	}
@@ -297,7 +297,7 @@ func (g *SoMDf32) SetWeight(u, v VIdx, w interface{}) {
 	}
 }
 
-func (g *SoMDf32) Reset(order VIdx) {
+func (g *SoMDf32) Reset(order int) {
 	if g.ws == nil || cap(g.ws) < order {
 		g.ws = make([]spmrof32, order)
 	} else {
@@ -331,7 +331,7 @@ type SoMUf32 struct {
 	SoMDf32
 }
 
-func NewSoMUf32(order VIdx, reuse *SoMUf32) *SoMUf32 {
+func NewSoMUf32(order int, reuse *SoMUf32) *SoMUf32 {
 	if reuse == nil {
 		reuse = new(SoMUf32)
 	}

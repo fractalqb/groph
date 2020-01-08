@@ -17,7 +17,7 @@ type Edge struct {
 // graphs see also RUndirected.
 type RGraph interface {
 	// Order return the numer of vertices in the graph.
-	Order() VIdx
+	Order() int
 	// Returns the weight of the edge that connects the vertex with index
 	// u with the vertex with index v. If there is no such edge it returns nil.
 	Weight(u, v VIdx) interface{}
@@ -158,7 +158,7 @@ type WGraph interface {
 	RGraph
 	// Reset resizes the graph to order and reinitializes it. Implementations
 	// are expected to reuse memory.
-	Reset(order VIdx)
+	Reset(order int)
 	// SetWeight sets the edge weight for the edge starting at vertex u and
 	// ending at vertex v. Passing w==nil removes the edge.
 	SetWeight(u, v VIdx, w interface{})

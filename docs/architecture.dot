@@ -1,4 +1,6 @@
 digraph Groph {
+	compound=true;
+
 	graph [label="groph package dependency sketch"]
 	node [shape=tab,style=filled,fillcolor=white];
 	edge [arrowhead=vee, style=dashed];
@@ -19,9 +21,8 @@ digraph Groph {
 		som [label="groph/sliceofmaps"];
 		getc [label="…"];
 	}
-	amx -> groph, tst;
-	som -> groph, tst;
-	getc -> groph, tst;
+	amx -> groph [ltail=cluster_g];
+	som -> tst [ltail=cluster_g];
 
 	subgraph cluster_a {
 		color=white;
@@ -36,15 +37,15 @@ digraph Groph {
 
 		tsp -> shp
 	}
-	trv -> groph;
-	shp -> groph;
-	tsp -> groph, amx;
-	aetc -> groph;
+	shp -> groph [ltail=cluster_a];
+	aetc -> som [lhead=cluster_g, ltail=cluster_a];
 	
 	util -> groph;
 	io -> util, groph;
+	io -> getc [lhead=cluster_g, color=gray];
 	gv -> util, groph;
-
+	gv -> getc [lhead=cluster_g, color=gray];
+	
 	tst -> groph;
 	tst -> util;
 }

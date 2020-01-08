@@ -14,7 +14,7 @@ func (t Tree) Root() (res VIdx) {
 	return res
 }
 
-func (t Tree) Order() VIdx { return len(t) }
+func (t Tree) Order() int { return len(t) }
 
 func (t Tree) Edge(u, v VIdx) bool { return t[u] == v }
 

@@ -29,9 +29,9 @@ func errState(v interface{}) error {
 }
 
 // nSum computes the sum of the n 1st integers, i.e. 1+2+3+…+n
-func nSum(n VIdx) VIdx { return n * (n + 1) / 2 }
+func nSum(n int) int { return n * (n + 1) / 2 }
 
-func nSumRev(n VIdx) float64 {
+func nSumRev(n int) float64 {
 	r := math.Sqrt(0.25 + 2*float64(n))
 	return r - 0.5
 }

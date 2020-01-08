@@ -1,6 +1,6 @@
 package groph
 
-type VisitVertex = func(neighbour VIdx) (stop bool)
+type VisitVertex = func(v VIdx) (stop bool)
 
 type VisitEdge = func(u, v VIdx) (stop bool)
 
