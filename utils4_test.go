@@ -57,13 +57,13 @@ func testDSetDel(
 		t.Fatal("graph is not directed")
 	}
 	vno := g.Order()
-	for wi := V0; wi < vno; wi++ {
-		for wj := V0; wj < vno; wj++ {
+	for wi := 0; wi < vno; wi++ {
+		for wj := 0; wj < vno; wj++ {
 			clear(wi, wj)
 		}
 	}
-	for ri := V0; ri < vno; ri++ {
-		for rj := V0; rj < vno; rj++ {
+	for ri := 0; ri < vno; ri++ {
+		for rj := 0; rj < vno; rj++ {
 			if w := read(ri, rj); !isCleared(w) {
 				t.Errorf("read non-cleared value [%v] @%d,%d after clear",
 					w,
@@ -71,11 +71,11 @@ func testDSetDel(
 			}
 		}
 	}
-	for wi := V0; wi < vno; wi++ {
-		for wj := V0; wj < vno; wj++ {
+	for wi := 0; wi < vno; wi++ {
+		for wj := 0; wj < vno; wj++ {
 			w := set(wi, wj)
-			for ri := V0; ri < vno; ri++ {
-				for rj := V0; rj < vno; rj++ {
+			for ri := 0; ri < vno; ri++ {
+				for rj := 0; rj < vno; rj++ {
 					r := read(ri, rj)
 					if ri == wi && rj == wj {
 						if r != w {
@@ -94,8 +94,8 @@ func testDSetDel(
 			clear(wi, wj)
 		}
 	}
-	for i := V0; i < vno; i++ {
-		for j := V0; j < vno; j++ {
+	for i := 0; i < vno; i++ {
+		for j := 0; j < vno; j++ {
 			set(i, j)
 		}
 	}
@@ -103,8 +103,8 @@ func testDSetDel(
 	if g.Order() != vno {
 		t.Fatal("Reset changed graph size")
 	}
-	for i := V0; i < vno; i++ {
-		for j := V0; j < vno; j++ {
+	for i := 0; i < vno; i++ {
+		for j := 0; j < vno; j++ {
 			if g.Weight(i, j) != nil {
 				t.Fatalf("Reset() did not clear the graph at (%d,%d)", i, j)
 			}
@@ -121,12 +121,12 @@ func testUSetDel(
 	read func(i, j VIdx) interface{},
 ) {
 	vno := g.Order()
-	for wi := V0; wi < vno; wi++ {
+	for wi := 0; wi < vno; wi++ {
 		for wj := 0; wj <= wi; wj++ {
 			clear(wi, wj)
 		}
 	}
-	for ri := V0; ri < vno; ri++ {
+	for ri := 0; ri < vno; ri++ {
 		for rj := ri; rj < vno; rj++ {
 			if w := read(ri, rj); !isCleared(w) {
 				t.Errorf("read non-cleared value [%v] @%d,%d after clear",
@@ -135,11 +135,11 @@ func testUSetDel(
 			}
 		}
 	}
-	for wi := V0; wi < vno; wi++ {
-		for wj := V0; wj <= wi; wj++ {
+	for wi := 0; wi < vno; wi++ {
+		for wj := 0; wj <= wi; wj++ {
 			w := set(wi, wj)
-			for ri := V0; ri < vno; ri++ {
-				for rj := V0; rj < vno; rj++ {
+			for ri := 0; ri < vno; ri++ {
+				for rj := 0; rj < vno; rj++ {
 					expectSet := (ri == wi && rj == wj) || (ri == wj && rj == wi)
 					r := read(ri, rj)
 					if expectSet {
@@ -172,8 +172,8 @@ func testUSetDel(
 			clear(wi, wj)
 		}
 	}
-	for i := V0; i < vno; i++ {
-		for j := V0; j <= i; j++ {
+	for i := 0; i < vno; i++ {
+		for j := 0; j <= i; j++ {
 			set(i, j)
 		}
 	}
@@ -181,8 +181,8 @@ func testUSetDel(
 	if g.Order() != vno {
 		t.Fatal("Reset changed graph size")
 	}
-	for i := V0; i < vno; i++ {
-		for j := V0; j <= i; j++ {
+	for i := 0; i < vno; i++ {
+		for j := 0; j <= i; j++ {
 			if g.Weight(i, j) != nil {
 				t.Fatalf("Reset() did not clear the graph at (%d,%d)", i, j)
 			}
@@ -194,8 +194,8 @@ func testIsWGbool(t *testing.T, g WGbool) {
 	t.Run("generic set and del", func(t *testing.T) {
 		testGenericSetDel(t, g, testProbeBool)
 	})
-	for i := V0; i < g.Order(); i++ {
-		for j := V0; j < g.Order(); j++ {
+	for i := 0; i < g.Order(); i++ {
+		for j := 0; j < g.Order(); j++ {
 			g.SetEdge(i, j, true)
 			g.SetEdge(i, j, false)
 			if g.Edge(i, j) != false {
@@ -224,8 +224,8 @@ func testIsWGbool(t *testing.T, g WGbool) {
 
 func testIsWUbool(t *testing.T, g WUbool) {
 	t.Run("is WGbool", func(t *testing.T) { testIsWGbool(t, g) })
-	for i := V0; i < g.Order(); i++ {
-		for j := V0; j <= i; j++ {
+	for i := 0; i < g.Order(); i++ {
+		for j := 0; j <= i; j++ {
 			g.SetEdge(i, j, true)
 			g.SetEdge(j, i, true)
 			g.SetEdgeU(i, j, false)
@@ -275,8 +275,8 @@ func testIsWGi32(t *testing.T, g WGi32) {
 	t.Run("generic set and del", func(t *testing.T) {
 		testGenericSetDel(t, g, testProbeI32)
 	})
-	for i := V0; i < g.Order(); i++ {
-		for j := V0; j < g.Order(); j++ {
+	for i := 0; i < g.Order(); i++ {
+		for j := 0; j < g.Order(); j++ {
 			g.SetEdge(i, j, 4711)
 			g.SetWeight(i, j, nil)
 			if w, ok := g.Edge(i, j); ok {
@@ -314,8 +314,8 @@ func testIsWGf32(t *testing.T, g WGf32) {
 	t.Run("generic set and del", func(t *testing.T) {
 		testGenericSetDel(t, g, testProbeF32)
 	})
-	for i := V0; i < g.Order(); i++ {
-		for j := V0; j < g.Order(); j++ {
+	for i := 0; i < g.Order(); i++ {
+		for j := 0; j < g.Order(); j++ {
 			g.SetEdge(i, j, testProbeF32)
 			g.SetEdge(i, j, NaN32())
 			if w := g.Edge(i, j); !IsNaN32(w) {

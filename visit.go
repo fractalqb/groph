@@ -15,7 +15,7 @@ func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) (stopped bool) {
 
 func eachDOut(g RGraph, from VIdx, onDest VisitVertex) bool {
 	vno := g.Order()
-	for n := V0; n < vno; n++ {
+	for n := 0; n < vno; n++ {
 		if g.Weight(from, n) != nil {
 			if onDest(n) {
 				return true
@@ -40,7 +40,7 @@ func EachIncoming(g RGraph, to VIdx, onSource VisitVertex) (stopped bool) {
 
 func eachDIn(g RGraph, to VIdx, onSource VisitVertex) bool {
 	vno := g.Order()
-	for n := V0; n < vno; n++ {
+	for n := 0; n < vno; n++ {
 		if g.Weight(n, to) != nil {
 			if onSource(n) {
 				return true
@@ -88,7 +88,7 @@ func EachAdjacent(g RGraph, this VIdx, onOther VisitVertex) (stopped bool) {
 
 func eachDAdj(g RGraph, v VIdx, on VisitVertex) bool {
 	ord := g.Order()
-	for u := V0; u < ord; u++ {
+	for u := 0; u < ord; u++ {
 		if g.Weight(v, u) != nil || g.Weight(u, v) != nil {
 			if on(u) {
 				return true
@@ -100,7 +100,7 @@ func eachDAdj(g RGraph, v VIdx, on VisitVertex) bool {
 
 func eachUAdj(u RUndirected, v VIdx, on VisitVertex) bool {
 	vno := u.Order()
-	n := V0
+	n := 0
 	for n < v {
 		if u.WeightU(v, n) != nil {
 			if on(n) {
@@ -128,8 +128,8 @@ func EachEdge(g RGraph, onEdge VisitEdge) (stopped bool) {
 		return ge.EachEdge(onEdge)
 	case RUndirected:
 		vno := ge.Order()
-		for i := V0; i < vno; i++ {
-			for j := V0; j <= i; j++ {
+		for i := 0; i < vno; i++ {
+			for j := 0; j <= i; j++ {
 				if w := ge.WeightU(i, j); w != nil {
 					if onEdge(i, j) {
 						return true
@@ -139,8 +139,8 @@ func EachEdge(g RGraph, onEdge VisitEdge) (stopped bool) {
 		}
 	default:
 		vno := g.Order()
-		for i := V0; i < vno; i++ {
-			for j := V0; j < vno; j++ {
+		for i := 0; i < vno; i++ {
+			for j := 0; j < vno; j++ {
 				if w := g.Weight(i, j); w != nil {
 					if onEdge(i, j) {
 						return true

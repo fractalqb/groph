@@ -14,8 +14,8 @@ func tstGSame(g1, g2 RGraph, sameOrd bool, wEq func(w1, w2 interface{}) bool) er
 	if g2.Order() < ord {
 		ord = g2.Order()
 	}
-	for i := V0; i < ord; i++ {
-		for j := V0; j < ord; j++ {
+	for i := 0; i < ord; i++ {
+		for j := 0; j < ord; j++ {
 			w1, w2 := g1.Weight(i, j), g2.Weight(i, j)
 			if !wEq(w1, w2) {
 				return fmt.Errorf("differ at (%d,%d): w1=%v, w2=%v", i, j, w1, w2)
@@ -27,8 +27,8 @@ func tstGSame(g1, g2 RGraph, sameOrd bool, wEq func(w1, w2 interface{}) bool) er
 
 func TestCpWeights_from_directed(t *testing.T) {
 	src := NewAdjMxDi32(11, I32Del, nil)
-	for i := V0; i < src.Order(); i++ {
-		for j := V0; j < src.Order(); j++ {
+	for i := 0; i < src.Order(); i++ {
+		for j := 0; j < src.Order(); j++ {
 			if rand.Intn(100) < 75 {
 				src.SetEdge(i, j, rand.Int31())
 			}
@@ -59,8 +59,8 @@ func TestCpWeights_from_directed(t *testing.T) {
 
 func TestCpWeights_from_undirected(t *testing.T) {
 	src := NewAdjMxUi32(11, I32Del, nil)
-	for i := V0; i < src.Order(); i++ {
-		for j := V0; j <= i; j++ {
+	for i := 0; i < src.Order(); i++ {
+		for j := 0; j <= i; j++ {
 			if rand.Intn(100) < 75 {
 				src.SetEdge(i, j, rand.Int31())
 			}
@@ -91,8 +91,8 @@ func TestCpWeights_from_undirected(t *testing.T) {
 
 func TestCpXWeights_from_directed(t *testing.T) {
 	src := NewAdjMxDi32(11, I32Del, nil)
-	for i := V0; i < src.Order(); i++ {
-		for j := V0; j < src.Order(); j++ {
+	for i := 0; i < src.Order(); i++ {
+		for j := 0; j < src.Order(); j++ {
 			if rand.Intn(100) < 75 {
 				src.SetEdge(i, j, rand.Int31())
 			}
@@ -127,8 +127,8 @@ func TestCpXWeights_from_directed(t *testing.T) {
 
 func TestCpXWeights_from_undirected(t *testing.T) {
 	src := NewAdjMxUi32(11, I32Del, nil)
-	for i := V0; i < src.Order(); i++ {
-		for j := V0; j <= i; j++ {
+	for i := 0; i < src.Order(); i++ {
+		for j := 0; j <= i; j++ {
 			if rand.Intn(100) < 75 {
 				src.SetEdge(i, j, rand.Int31())
 			}

@@ -67,7 +67,7 @@ func TestSearch_Depth1st_avoid_loop_and_parent(t *testing.T) {
 	if stopped {
 		t.Fatal("search was stopped unexpectedly")
 	}
-	for i := groph.V0; i < g.Order(); i++ {
+	for i := 0; i < g.Order(); i++ {
 		if h := search.Hits(i); h > 1 {
 			t.Errorf("%d has hist %d > 1", i, h)
 		}
@@ -83,7 +83,7 @@ func TestSearch_Breadth1st_avoid_loop_and_parent(t *testing.T) {
 	if stopped {
 		t.Fatal("search was stopped unexpectedly")
 	}
-	for i := groph.V0; i < g.Order(); i++ {
+	for i := 0; i < g.Order(); i++ {
 		if h := search.Hits(i); h > 1 {
 			t.Errorf("%d has hist %d > 1", i, h)
 		}

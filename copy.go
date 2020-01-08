@@ -63,9 +63,9 @@ func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) {
 	}
 	if udst, ok := dst.(WUndirected); ok {
 		if usrc, ok := src.(RUndirected); ok {
-			for i := V0; i < sz; i++ {
+			for i := 0; i < sz; i++ {
 				udst.SetWeightU(i, i, usrc.WeightU(i, i))
-				for j := V0; j < i; j++ {
+				for j := 0; j < i; j++ {
 					udst.SetWeightU(i, j, usrc.WeightU(i, j))
 				}
 			}
@@ -73,17 +73,17 @@ func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) {
 			return dst, errors.New("cannot copy from directed to undirected graph")
 		}
 	} else if usrc, ok := src.(RUndirected); ok {
-		for i := V0; i < sz; i++ {
+		for i := 0; i < sz; i++ {
 			dst.SetWeight(i, i, usrc.WeightU(i, i))
-			for j := V0; j < i; j++ {
+			for j := 0; j < i; j++ {
 				w := usrc.WeightU(i, j)
 				dst.SetWeight(i, j, w)
 				dst.SetWeight(j, i, w)
 			}
 		}
 	} else {
-		for i := V0; i < sz; i++ {
-			for j := V0; j < sz; j++ {
+		for i := 0; i < sz; i++ {
+			for j := 0; j < sz; j++ {
 				dst.SetWeight(i, j, src.Weight(i, j))
 			}
 		}
@@ -126,10 +126,10 @@ func CpXWeights(
 	var w interface{}
 	if udst, ok := dst.(WUndirected); ok {
 		if usrc, ok := src.(RUndirected); ok {
-			for i := V0; i < sz; i++ {
+			for i := 0; i < sz; i++ {
 				w = usrc.WeightU(i, i)
 				udst.SetWeightU(i, i, xf(w))
-				for j := V0; j < i; j++ {
+				for j := 0; j < i; j++ {
 					w = usrc.WeightU(i, j)
 					udst.SetWeightU(i, j, xf(w))
 				}
@@ -138,18 +138,18 @@ func CpXWeights(
 			return dst, errors.New("cannot copy from directed to undirected graph")
 		}
 	} else if usrc, ok := src.(RUndirected); ok {
-		for i := V0; i < sz; i++ {
+		for i := 0; i < sz; i++ {
 			w = usrc.WeightU(i, i)
 			dst.SetWeight(i, i, xf(w))
-			for j := V0; j < i; j++ {
+			for j := 0; j < i; j++ {
 				w := xf(usrc.WeightU(i, j))
 				dst.SetWeight(i, j, w)
 				dst.SetWeight(j, i, w)
 			}
 		}
 	} else {
-		for i := V0; i < sz; i++ {
-			for j := V0; j < sz; j++ {
+		for i := 0; i < sz; i++ {
+			for j := 0; j < sz; j++ {
 				w = src.Weight(i, j)
 				dst.SetWeight(i, j, xf(w))
 			}

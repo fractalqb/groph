@@ -16,7 +16,7 @@ func pathEq(p1, p2 []groph.VIdx) (bool, string) {
 			plen,
 			groph.VIdx(len(p2)))
 	}
-	s2 := groph.V0
+	s2 := 0
 	for s2 < plen {
 		if p1[0] == p2[s2] {
 			break

@@ -127,7 +127,7 @@ func (gv *Writer) dwrite(
 	gvWriteAtts(tw, g, "node", gv.NodeAtts)
 	gvWriteAtts(tw, g, "edge", gv.EdgeAtts)
 	if len(vlabels) > 0 || gv.PerNodeAtts != nil {
-		for i := groph.V0; i < g.Order(); i++ {
+		for i := 0; i < g.Order(); i++ {
 			atts := gv.nAtts(g, i, vlabels)
 			if atts != "" {
 				fmt.Fprintf(tw, "\t%d\t[%s];\n", i, atts)
@@ -161,7 +161,7 @@ func (gv *Writer) uwrite(
 	gvWriteAtts(tw, g, "node", gv.NodeAtts)
 	gvWriteAtts(tw, g, "edge", gv.EdgeAtts)
 	if len(vlabels) > 0 || gv.PerNodeAtts != nil {
-		for i := groph.V0; i < g.Order(); i++ {
+		for i := 0; i < g.Order(); i++ {
 			atts := gv.nAtts(g, i, vlabels)
 			if atts != "" {
 				fmt.Fprintf(tw, "\t%d\t[%s];\n", i, atts)

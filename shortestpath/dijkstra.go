@@ -86,7 +86,7 @@ func (dij *DijkstraBool) On(
 	}
 	dij.init(order)
 	dist[start] = 0
-	for v := groph.V0; v < g.Order(); v++ {
+	for v := 0; v < g.Order(); v++ {
 		if v != start {
 			dist[v] = -1
 		}
@@ -198,7 +198,7 @@ func (dij *DijkstraI32) On(
 	}
 	dij.init(order)
 	dist[start] = 0
-	for v := groph.V0; v < g.Order(); v++ {
+	for v := 0; v < g.Order(); v++ {
 		if v != start {
 			dist[v] = -1
 		}
@@ -299,7 +299,7 @@ func (dij *DijkstraF32) On(
 	}
 	dij.init(order)
 	dist[start] = 0
-	for v := groph.V0; v < g.Order(); v++ {
+	for v := 0; v < g.Order(); v++ {
 		if v != start {
 			dist[v] = float32(math.Inf(1))
 		}

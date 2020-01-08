@@ -4,8 +4,6 @@ package groph
 // provided by the groph package.
 type VIdx = int
 
-const V0 VIdx = 0
-
 // Edge represents a graphs edge between vertices U and V. For directed graphs
 // its the edge from U to V.
 type Edge struct {
@@ -43,67 +41,74 @@ func Directed(g RGraph) bool {
 	return !ok
 }
 
-type VisitVertex = func(neighbour VIdx) (stop bool)
-
-// OutLister is implemented by graph implementations that can easily iterate
-// over all outgoing edges of one node.
-//
-// See also OutDegree and traverse.EachOutgoing function.
-type OutLister interface {
-	EachOutgoing(from VIdx, onDest VisitVertex) (stopped bool)
-	OutDegree(v VIdx) int
-}
-
 // OutDegree returns the number of outgoing edges of vertex v in graph
 // g. Note that for undirected graphs each edge is also considered to
 // be an outgoing edge.
 func OutDegree(g RGraph, v VIdx) (res int) {
-	if ol, ok := g.(OutLister); ok {
-		return ol.OutDegree(v)
-	}
-	ord := g.Order()
-	for i := V0; i < ord; i++ {
-		if g.Weight(v, i) != nil {
-			res++
-		}
+	incRes := func(_ VIdx) bool { res++; return false }
+	switch gi := g.(type) {
+	case OutLister:
+		return gi.OutDegree(v)
+	case RUndirected:
+		eachUAdj(gi, v, incRes)
+	default:
+		eachDOut(g, v, incRes)
 	}
 	return res
-}
-
-// InLister is implemented by graph implementations that can easily iterate
-// over all incoming edges of one node.
-//
-// See also InDegree and traverse.EachIncoming function.
-type InLister interface {
-	EachIncoming(to VIdx, onSource VisitVertex) (stopped bool)
-	InDegree(v VIdx) int
 }
 
 // InDegree returns the number of incoming edges of vertex v in graph
 // g. Note that for undirected graphs each edge is also considered to
 // be an incoming edge.
 func InDegree(g RGraph, v VIdx) (res int) {
-	if il, ok := g.(InLister); ok {
-		return il.InDegree(v)
-	}
-	ord := g.Order()
-	for i := V0; i < ord; i++ {
-		if g.Weight(i, v) != nil {
-			res++
-		}
+	incRes := func(_ VIdx) bool { res++; return false }
+	switch gi := g.(type) {
+	case InLister:
+		return gi.InDegree(v)
+	case RUndirected:
+		eachUAdj(gi, v, incRes)
+	default:
+		eachDIn(g, v, incRes)
 	}
 	return res
 }
 
-type VisitEdge = func(u, v VIdx) (stop bool)
-
-// InLister is implemented by graph implementations that can easily iterate
-// over all edges of the graph.
-//
-// See also Size and traverse.EachEdge function.
-type EdgeLister interface {
-	EachEdge(onEdge VisitEdge) (stop bool)
-	Size() int
+func Degree(g RGraph, v VIdx) (res int) {
+	incRes := func(_ VIdx) bool { res++; return false }
+	switch tg := g.(type) {
+	case RUndirected:
+		switch ls := tg.(type) {
+		case OutLister:
+			return ls.OutDegree(v)
+		case InLister:
+			return ls.InDegree(v)
+		default:
+			eachUAdj(tg, v, incRes)
+		}
+	case OutLister:
+		res = tg.OutDegree(v)
+		if il, ok := g.(InLister); ok {
+			res += il.InDegree(v)
+		} else {
+			eachDIn(g, v, incRes)
+		}
+		if g.Weight(v, v) != nil {
+			res--
+		}
+	case InLister:
+		res = tg.InDegree(v)
+		if ol, ok := g.(OutLister); ok {
+			res += ol.OutDegree(v)
+		} else {
+			eachDOut(g, v, incRes)
+		}
+		if g.Weight(v, v) != nil {
+			res--
+		}
+	default:
+		eachDAdj(g, v, incRes)
+	}
+	return res
 }
 
 // Size returns the number of edges in the graph g.
@@ -115,16 +120,16 @@ func Size(g RGraph) (res int) {
 		ord := g.Order()
 		switch ls := g.(type) {
 		case OutLister:
-			for v := V0; v < ord; v++ {
+			for v := 0; v < ord; v++ {
 				res += ls.OutDegree(v)
 			}
 		case InLister:
-			for v := V0; v < ord; v++ {
+			for v := 0; v < ord; v++ {
 				res += ls.InDegree(v)
 			}
 		default:
-			for i := V0; i < ord; i++ {
-				for j := V0; j <= i; j++ {
+			for i := 0; i < ord; i++ {
+				for j := 0; j <= i; j++ {
 					if xl.WeightU(i, j) != nil {
 						res++
 					}
@@ -134,8 +139,8 @@ func Size(g RGraph) (res int) {
 	default:
 		ord := g.Order()
 		// TODO optimize with in/out lister
-		for i := V0; i < ord; i++ {
-			for j := V0; j < ord; j++ {
+		for i := 0; i < ord; i++ {
+			for j := 0; j < ord; j++ {
 				if g.Weight(i, j) != nil {
 					res++
 				}

@@ -47,7 +47,7 @@ func TwoOptf32(g groph.RGf32) (path []groph.VIdx, plen float32) {
 	}
 	vno := g.Order()
 	path = make([]groph.VIdx, vno)
-	for i := groph.V0; i+1 < vno; i++ {
+	for i := 0; i+1 < vno; i++ {
 		path[i] = i
 		plen += g.Edge(i, i+1)
 	}
@@ -56,7 +56,7 @@ func TwoOptf32(g groph.RGf32) (path []groph.VIdx, plen float32) {
 	for {
 		be0, be1 := vno, vno
 		bdiff := float32(0)
-		for e0 := groph.V0; e0 < vno; e0++ {
+		for e0 := 0; e0 < vno; e0++ {
 			for e1 := e0 + 1; e1 < vno; e1++ {
 				diff := diff2opt(g, path, e0, e1)
 				if diff < bdiff {

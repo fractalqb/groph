@@ -75,7 +75,7 @@ func TestFloydWarshallDirEqUndir(t *testing.T) {
 	const VNO = 7
 	mu := groph.NewAdjMxUf32(VNO, nil)
 	md := groph.NewAdjMxDf32(mu.Order(), nil)
-	for i := groph.V0; i < VNO; i++ {
+	for i := 0; i < VNO; i++ {
 		mu.SetEdge(i, i, 0)
 		for j := i + 1; j < VNO; j++ {
 			w := rand.Float32()
@@ -85,8 +85,8 @@ func TestFloydWarshallDirEqUndir(t *testing.T) {
 	groph.CpWeights(md, mu)
 	FloydWarshallf32(md)
 	FloydWarshallf32(mu)
-	for i := groph.V0; i < VNO; i++ {
-		for j := groph.V0; j < VNO; j++ {
+	for i := 0; i < VNO; i++ {
+		for j := 0; j < VNO; j++ {
 			if md.Edge(i, j) != mu.Edge(i, j) {
 				t.Errorf("differ@ %d,%d: %f != %f", i, j, md.Edge(i, j), mu.Edge(i, j))
 			}

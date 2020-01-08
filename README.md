@@ -47,20 +47,25 @@ func writeFancy(wr io.Writer) {
 	// Tell Graphviz writer how to set the correct node and edge attributes
 	dot := graphviz.Writer{
 		GraphAtts: graphviz.AttMap(graphviz.Attributes{"rankdir": "LR"}),
+		NodeAtts:  graphviz.AttMap(graphviz.Attributes{"shape": "box"}),
 		PerNodeAtts: func(g groph.RGraph, v groph.VIdx) graphviz.Attributes {
 			res := graphviz.Attributes{"label": fmt.Sprintf("%c / %d", 'a'+v, v)}
 			if v == mst.Root() {
-				res["shape"] = "diamond"
+				res["shape"] = "circle"
+			} else if groph.Degree(mst, v) == 1 {
+				res["shape"] = "doublecircle"
 			}
 			return res
 		},
 		PerEdgeAtts: func(g groph.RGraph, u, v groph.VIdx) (res graphviz.Attributes) {
-			if mst.Edge(u, v) {
-				res = graphviz.Attributes{"label": fmt.Sprint(dists[v])}
-				res["color"] = "blue"
+			if mst.Edge(v, u) {
+				res = graphviz.Attributes{
+					"label": fmt.Sprint(dists[v]),
+					"color": "blue"}
 			} else {
-				res = graphviz.Attributes{"label": graphviz.NoLabel}
-				res["color"] = "gray"
+				res = graphviz.Attributes{
+					"label": graphviz.NoLabel,
+					"color": "gray"}
 			}
 			return res
 		},

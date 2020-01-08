@@ -15,14 +15,14 @@ func Greedyf32(m groph.RGf32) (path []groph.VIdx, plen float32) {
 	// start with L → 0 → 1 → … → L
 	path[L] = L
 	best := m.Edge(L, 0)
-	for k := groph.V0; k < L; k++ {
+	for k := 0; k < L; k++ {
 		path[k] = k
 		best += m.Edge(k, k+1)
 	}
 	perm := make([]groph.VIdx, L)
 	copy(perm, path)
 	c := make([]groph.VIdx, L) // automatic set to 0 (go!)
-	i := groph.V0
+	i := 0
 	for i < L {
 		if c[i] < i {
 			if (i & 1) == 0 {
@@ -32,7 +32,7 @@ func Greedyf32(m groph.RGf32) (path []groph.VIdx, plen float32) {
 			}
 			curl := m.Edge(L, perm[0])
 			curl += m.Edge(perm[L-1], L)
-			for i := groph.V0; i+1 < L; i++ {
+			for i := 0; i+1 < L; i++ {
 				curl += m.Edge(perm[i], perm[i+1])
 			}
 			if curl < best {
@@ -62,14 +62,14 @@ func GreedyAdjMxDf32(m *groph.AdjMxDf32) (path []groph.VIdx, plen float32) {
 	// start with L → 0 → 1 → … → L
 	path[L] = L
 	best := m.Edge(L, 0)
-	for k := groph.V0; k < L; k++ {
+	for k := 0; k < L; k++ {
 		path[k] = k
 		best += m.Edge(k, k+1)
 	}
 	perm := make([]groph.VIdx, L)
 	copy(perm, path)
 	c := make([]groph.VIdx, L) // automatic set to 0 (go!)
-	i := groph.V0
+	i := 0
 	for i < L {
 		if c[i] < i {
 			if (i & 1) == 0 {
@@ -79,7 +79,7 @@ func GreedyAdjMxDf32(m *groph.AdjMxDf32) (path []groph.VIdx, plen float32) {
 			}
 			curl := m.Edge(L, perm[0])
 			curl += m.Edge(perm[L-1], L)
-			for i := groph.V0; i+1 < L; i++ {
+			for i := 0; i+1 < L; i++ {
 				curl += m.Edge(perm[i], perm[i+1])
 			}
 			if curl < best {

@@ -10,7 +10,7 @@ import (
 
 func sortedEdges(g groph.RGf32) (res []groph.Edge) {
 	vno := g.Order()
-	for i := groph.V0; i < vno; i++ {
+	for i := 0; i < vno; i++ {
 		for j := i + 1; j < vno; j++ {
 			if !math.IsNaN(float64(g.Edge(i, j))) {
 				res = append(res, groph.Edge{U: i, V: j})
@@ -40,7 +40,7 @@ func Kruskalf32(g groph.RGf32, mst []groph.Edge) ([]groph.Edge, error) {
 	mst = mst[:0]
 	ebo := sortedEdges(g)
 	frs := make(map[groph.VIdx]groph.VIdx)
-	vc := groph.V0
+	vc := 0
 	for _, e := range ebo {
 		ti, iOk := frs[e.U]
 		tj, jOk := frs[e.V]

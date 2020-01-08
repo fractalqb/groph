@@ -1,7 +1,8 @@
 package groph
 
 var (
-	_ RUbool     = Tree{}
-	_ OutLister  = Tree{}
-	_ EdgeLister = Tree{}
+	_ RGbool      = Tree{}
+	_ OutLister   = Tree{}
+	_ EdgeLister  = Tree{}
+	_ RootsLister = Tree{}
 )

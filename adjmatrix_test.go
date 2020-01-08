@@ -31,13 +31,13 @@ func BenchmarkAdjMxDbitmap(b *testing.B) {
 		if n&1 == 0 {
 			w = false
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				m.SetEdge(i, j, w)
 			}
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				r := m.Edge(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -55,13 +55,13 @@ func BenchmarkAdjMxDbitmap_generic(b *testing.B) {
 		if n&1 == 0 {
 			w = false
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				m.SetWeight(i, j, w)
 			}
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				r := m.Weight(i, j)
 				if (w && r == nil) || (!w && r != nil) {
 					b.Fatal("unexpected read", w, r)
@@ -90,13 +90,13 @@ func BenchmarkAdjMxDbool(b *testing.B) {
 		if n&1 == 0 {
 			w = false
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				m.SetEdge(i, j, w)
 			}
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				r := m.Edge(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -114,13 +114,13 @@ func BenchmarkAdjMxDbool_generic(b *testing.B) {
 		if n&1 == 0 {
 			w = false
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				m.SetWeight(i, j, w)
 			}
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				r := m.Weight(i, j)
 				if (w && r == nil) || (!w && r != nil) {
 					b.Fatal("unexpected read", w, r)
@@ -146,13 +146,13 @@ func BenchmarkAdjMxDi32(b *testing.B) {
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				m.SetEdge(i, j, w)
 			}
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				r, _ := m.Edge(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -167,13 +167,13 @@ func BenchmarkAdjMxDi32_generic(b *testing.B) {
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				m.SetWeight(i, j, w)
 			}
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				r := m.Weight(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -200,13 +200,13 @@ func BenchmarkAdjMxDf32(b *testing.B) {
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				m.SetEdge(i, j, w)
 			}
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				r := m.Edge(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)
@@ -221,13 +221,13 @@ func BenchmarkAdjMxDf32_generic(b *testing.B) {
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := float32(n)
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				m.SetWeight(i, j, w)
 			}
 		}
-		for i := V0; i < max; i++ {
-			for j := V0; j < max; j++ {
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
 				r := m.Weight(i, j)
 				if r != w {
 					b.Fatal("unexpected read", w, r)

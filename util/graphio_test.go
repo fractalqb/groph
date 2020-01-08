@@ -47,8 +47,8 @@ func TestRead_sparse(t *testing.T) {
 		groph.Edge{U: 2, V: 3}: 3,
 		groph.Edge{U: 3, V: 0}: 0,
 	}
-	for i := groph.V0; i < g.Order(); i++ {
-		for j := groph.V0; j < g.Order(); j++ {
+	for i := 0; i < g.Order(); i++ {
+		for j := 0; j < g.Order(); j++ {
 			if w, ok := expect[groph.Edge{U: i, V: j}]; ok {
 				if gw, ok := g.Edge(i, j); ok {
 					if gw != w {
