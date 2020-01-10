@@ -73,7 +73,6 @@ func ReadGraph(into groph.WGraph, rd io.Reader, wParse WeightParse) error {
 	default:
 		return fmt.Errorf("unknown graph format: '%s'", hdr[2])
 	}
-	return nil
 }
 
 func readEdges(g groph.WGraph, scn *bufio.Scanner, wParse WeightParse) error {

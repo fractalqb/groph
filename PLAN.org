@@ -5,11 +5,23 @@ Plans for groph are documented in this file to keep the project
 independent from specific VCS hosting platforms. … Why? – See “The
 Mission” on [[https://blog.codeberg.org/codebergorg-launched.html][codeberg.org]].
 
+/[[https://orgmode.org/][org-mode]] renedring is poor on github and other online repos! Most of
+org-mode's strength are invisible here./
+
 * TODO Restructure Packaging
 Restructuring should help to solve the subtasks
-[[./docs/architecture.svg]]
+[[./docs/architecture.png]]
 
-** TODO Move graph implementations to separate packages
+** TODO Want basic graph utils in package groph
+To avoid dpendency cickes the functions =Size=, =*Degree=,
+=Each{In,Out,Adjacent}= and the like are in package =util=. While
+technically OK, such basic things shoud be part of the =groph=
+package. But moving those functions to =grph= would alos reqire to
+move the respectve tests to =groph=. Those tests need som graph
+implementations to be perfomred, i.e. they depend on =adjmatrix= or
+=sliceofmaps=.
+
+** DONE Move graph implementations to separate packages
  - This could make for a nicer API
  - General graph test could (hopefully) be made available also to
    external graph implementations
@@ -17,7 +29,10 @@ Restructuring should help to solve the subtasks
  *Problem:* Tests for groph package require graph implementations →
  cyclic dependencies.
 
-** TODO Subpackages in util for clear API naming
+** TODO Subpackages in util for clear API naming [1/2]
+- [X] graphviz
+- [ ] graphio
+
  Adapt to the Go convention of using the package name for clear
  identification. E.g.:
 
@@ -46,10 +61,12 @@ Restructuring should help to solve the subtasks
    }
  #+END_SRC
 
-* TODO Adhere to Graph Theory Terms
+* Adhere to Graph Theory Terms
 see [[https://en.wikipedia.org/wiki/Glossary_of_graph_theory_terms][Wikipedia]]
 
-* TODO Decide on keeping type VIdx
+* DONE Decide on keeping type VIdx
+  - CLOSING NOTE
+    VIdx is kept to state parameters being vertices in APIs
 The original idea of VIdx was to be able to change to uint, just in
 case. Currently some algorithms are base on VIdx being a signed type.
 => Would the API nicer when we drop VIdx?

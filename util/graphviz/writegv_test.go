@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+
 	"git.fractalqb.de/fractalqb/groph"
 )
 
 func ExampleGraphViz_Write() {
-	g, _ := groph.AsAdjMxDi32(nil, 0, []int32{
+	g, _ := adjmatrix.AsDInt32(nil, 0, []int32{
 		0, 8, 0, 1,
 		0, 0, 1, 0,
 		4, 0, 7, 0,

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
 	"git.fractalqb.de/fractalqb/groph/shortestpath"
 	"git.fractalqb.de/fractalqb/groph/util/graphviz"
 )
@@ -45,12 +46,12 @@ func main() {
 
 	const mstStart = 8
 	if *undir {
-		ug := groph.NewAdjMxUbool(9, nil)
+		ug := adjmatrix.NewUBool(9, nil)
 		groph.Set(ug, true, edges...)
 		dists, mst = (&shortestpath.DijkstraBool{}).On(ug, mstStart, dists, mst)
 		dot.Write(os.Stdout, ug, "")
 	} else {
-		dg := groph.NewAdjMxDbool(9, nil)
+		dg := adjmatrix.NewDBool(9, nil)
 		groph.Set(dg, true, edges...)
 		dists, mst = (&shortestpath.DijkstraBool{}).On(dg, mstStart, dists, mst)
 		dot.Write(os.Stdout, dg, "")

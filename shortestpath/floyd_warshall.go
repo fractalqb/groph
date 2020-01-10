@@ -1,6 +1,9 @@
 package shortestpath
 
-import "git.fractalqb.de/fractalqb/groph"
+import (
+	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+)
 
 func FloydWarshallf32(g groph.WGf32) {
 	vno := g.Order()
@@ -72,7 +75,7 @@ func FloydWarshalli32(g groph.WGi32) {
 	}
 }
 
-func FloydWarshallAdjMxDf32(g *groph.AdjMxDf32) {
+func FloydWarshallAdjMxDf32(g *adjmatrix.DFloat32) {
 	vno := g.Order()
 	for k := 0; k < vno; k++ {
 		for i := 0; i < vno; i++ {
@@ -86,7 +89,7 @@ func FloydWarshallAdjMxDf32(g *groph.AdjMxDf32) {
 	}
 }
 
-func FloydWarshallAdjMxDi32(g *groph.AdjMxDi32) {
+func FloydWarshallAdjMxDi32(g *adjmatrix.DInt32) {
 	vno := g.Order()
 	for k := 0; k < vno; k++ {
 		for i := 0; i < vno; i++ {

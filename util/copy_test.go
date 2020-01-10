@@ -1,12 +1,18 @@
-package groph
+package util
 
 import (
 	"fmt"
 	"math/rand"
 	"testing"
+
+	"git.fractalqb.de/fractalqb/groph/sliceofmaps"
+
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+
+	"git.fractalqb.de/fractalqb/groph"
 )
 
-func tstGSame(g1, g2 RGraph, sameOrd bool, wEq func(w1, w2 interface{}) bool) error {
+func tstGSame(g1, g2 groph.RGraph, sameOrd bool, wEq func(w1, w2 interface{}) bool) error {
 	ord := g1.Order()
 	if sameOrd && g2.Order() != ord {
 		return fmt.Errorf("graphs order differs: g1=%d, g2=%d", ord, g2.Order())
@@ -26,7 +32,7 @@ func tstGSame(g1, g2 RGraph, sameOrd bool, wEq func(w1, w2 interface{}) bool) er
 }
 
 func TestCpWeights_from_directed(t *testing.T) {
-	src := NewAdjMxDi32(11, I32Del, nil)
+	src := adjmatrix.NewDInt32(11, adjmatrix.I32Del, nil)
 	for i := 0; i < src.Order(); i++ {
 		for j := 0; j < src.Order(); j++ {
 			if rand.Intn(100) < 75 {
@@ -36,7 +42,7 @@ func TestCpWeights_from_directed(t *testing.T) {
 	}
 	wEq := func(w1, w2 interface{}) bool { return w1 == w2 }
 	t.Run("to directed", func(t *testing.T) {
-		dst := NewSoMDi32(src.Order(), nil)
+		dst := sliceofmaps.NewDInt32(src.Order(), nil)
 		_, err := CpWeights(dst, src)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -46,7 +52,7 @@ func TestCpWeights_from_directed(t *testing.T) {
 		}
 	})
 	t.Run("to undirected", func(t *testing.T) {
-		dst := NewSoMUi32(src.Order(), nil)
+		dst := sliceofmaps.NewUInt32(src.Order(), nil)
 		_, err := CpWeights(dst, src)
 		if err == nil {
 			t.Fatal("copy from directed to undirected did not return error")
@@ -58,7 +64,7 @@ func TestCpWeights_from_directed(t *testing.T) {
 }
 
 func TestCpWeights_from_undirected(t *testing.T) {
-	src := NewAdjMxUi32(11, I32Del, nil)
+	src := adjmatrix.NewUInt32(11, adjmatrix.I32Del, nil)
 	for i := 0; i < src.Order(); i++ {
 		for j := 0; j <= i; j++ {
 			if rand.Intn(100) < 75 {
@@ -68,7 +74,7 @@ func TestCpWeights_from_undirected(t *testing.T) {
 	}
 	wEq := func(w1, w2 interface{}) bool { return w1 == w2 }
 	t.Run("to directed", func(t *testing.T) {
-		dst := NewSoMDi32(src.Order(), nil)
+		dst := sliceofmaps.NewDInt32(src.Order(), nil)
 		_, err := CpWeights(dst, src)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -78,7 +84,7 @@ func TestCpWeights_from_undirected(t *testing.T) {
 		}
 	})
 	t.Run("to undirected", func(t *testing.T) {
-		dst := NewSoMUi32(src.Order(), nil)
+		dst := sliceofmaps.NewUInt32(src.Order(), nil)
 		_, err := CpWeights(dst, src)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -90,7 +96,7 @@ func TestCpWeights_from_undirected(t *testing.T) {
 }
 
 func TestCpXWeights_from_directed(t *testing.T) {
-	src := NewAdjMxDi32(11, I32Del, nil)
+	src := adjmatrix.NewDInt32(11, adjmatrix.I32Del, nil)
 	for i := 0; i < src.Order(); i++ {
 		for j := 0; j < src.Order(); j++ {
 			if rand.Intn(100) < 75 {
@@ -104,7 +110,7 @@ func TestCpXWeights_from_directed(t *testing.T) {
 		return f1 == f2
 	}
 	t.Run("to directed", func(t *testing.T) {
-		dst := NewSoMDf32(src.Order(), nil)
+		dst := sliceofmaps.NewSoMDf32(src.Order(), nil)
 		_, err := CpXWeights(dst, src, xFn)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -114,7 +120,7 @@ func TestCpXWeights_from_directed(t *testing.T) {
 		}
 	})
 	t.Run("to undirected", func(t *testing.T) {
-		dst := NewSoMUf32(src.Order(), nil)
+		dst := sliceofmaps.NewSoMUf32(src.Order(), nil)
 		_, err := CpXWeights(dst, src, xFn)
 		if err == nil {
 			t.Fatal("copy from directed to undirected did not return error")
@@ -126,7 +132,7 @@ func TestCpXWeights_from_directed(t *testing.T) {
 }
 
 func TestCpXWeights_from_undirected(t *testing.T) {
-	src := NewAdjMxUi32(11, I32Del, nil)
+	src := adjmatrix.NewUInt32(11, adjmatrix.I32Del, nil)
 	for i := 0; i < src.Order(); i++ {
 		for j := 0; j <= i; j++ {
 			if rand.Intn(100) < 75 {
@@ -140,7 +146,7 @@ func TestCpXWeights_from_undirected(t *testing.T) {
 		return f1 == f2
 	}
 	t.Run("to directed", func(t *testing.T) {
-		dst := NewSoMDf32(src.Order(), nil)
+		dst := sliceofmaps.NewSoMDf32(src.Order(), nil)
 		_, err := CpXWeights(dst, src, xFn)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -150,7 +156,7 @@ func TestCpXWeights_from_undirected(t *testing.T) {
 		}
 	})
 	t.Run("to undirected", func(t *testing.T) {
-		dst := NewSoMUf32(src.Order(), nil)
+		dst := sliceofmaps.NewSoMUf32(src.Order(), nil)
 		_, err := CpXWeights(dst, src, xFn)
 		if err != nil {
 			t.Fatal("unexpected error:", err)

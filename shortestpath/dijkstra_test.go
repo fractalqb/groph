@@ -6,11 +6,13 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+	"git.fractalqb.de/fractalqb/groph/util"
 )
 
 func TestDijkstrai32_toFW(t *testing.T) {
 	const VNo = 11
-	g := groph.NewAdjMxUi32(VNo, groph.I32Del, nil)
+	g := adjmatrix.NewUInt32(VNo, adjmatrix.I32Del, nil)
 	for i := 0; i < VNo; i++ {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
@@ -21,8 +23,8 @@ func TestDijkstrai32_toFW(t *testing.T) {
 			}
 		}
 	}
-	fwDs := groph.NewAdjMxDi32(VNo, groph.I32Del, nil)
-	groph.CpWeights(fwDs, g)
+	fwDs := adjmatrix.NewDInt32(VNo, adjmatrix.I32Del, nil)
+	util.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDi32(fwDs)
 	var (
 		dijkstra DijkstraI32
@@ -45,7 +47,7 @@ func TestDijkstrai32_toFW(t *testing.T) {
 
 func TestDijkstrai32_paths(t *testing.T) {
 	const VNo = 11
-	g := groph.NewAdjMxUi32(VNo, groph.I32Del, nil)
+	g := adjmatrix.NewUInt32(VNo, adjmatrix.I32Del, nil)
 	for i := 0; i < VNo; i++ {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
@@ -86,7 +88,7 @@ func TestDijkstrai32_paths(t *testing.T) {
 
 func TestDijkstraf32_toFW(t *testing.T) {
 	const VNo = 11
-	g := groph.NewAdjMxUf32(VNo, nil)
+	g := adjmatrix.NewUFloat32(VNo, nil)
 	for i := 0; i < VNo; i++ {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {
@@ -97,8 +99,8 @@ func TestDijkstraf32_toFW(t *testing.T) {
 			}
 		}
 	}
-	fwDs := groph.NewAdjMxDf32(VNo, nil)
-	groph.CpWeights(fwDs, g)
+	fwDs := adjmatrix.NewDFloat32(VNo, nil)
+	util.CpWeights(fwDs, g)
 	FloydWarshallAdjMxDf32(fwDs)
 	var (
 		dijkstra DijkstraF32
@@ -121,7 +123,7 @@ func TestDijkstraf32_toFW(t *testing.T) {
 
 func TestDijkstraf32_paths(t *testing.T) {
 	const VNo = 11
-	g := groph.NewAdjMxUf32(VNo, nil)
+	g := adjmatrix.NewUFloat32(VNo, nil)
 	for i := 0; i < VNo; i++ {
 		g.SetEdge(i, i, 0)
 		for j := i + 1; j < VNo; j++ {

@@ -1,6 +1,9 @@
 package tsp
 
-import "git.fractalqb.de/fractalqb/groph"
+import (
+	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+)
 
 func Greedyf32(m groph.RGf32) (path []groph.VIdx, plen float32) {
 	size := m.Order()
@@ -49,7 +52,7 @@ func Greedyf32(m groph.RGf32) (path []groph.VIdx, plen float32) {
 	return path, best
 }
 
-func GreedyAdjMxDf32(m *groph.AdjMxDf32) (path []groph.VIdx, plen float32) {
+func GreedyAdjMxDf32(m *adjmatrix.DFloat32) (path []groph.VIdx, plen float32) {
 	size := m.Order()
 	switch size {
 	case 0:

@@ -6,12 +6,13 @@ import (
 	"os"
 
 	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
 	"git.fractalqb.de/fractalqb/groph/shortestpath"
 	"git.fractalqb.de/fractalqb/groph/util/graphviz"
 )
 
 func writePlain(wr io.Writer) {
-	g := groph.NewAdjMxDbool(9, nil)
+	g := adjmatrix.NewDBool(9, nil)
 	type E = groph.Edge
 	groph.Set(g, true, E{0, 1}, E{1, 3}, E{3, 2}, E{2, 0}, E{4, 3},
 		E{4, 5}, E{5, 6}, E{6, 4}, E{7, 4}, E{8, 7})
@@ -19,7 +20,7 @@ func writePlain(wr io.Writer) {
 }
 
 func writeFancy(wr io.Writer) {
-	g := groph.NewAdjMxDbool(9, nil)
+	g := adjmatrix.NewDBool(9, nil)
 	type E = groph.Edge
 	groph.Set(g, true, E{0, 1}, E{1, 3}, E{3, 2}, E{2, 0}, E{4, 3},
 		E{4, 5}, E{5, 6}, E{6, 4}, E{7, 4}, E{8, 7})

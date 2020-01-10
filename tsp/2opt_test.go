@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+
 	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/internal/test"
 	"git.fractalqb.de/fractalqb/groph/util"
@@ -70,13 +72,13 @@ func pathEq(p1, p2 []groph.VIdx) (bool, string) {
 
 func Test2OptDAgaintsGreedy(t *testing.T) {
 	var points []test.Point
-	var am *groph.AdjMxDf32
+	var am *adjmatrix.DFloat32
 	for sz := groph.VIdx(4); sz < 12; sz++ {
 		points = test.RandomPoints(sz, points)
-		am = groph.MustCp(groph.CpWeights(
-			groph.NewAdjMxDf32(sz, am),
+		am = util.MustCp(util.CpWeights(
+			adjmatrix.NewDFloat32(sz, am),
 			util.NewPointsNDist(points, test.Dist).Must(),
-		)).(*groph.AdjMxDf32)
+		)).(*adjmatrix.DFloat32)
 		gPath, gWeight := GreedyAdjMxDf32(am)
 		tPath, tWeight := TwoOptf32(am)
 		if tWeight/gWeight > 1.01 {
@@ -93,18 +95,18 @@ func Test2OptDAgaintsGreedy(t *testing.T) {
 
 func Test2OptUAgaintsGreedy(t *testing.T) {
 	var points []test.Point
-	var am *groph.AdjMxUf32
-	var dm *groph.AdjMxDf32
+	var am *adjmatrix.UFloat32
+	var dm *adjmatrix.DFloat32
 	for sz := groph.VIdx(4); sz < 12; sz++ {
 		points = test.RandomPoints(sz, points)
-		am = groph.MustCp(groph.CpWeights(
-			groph.NewAdjMxUf32(sz, am),
+		am = util.MustCp(util.CpWeights(
+			adjmatrix.NewUFloat32(sz, am),
 			util.NewPointsNDist(points, test.Dist).Must(),
-		)).(*groph.AdjMxUf32)
-		dm = groph.MustCp(groph.CpWeights(
-			groph.NewAdjMxDf32(sz, dm),
+		)).(*adjmatrix.UFloat32)
+		dm = util.MustCp(util.CpWeights(
+			adjmatrix.NewDFloat32(sz, dm),
 			util.NewPointsNDist(points, test.Dist).Must(),
-		)).(*groph.AdjMxDf32)
+		)).(*adjmatrix.DFloat32)
 		gPath, gWeight := GreedyAdjMxDf32(dm)
 		tPath, tWeight := TwoOptf32(am)
 		if tWeight/gWeight > 1.052 {
@@ -123,10 +125,10 @@ const twoOptBenchSize = 120
 
 func BenchmarkTsp2OptGenf32D(b *testing.B) {
 	points := test.RandomPoints(twoOptBenchSize, nil)
-	am := groph.MustCp(groph.CpWeights(
-		groph.NewAdjMxDf32(twoOptBenchSize, nil),
+	am := util.MustCp(util.CpWeights(
+		adjmatrix.NewDFloat32(twoOptBenchSize, nil),
 		util.NewPointsNDist(points, test.Dist).Must(),
-	)).(*groph.AdjMxDf32)
+	)).(*adjmatrix.DFloat32)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TwoOptf32(am)
@@ -135,10 +137,10 @@ func BenchmarkTsp2OptGenf32D(b *testing.B) {
 
 func BenchmarkTsp2OptGenf32U(b *testing.B) {
 	points := test.RandomPoints(twoOptBenchSize, nil)
-	am := groph.MustCp(groph.CpWeights(
-		groph.NewAdjMxUf32(twoOptBenchSize, nil),
+	am := util.MustCp(util.CpWeights(
+		adjmatrix.NewUFloat32(twoOptBenchSize, nil),
 		util.NewPointsNDist(points, test.Dist).Must(),
-	)).(*groph.AdjMxUf32)
+	)).(*adjmatrix.UFloat32)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TwoOptf32(am)

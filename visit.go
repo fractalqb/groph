@@ -1,5 +1,114 @@
 package groph
 
+// OutDegree returns the number of outgoing edges of vertex v in graph
+// g. Note that for undirected graphs each edge is also considered to
+// be an outgoing edge.
+func OutDegree(g RGraph, v VIdx) (res int) {
+	incRes := func(_ VIdx) bool { res++; return false }
+	switch gi := g.(type) {
+	case OutLister:
+		return gi.OutDegree(v)
+	case RUndirected:
+		eachUAdj(gi, v, incRes)
+	default:
+		eachDOut(g, v, incRes)
+	}
+	return res
+}
+
+// InDegree returns the number of incoming edges of vertex v in graph
+// g. Note that for undirected graphs each edge is also considered to
+// be an incoming edge.
+func InDegree(g RGraph, v VIdx) (res int) {
+	incRes := func(_ VIdx) bool { res++; return false }
+	switch gi := g.(type) {
+	case InLister:
+		return gi.InDegree(v)
+	case RUndirected:
+		eachUAdj(gi, v, incRes)
+	default:
+		eachDIn(g, v, incRes)
+	}
+	return res
+}
+
+func Degree(g RGraph, v VIdx) (res int) {
+	incRes := func(_ VIdx) bool { res++; return false }
+	switch tg := g.(type) {
+	case RUndirected:
+		switch ls := tg.(type) {
+		case OutLister:
+			return ls.OutDegree(v)
+		case InLister:
+			return ls.InDegree(v)
+		default:
+			eachUAdj(tg, v, incRes)
+		}
+	case OutLister:
+		res = tg.OutDegree(v)
+		if il, ok := g.(InLister); ok {
+			res += il.InDegree(v)
+		} else {
+			eachDIn(g, v, incRes)
+		}
+		if g.Weight(v, v) != nil {
+			res--
+		}
+	case InLister:
+		res = tg.InDegree(v)
+		if ol, ok := g.(OutLister); ok {
+			res += ol.OutDegree(v)
+		} else {
+			eachDOut(g, v, incRes)
+		}
+		if g.Weight(v, v) != nil {
+			res--
+		}
+	default:
+		eachDAdj(g, v, incRes)
+	}
+	return res
+}
+
+// Size returns the number of edges in the graph g.
+func Size(g RGraph) (res int) {
+	switch xl := g.(type) {
+	case EdgeLister:
+		return xl.Size()
+	case RUndirected:
+		ord := g.Order()
+		switch ls := g.(type) {
+		case OutLister:
+			for v := 0; v < ord; v++ {
+				res += ls.OutDegree(v)
+			}
+		case InLister:
+			for v := 0; v < ord; v++ {
+				res += ls.InDegree(v)
+			}
+		default:
+			for i := 0; i < ord; i++ {
+				for j := 0; j <= i; j++ {
+					if xl.WeightU(i, j) != nil {
+						res++
+					}
+				}
+			}
+		}
+	default:
+		ord := g.Order()
+		// TODO optimize with in/out lister
+		for i := 0; i < ord; i++ {
+			for j := 0; j < ord; j++ {
+				if g.Weight(i, j) != nil {
+					res++
+				}
+			}
+		}
+	}
+	return res
+}
+
 // EachOutgoing calls onDest on each vertex d where the edge (from,d) is in
 // graph g.
 func EachOutgoing(g RGraph, from VIdx, onDest VisitVertex) (stopped bool) {

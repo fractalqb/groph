@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+
 	"git.fractalqb.de/fractalqb/groph"
 )
 
@@ -13,7 +15,7 @@ import (
 func e(u, v groph.VIdx) groph.Edge { return groph.Edge{U: u, V: v} }
 
 func ExampleSearch_Depth1stAt() {
-	g := groph.NewAdjMxUbool(7, nil)
+	g := adjmatrix.NewUBool(7, nil)
 	groph.Set(g, true,
 		e(0, 1), e(0, 2), e(0, 3),
 		e(1, 4), e(1, 5),
@@ -37,7 +39,7 @@ func ExampleSearch_Depth1stAt() {
 }
 
 func ExampleSearch_Breadth1stAt() {
-	g := groph.NewAdjMxUbool(7, nil)
+	g := adjmatrix.NewUBool(7, nil)
 	groph.Set(g, true,
 		e(0, 1), e(0, 2), e(0, 3),
 		e(1, 4), e(1, 5),
@@ -59,7 +61,7 @@ func ExampleSearch_Breadth1stAt() {
 }
 
 func TestSearch_Depth1st_avoid_loop_and_parent(t *testing.T) {
-	g := groph.NewAdjMxUbool(2, nil)
+	g := adjmatrix.NewUBool(2, nil)
 	groph.Set(g, true, e(0, 1), e(1, 1))
 	search := NewSearch(g)
 	stopped := search.AdjDepth1st(false,
@@ -75,7 +77,7 @@ func TestSearch_Depth1st_avoid_loop_and_parent(t *testing.T) {
 }
 
 func TestSearch_Breadth1st_avoid_loop_and_parent(t *testing.T) {
-	g := groph.NewAdjMxUbool(2, nil)
+	g := adjmatrix.NewUBool(2, nil)
 	groph.Set(g, true, e(0, 1), e(1, 1))
 	search := NewSearch(g)
 	stopped := search.AdjBreadth1st(false,
@@ -91,7 +93,7 @@ func TestSearch_Breadth1st_avoid_loop_and_parent(t *testing.T) {
 }
 
 func TestSearch_Depth1st_dir_find_clusters(t *testing.T) {
-	g := groph.NewAdjMxDbitmap(2, nil)
+	g := adjmatrix.NewDBitmap(2, nil)
 	search := NewSearch(g)
 	test := func() {
 		search.Reset(g)
@@ -127,7 +129,7 @@ func TestSearch_Depth1st_dir_find_clusters(t *testing.T) {
 }
 
 func TestSearch_Breadth1st_dir_find_clusters(t *testing.T) {
-	g := groph.NewAdjMxDbitmap(2, nil)
+	g := adjmatrix.NewDBitmap(2, nil)
 	search := NewSearch(g)
 	test := func() {
 		search.Reset(g)

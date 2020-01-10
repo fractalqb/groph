@@ -1,5 +1,7 @@
 package groph
 
+import "math"
+
 // VIdx is the type used to represent vertices in the graph implementations
 // provided by the groph package.
 type VIdx = int
@@ -35,121 +37,6 @@ type RUndirected interface {
 	WeightU(u, v VIdx) interface{}
 }
 
-// Directed returns true, iff g is a directed graph and false otherwise.
-func Directed(g RGraph) bool {
-	_, ok := g.(RUndirected)
-	return !ok
-}
-
-// OutDegree returns the number of outgoing edges of vertex v in graph
-// g. Note that for undirected graphs each edge is also considered to
-// be an outgoing edge.
-func OutDegree(g RGraph, v VIdx) (res int) {
-	incRes := func(_ VIdx) bool { res++; return false }
-	switch gi := g.(type) {
-	case OutLister:
-		return gi.OutDegree(v)
-	case RUndirected:
-		eachUAdj(gi, v, incRes)
-	default:
-		eachDOut(g, v, incRes)
-	}
-	return res
-}
-
-// InDegree returns the number of incoming edges of vertex v in graph
-// g. Note that for undirected graphs each edge is also considered to
-// be an incoming edge.
-func InDegree(g RGraph, v VIdx) (res int) {
-	incRes := func(_ VIdx) bool { res++; return false }
-	switch gi := g.(type) {
-	case InLister:
-		return gi.InDegree(v)
-	case RUndirected:
-		eachUAdj(gi, v, incRes)
-	default:
-		eachDIn(g, v, incRes)
-	}
-	return res
-}
-
-func Degree(g RGraph, v VIdx) (res int) {
-	incRes := func(_ VIdx) bool { res++; return false }
-	switch tg := g.(type) {
-	case RUndirected:
-		switch ls := tg.(type) {
-		case OutLister:
-			return ls.OutDegree(v)
-		case InLister:
-			return ls.InDegree(v)
-		default:
-			eachUAdj(tg, v, incRes)
-		}
-	case OutLister:
-		res = tg.OutDegree(v)
-		if il, ok := g.(InLister); ok {
-			res += il.InDegree(v)
-		} else {
-			eachDIn(g, v, incRes)
-		}
-		if g.Weight(v, v) != nil {
-			res--
-		}
-	case InLister:
-		res = tg.InDegree(v)
-		if ol, ok := g.(OutLister); ok {
-			res += ol.OutDegree(v)
-		} else {
-			eachDOut(g, v, incRes)
-		}
-		if g.Weight(v, v) != nil {
-			res--
-		}
-	default:
-		eachDAdj(g, v, incRes)
-	}
-	return res
-}
-
-// Size returns the number of edges in the graph g.
-func Size(g RGraph) (res int) {
-	switch xl := g.(type) {
-	case EdgeLister:
-		return xl.Size()
-	case RUndirected:
-		ord := g.Order()
-		switch ls := g.(type) {
-		case OutLister:
-			for v := 0; v < ord; v++ {
-				res += ls.OutDegree(v)
-			}
-		case InLister:
-			for v := 0; v < ord; v++ {
-				res += ls.InDegree(v)
-			}
-		default:
-			for i := 0; i < ord; i++ {
-				for j := 0; j <= i; j++ {
-					if xl.WeightU(i, j) != nil {
-						res++
-					}
-				}
-			}
-		}
-	default:
-		ord := g.Order()
-		// TODO optimize with in/out lister
-		for i := 0; i < ord; i++ {
-			for j := 0; j < ord; j++ {
-				if g.Weight(i, j) != nil {
-					res++
-				}
-			}
-		}
-	}
-	return res
-}
-
 // WGraph represents graph that allows read and write access to the
 // egde weights.
 //
@@ -175,17 +62,6 @@ type WUndirected interface {
 	//
 	// See also RUndirected.WeightU
 	SetWeightU(u, v VIdx, w interface{})
-}
-
-// Reset clears a WGraph while keeping the original order. This is the same as
-// calling g.Reset(g.Order()).
-func Reset(g WGraph) { g.Reset(g.Order()) }
-
-// Set sets the weight of all passed edges to w.
-func Set(g WGraph, w interface{}, edges ...Edge) {
-	for _, e := range edges {
-		g.SetWeight(e.U, e.V, w)
-	}
 }
 
 // RGbool represents a RGraph with boolean edge weights.
@@ -252,6 +128,17 @@ type WUi32 interface {
 	EdgeU(u, v VIdx) (weight int32, ok bool)
 	SetEdgeU(u, v VIdx, weight int32)
 }
+
+var nan32 = float32(math.NaN())
+
+// NaN32 is used by adjacency matrices with edge weight type 'float32'
+// to mark edges that do not exist.
+//
+// See AdjMxDf32 and AdjMxUf32
+func NaN32() float32 { return nan32 }
+
+// IsNaN32 test is x is NaN (no a number). See also NaN32.
+func IsNaN32(x float32) bool { return math.IsNaN(float64(x)) }
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type
 // float32. Besides type safety this avoids boxing/unboxing of the Weight

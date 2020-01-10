@@ -1,8 +1,11 @@
-package groph
+package util
 
 import (
 	"errors"
 	"fmt"
+
+	"git.fractalqb.de/fractalqb/groph"
+	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
 )
 
 // ClipError is returned when the order of src and dst in Cp*Weights does not
@@ -45,7 +48,7 @@ func (err SrcDstError) Error() string {
 }
 
 // MustCp panics when err is not nil. Otherwiese it returns g.
-func MustCp(g WGraph, err error) WGraph {
+func MustCp(g groph.WGraph, err error) groph.WGraph {
 	if err != nil {
 		panic(err)
 	}
@@ -56,13 +59,13 @@ func MustCp(g WGraph, err error) WGraph {
 // Vertices are identified by their index, i.e. the user has to take care of
 // the vertex order. If the number of vertices in the graph differs the smaller
 // graph determines how many edge weights are copied.
-func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) {
+func CpWeights(dst groph.WGraph, src groph.RGraph) (dstout groph.WGraph, err error) {
 	sz := dst.Order()
 	if src.Order() < sz {
 		sz = src.Order()
 	}
-	if udst, ok := dst.(WUndirected); ok {
-		if usrc, ok := src.(RUndirected); ok {
+	if udst, ok := dst.(groph.WUndirected); ok {
+		if usrc, ok := src.(groph.RUndirected); ok {
 			for i := 0; i < sz; i++ {
 				udst.SetWeightU(i, i, usrc.WeightU(i, i))
 				for j := 0; j < i; j++ {
@@ -72,7 +75,7 @@ func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) {
 		} else {
 			return dst, errors.New("cannot copy from directed to undirected graph")
 		}
-	} else if usrc, ok := src.(RUndirected); ok {
+	} else if usrc, ok := src.(groph.RUndirected); ok {
 		for i := 0; i < sz; i++ {
 			dst.SetWeight(i, i, usrc.WeightU(i, i))
 			for j := 0; j < i; j++ {
@@ -88,7 +91,7 @@ func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) {
 			}
 		}
 	}
-	sderr := SrcDstError{Src: errState(src), Dst: errState(dst)}
+	sderr := SrcDstError{Src: iutil.ErrState(src), Dst: iutil.ErrState(dst)}
 	if sderr.Src != nil || sderr.Dst != nil {
 		return dst, sderr
 	}
@@ -105,10 +108,10 @@ func CpWeights(dst WGraph, src RGraph) (dstout WGraph, err error) {
 //
 // Panic of xf will be recovered and returned as error.
 func CpXWeights(
-	dst WGraph,
-	src RGraph,
+	dst groph.WGraph,
+	src groph.RGraph,
 	xf func(in interface{}) interface{},
-) (dstout WGraph, err error) {
+) (dstout groph.WGraph, err error) {
 	defer func() {
 		if p := recover(); p != nil {
 			switch e := p.(type) {
@@ -124,8 +127,8 @@ func CpXWeights(
 		sz = src.Order()
 	}
 	var w interface{}
-	if udst, ok := dst.(WUndirected); ok {
-		if usrc, ok := src.(RUndirected); ok {
+	if udst, ok := dst.(groph.WUndirected); ok {
+		if usrc, ok := src.(groph.RUndirected); ok {
 			for i := 0; i < sz; i++ {
 				w = usrc.WeightU(i, i)
 				udst.SetWeightU(i, i, xf(w))
@@ -137,7 +140,7 @@ func CpXWeights(
 		} else {
 			return dst, errors.New("cannot copy from directed to undirected graph")
 		}
-	} else if usrc, ok := src.(RUndirected); ok {
+	} else if usrc, ok := src.(groph.RUndirected); ok {
 		for i := 0; i < sz; i++ {
 			w = usrc.WeightU(i, i)
 			dst.SetWeight(i, i, xf(w))

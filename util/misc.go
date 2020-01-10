@@ -1,8 +1,6 @@
 package util
 
-import (
-	"git.fractalqb.de/fractalqb/groph"
-)
+import "git.fractalqb.de/fractalqb/groph"
 
 // WeightOr returns parameter 'or' when the edge (u,v) is not in graph g.
 // Otherwise the weight of edge (u,v) is returned.

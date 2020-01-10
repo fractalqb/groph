@@ -1,37 +1,18 @@
 package groph
 
-import (
-	"math"
-)
+// Directed returns true, iff g is a directed graph and false otherwise.
+func Directed(g RGraph) bool {
+	_, ok := g.(RUndirected)
+	return !ok
+}
 
-// I32Del is used by default in adjacency matrices with edge weight
-// type 'int32' to mark edges that do not exist.
-//
-// See AdjMxDi32 and AdjMxUi32
-const I32Del = -2147483648 // min{ int32 }
-
-var nan32 = float32(math.NaN())
-
-// NaN32 is used by adjacency matrices with edge weight type 'float32'
-// to mark edges that do not exist.
-//
-// See AdjMxDf32 and AdjMxUf32
-func NaN32() float32 { return nan32 }
-
-// IsNaN32 test is x is NaN (no a number). See also NaN32.
-func IsNaN32(x float32) bool { return math.IsNaN(float64(x)) }
-
-func errState(v interface{}) error {
-	if es, ok := v.(interface{ ErrState() error }); ok {
-		return es.ErrState()
+// Set sets the weight of all passed edges to w.
+func Set(g WGraph, w interface{}, edges ...Edge) {
+	for _, e := range edges {
+		g.SetWeight(e.U, e.V, w)
 	}
-	return nil
 }
 
-// nSum computes the sum of the n 1st integers, i.e. 1+2+3+…+n
-func nSum(n int) int { return n * (n + 1) / 2 }
-
-func nSumRev(n int) float64 {
-	r := math.Sqrt(0.25 + 2*float64(n))
-	return r - 0.5
-}
+// Reset clears a WGraph while keeping the original order. This is the same as
+// calling g.Reset(g.Order()).
+func Reset(g WGraph) { g.Reset(g.Order()) }

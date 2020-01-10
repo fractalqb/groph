@@ -5,11 +5,15 @@ import (
 	"strings"
 	"testing"
 
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+
+	"git.fractalqb.de/fractalqb/groph/sliceofmaps"
+
 	"git.fractalqb.de/fractalqb/groph"
 )
 
 func ExampleWriteSparse() {
-	g := groph.NewSoMDi32(4, nil)
+	g := sliceofmaps.NewDInt32(4, nil)
 	g.SetEdge(0, 1, 1)
 	g.SetEdge(1, 2, 2)
 	g.SetEdge(2, 3, 3)
@@ -32,7 +36,7 @@ func TestRead_sparse(t *testing.T) {
 	1 2 2
 	2 3 3
 	3 0 0`)
-	g := groph.NewAdjMxDi32(0, groph.I32Del, nil)
+	g := adjmatrix.NewDInt32(0, adjmatrix.I32Del, nil)
 	err := ReadGraph(g, buf, ParseI32)
 	if err != nil {
 		t.Fatal("failed to read graph:", err)

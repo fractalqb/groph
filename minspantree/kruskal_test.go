@@ -3,12 +3,14 @@ package minspantree
 import (
 	"fmt"
 
+	"git.fractalqb.de/fractalqb/groph/adjmatrix"
+
 	"git.fractalqb.de/fractalqb/groph"
 )
 
 func ExampleKruskalf32() {
 	// See https://de.wikipedia.org/wiki/Algorithmus_von_Kruskal
-	g := groph.NewAdjMxUf32(7, nil).Init(groph.NaN32())
+	g := adjmatrix.NewUFloat32(7, nil).Init(groph.NaN32())
 	g.SetEdge(0, 1, 7)
 	g.SetEdge(0, 3, 5)
 	g.SetEdge(1, 2, 8)

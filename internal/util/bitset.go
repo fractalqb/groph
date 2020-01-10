@@ -1,4 +1,4 @@
-package groph
+package util
 
 type bitsWord = uint64
 
@@ -9,38 +9,38 @@ const (
 	wordShift = 6
 )
 
-type bitSet []bitsWord
+type BitSet []bitsWord
 
-func bitSetWords(setSize int) int {
+func BitSetWords(setSize int) int {
 	return (setSize + (wordBits - 1)) / wordBits
 }
 
-func newBitSet(setSize int) bitSet { return make(bitSet, bitSetWords(setSize))}
+func newBitSet(setSize int) BitSet { return make(BitSet, BitSetWords(setSize))}
 
-func (bs bitSet) cap() int { return len(bs) * wordBits }
+func (bs BitSet) Cap() int { return len(bs) * wordBits }
 
-func (bs bitSet) get(i int) bool {
+func (bs BitSet) Get(i int) bool {
 	w, b := i>>wordShift, i&wordMask
 	return bs[w]&(1<<b) != 0
 }
 
-func (bs bitSet) set(i int) {
+func (bs BitSet) Set(i int) {
 	w, b := i>>wordShift, i&wordMask
 	bs[w] |= 1 << b
 }
 
-func (bs bitSet) unset(i int) {
+func (bs BitSet) Unset(i int) {
 	w, b := i>>wordShift, i&wordMask
 	bs[w] &= ^(1 << b)
 }
 
-func (bs bitSet) clear() {
+func (bs BitSet) Clear() {
 	for i := range bs {
 		bs[i] = 0
 	}
 }
 
-func (bs bitSet) firstUnset() (res int) {
+func (bs BitSet) FirstUnset() (res int) {
 	var w bitsWord
 	for res, w = range bs {
 		if w != wordAll {
