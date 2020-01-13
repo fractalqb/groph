@@ -30,6 +30,7 @@ func NewSearch(g groph.RGraph) *Search {
 	return res
 }
 
+// Reset prepares the Seach instance for use with graph g.
 func (df *Search) Reset(g groph.RGraph) {
 	df.g = g
 	df.visit.reset(g.Order())
@@ -237,6 +238,8 @@ func (df *Search) b1st(
 	return false
 }
 
+// Hits returns how often the vertex v of graph g of this seach was hit by
+// traversal operations.
 func (df *Search) Hits(v groph.VIdx) int {
 	if v >= len(df.visit.v2i) {
 		return 0
@@ -248,6 +251,8 @@ func (df *Search) Hits(v groph.VIdx) int {
 	return df.visit.is[ii].hits
 }
 
+// LeatsHits returns one of the vertices in graph g of the Search that was least
+// frequently hit by traversal operations.
 func (df *Search) LeastHits() (v groph.VIdx, hits int) {
 	if len(df.visit.is) == 0 {
 		return -1, -1
@@ -352,4 +357,19 @@ func (pq *hitPq) Pop() interface{} {
 	// pq.is = pq.is[:lm1]
 	// pq.v2i[res.v] = -1
 	// return res
+}
+
+func HasCycle(g groph.RGraph, reuse *Search) bool {
+	if reuse == nil {
+		reuse = NewSearch(g)
+	} else {
+		reuse.Reset(g)
+	}
+	return reuse.OutDepth1st(false,
+		func(pred, v groph.VIdx, circle bool, cluster int) bool {
+			if circle {
+				return true
+			}
+			return false
+		})
 }
