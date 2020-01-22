@@ -23,7 +23,7 @@ func ExampleSearch_Depth1stAt() {
 		e(3, 6),
 	)
 	search := NewSearch(g)
-	search.SortBy = func(u, v1, v2 groph.VIdx) bool { return v1 < v2 }
+	search.SortBy = VIdxOrder
 	hits, _ := search.AdjDepth1stAt(0, func(u, v groph.VIdx, c bool) bool {
 		if c {
 			fmt.Printf("[%d %d]", u, v)
@@ -34,7 +34,7 @@ func ExampleSearch_Depth1stAt() {
 	})
 	fmt.Println("\nhits:", hits)
 	// Output:
-	// (-1 0)(0 1)(1 4)(1 5)[5 2](0 2)[2 5](0 3)(3 6)
+	// (-1 0)(0 1)(1 4)(1 5)(5 2)[2 0][0 2](0 3)(3 6)
 	// hits: 7
 }
 
@@ -56,40 +56,8 @@ func ExampleSearch_Breadth1stAt() {
 	})
 	fmt.Println("\nhits:", hits)
 	// Output:
-	// (-1 0)(0 1)(0 2)[2 5](0 3)(1 4)(1 5)[5 2](3 6)
+	// (-1 0)(0 1)(0 2)(0 3)(1 4)(1 5)[2 5](3 6)[5 2]
 	// hits: 7
-}
-
-func TestSearch_Depth1st_avoid_loop_and_parent(t *testing.T) {
-	g := adjmatrix.NewUBool(2, nil)
-	groph.Set(g, true, e(0, 1), e(1, 1))
-	search := NewSearch(g)
-	stopped := search.AdjDepth1st(false,
-		func(_, _ groph.VIdx, c bool, _ int) bool { return false })
-	if stopped {
-		t.Fatal("search was stopped unexpectedly")
-	}
-	for i := 0; i < g.Order(); i++ {
-		if h := search.Hits(i); h > 1 {
-			t.Errorf("%d has hist %d > 1", i, h)
-		}
-	}
-}
-
-func TestSearch_Breadth1st_avoid_loop_and_parent(t *testing.T) {
-	g := adjmatrix.NewUBool(2, nil)
-	groph.Set(g, true, e(0, 1), e(1, 1))
-	search := NewSearch(g)
-	stopped := search.AdjBreadth1st(false,
-		func(_, _ groph.VIdx, c bool, _ int) bool { return false })
-	if stopped {
-		t.Fatal("search was stopped unexpectedly")
-	}
-	for i := 0; i < g.Order(); i++ {
-		if h := search.Hits(i); h > 1 {
-			t.Errorf("%d has hist %d > 1", i, h)
-		}
-	}
 }
 
 func TestSearch_Depth1st_dir_find_clusters(t *testing.T) {
@@ -161,4 +129,54 @@ func TestSearch_Breadth1st_dir_find_clusters(t *testing.T) {
 	g.SetWeight(0, 1, false)
 	g.SetEdge(1, 0, true)
 	test()
+}
+
+func ExampleSearch_ugraph() {
+	g := adjmatrix.NewUBool(4, nil)
+	groph.Set(g, true, e(0, 1), e(1, 2), e(2, 3), e(3, 0), e(0, 2))
+	srch := NewSearch(g)
+	srch.SortBy = VIdxOrder
+	srch.AdjDepth1stAt(0, func(u, v int, circ bool) bool {
+		fmt.Println(u, v, circ, srch.Hits(v))
+		return false
+	})
+	// Output:
+	// -1 0 false 0
+	// 0 1 false 0
+	// 1 2 false 0
+	// 2 0 true 1
+	// 2 3 false 0
+	// 3 0 true 2
+	// 0 2 true 1
+	// 0 3 true 1
+}
+
+func ExampleSearch_ugd1st_loop_not_parent() {
+	g := adjmatrix.NewUBool(2, nil)
+	groph.Set(g, true, e(0, 1), e(1, 1))
+	search := NewSearch(g)
+	search.SortBy = VIdxOrder
+	search.AdjDepth1stAt(0, func(u, v int, circ bool) bool {
+		fmt.Println(u, v, circ, search.Hits(v))
+		return false
+	})
+	// Output:
+	// -1 0 false 0
+	// 0 1 false 0
+	// 1 1 true 1
+}
+
+func ExampleSearch_ugb1st_loop_not_parent() {
+	g := adjmatrix.NewUBool(2, nil)
+	groph.Set(g, true, e(0, 1), e(1, 1))
+	search := NewSearch(g)
+	search.SortBy = VIdxOrder
+	search.AdjBreadth1stAt(0, func(u, v int, circ bool) bool {
+		fmt.Println(u, v, circ, search.Hits(v))
+		return false
+	})
+	// Output:
+	// -1 0 false 0
+	// 0 1 false 0
+	// 1 1 true 1
 }
