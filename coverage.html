@@ -54,17 +54,17 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">git.fractalqb.de/fractalqb/groph/adjmatrix/adjmatrix.go (23.1%)</option>
+				<option value="file0">git.fractalqb.de/fractalqb/groph/adjmatrix/adjmatrix.go (84.6%)</option>
 				
 				<option value="file1">git.fractalqb.de/fractalqb/groph/adjmatrix/bitmap.go (92.3%)</option>
 				
-				<option value="file2">git.fractalqb.de/fractalqb/groph/adjmatrix/bool.go (75.4%)</option>
+				<option value="file2">git.fractalqb.de/fractalqb/groph/adjmatrix/bool.go (96.9%)</option>
 				
 				<option value="file3">git.fractalqb.de/fractalqb/groph/adjmatrix/float32.go (76.1%)</option>
 				
 				<option value="file4">git.fractalqb.de/fractalqb/groph/adjmatrix/int32.go (72.6%)</option>
 				
-				<option value="file5">git.fractalqb.de/fractalqb/groph/graph.go (0.0%)</option>
+				<option value="file5">git.fractalqb.de/fractalqb/groph/graph.go (100.0%)</option>
 				
 				<option value="file6">git.fractalqb.de/fractalqb/groph/internal/test/d2graph.go (0.0%)</option>
 				
@@ -78,19 +78,19 @@
 				
 				<option value="file11">git.fractalqb.de/fractalqb/groph/misc.go (0.0%)</option>
 				
-				<option value="file12">git.fractalqb.de/fractalqb/groph/paths.go (88.9%)</option>
+				<option value="file12">git.fractalqb.de/fractalqb/groph/shortestpath/dijkstra.go (62.7%)</option>
 				
-				<option value="file13">git.fractalqb.de/fractalqb/groph/shortestpath/dijkstra.go (62.7%)</option>
+				<option value="file13">git.fractalqb.de/fractalqb/groph/shortestpath/floyd_warshall.go (80.7%)</option>
 				
-				<option value="file14">git.fractalqb.de/fractalqb/groph/shortestpath/floyd_warshall.go (80.7%)</option>
+				<option value="file14">git.fractalqb.de/fractalqb/groph/sliceofmaps/float32.go (83.9%)</option>
 				
-				<option value="file15">git.fractalqb.de/fractalqb/groph/sliceofmaps/float32.go (83.9%)</option>
+				<option value="file15">git.fractalqb.de/fractalqb/groph/sliceofmaps/int32.go (83.9%)</option>
 				
-				<option value="file16">git.fractalqb.de/fractalqb/groph/sliceofmaps/int32.go (83.9%)</option>
+				<option value="file16">git.fractalqb.de/fractalqb/groph/sliceofmaps/sliceofmap.go (78.6%)</option>
 				
-				<option value="file17">git.fractalqb.de/fractalqb/groph/sliceofmaps/sliceofmap.go (78.6%)</option>
+				<option value="file17">git.fractalqb.de/fractalqb/groph/traverse/circle.go (78.6%)</option>
 				
-				<option value="file18">git.fractalqb.de/fractalqb/groph/traverse/traverse.go (68.0%)</option>
+				<option value="file18">git.fractalqb.de/fractalqb/groph/traverse/search.go (73.6%)</option>
 				
 				<option value="file19">git.fractalqb.de/fractalqb/groph/tree.go (0.0%)</option>
 				
@@ -106,7 +106,7 @@
 				
 				<option value="file25">git.fractalqb.de/fractalqb/groph/util/graphviz/writegv.go (53.0%)</option>
 				
-				<option value="file26">git.fractalqb.de/fractalqb/groph/util/misc.go (0.0%)</option>
+				<option value="file26">git.fractalqb.de/fractalqb/groph/util/misc.go (66.7%)</option>
 				
 				<option value="file27">git.fractalqb.de/fractalqb/groph/util/readasundir.go (87.5%)</option>
 				
@@ -146,7 +146,7 @@ const I32Del = -2147483648 // min{ int32 }
 // nSum computes the sum of the n 1st integers, i.e. 1+2+3+…+n
 func nSum(n int) int <span class="cov8" title="1">{ return n * (n + 1) / 2 }</span>
 
-func nSumRev(n int) float64 <span class="cov0" title="0">{
+func nSumRev(n int) float64 <span class="cov8" title="1">{
         r := math.Sqrt(0.25 + 2*float64(n))
         return r - 0.5
 }</span>
@@ -154,20 +154,20 @@ func nSumRev(n int) float64 <span class="cov0" title="0">{
 // uIdx computes the index into the weight slice of an undirected matrix
 func uIdx(i, j groph.VIdx) groph.VIdx <span class="cov8" title="1">{ return nSum(i) + j }</span>
 
-func dOrdFromLen(sliceLen int) (order int, err error) <span class="cov0" title="0">{
+func dOrdFromLen(sliceLen int) (order int, err error) <span class="cov8" title="1">{
         order = int(math.Sqrt(float64(sliceLen)))
         if order*order != sliceLen </span><span class="cov0" title="0">{
                 return order, errors.New("weights slice is not square")
         }</span>
-        <span class="cov0" title="0">return order, nil</span>
+        <span class="cov8" title="1">return order, nil</span>
 }
 
-func uOrdFromLen(sliceLen int) (order int, err error) <span class="cov0" title="0">{
+func uOrdFromLen(sliceLen int) (order int, err error) <span class="cov8" title="1">{
         order = int(nSumRev(sliceLen))
         if nSum(order) != sliceLen </span><span class="cov0" title="0">{
                 return order, errors.New("weights slice len is not sum(1,…,n)")
         }</span>
-        <span class="cov0" title="0">return order, nil</span>
+        <span class="cov8" title="1">return order, nil</span>
 }
 
 type adjMx struct {
@@ -280,15 +280,15 @@ func NewDBool(order int, reuse *DBool) *DBool <span class="cov8" title="1">{
         <span class="cov8" title="1">return reuse</span>
 }
 
-func AsDBool(reuse *DBool, weights []bool) (*DBool, error) <span class="cov0" title="0">{
+func AsDBool(reuse *DBool, weights []bool) (*DBool, error) <span class="cov8" title="1">{
         sz, err := dOrdFromLen(len(weights))
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">if reuse == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if reuse == nil </span><span class="cov8" title="1">{
                 reuse = new(DBool)
         }</span>
-        <span class="cov0" title="0">reuse.ord = sz
+        <span class="cov8" title="1">reuse.ord = sz
         reuse.bs = weights
         return reuse, nil</span>
 }
@@ -346,15 +346,15 @@ func NewUBool(order int, reuse *UBool) *UBool <span class="cov8" title="1">{
         <span class="cov8" title="1">return reuse</span>
 }
 
-func AsUBool(reuse *UBool, weights []bool) (*UBool, error) <span class="cov0" title="0">{
+func AsUBool(reuse *UBool, weights []bool) (*UBool, error) <span class="cov8" title="1">{
         sz, err := uOrdFromLen(len(weights))
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">if reuse == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if reuse == nil </span><span class="cov8" title="1">{
                 reuse = new(UBool)
         }</span>
-        <span class="cov0" title="0">reuse.ord = sz
+        <span class="cov8" title="1">reuse.ord = sz
         reuse.ws = weights
         return reuse, nil</span>
 }
@@ -927,10 +927,10 @@ var nan32 = float32(math.NaN())
 // to mark edges that do not exist.
 //
 // See AdjMxDf32 and AdjMxUf32
-func NaN32() float32 <span class="cov0" title="0">{ return nan32 }</span>
+func NaN32() float32 <span class="cov8" title="1">{ return nan32 }</span>
 
 // IsNaN32 test is x is NaN (no a number). See also NaN32.
-func IsNaN32(x float32) bool <span class="cov0" title="0">{ return math.IsNaN(float64(x)) }</span>
+func IsNaN32(x float32) bool <span class="cov8" title="1">{ return math.IsNaN(float64(x)) }</span>
 
 // An RGf32 is a RGraph with type safe access to the edge weight of type
 // float32. Besides type safety this avoids boxing/unboxing of the Weight
@@ -1204,28 +1204,7 @@ func Set(g WGraph, w interface{}, edges ...Edge) <span class="cov0" title="0">{
 func Reset(g WGraph) <span class="cov0" title="0">{ g.Reset(g.Order()) }</span>
 </pre>
 		
-		<pre class="file" id="file12" style="display: none">package groph
-
-import "reflect"
-
-// TODO can this be done in place?
-func ReorderPath(slice interface{}, path []VIdx) <span class="cov8" title="1">{
-        slv := reflect.ValueOf(slice)
-        if slv.Len() == 0 </span><span class="cov0" title="0">{
-                return
-        }</span>
-        <span class="cov8" title="1">tmp := make([]interface{}, slv.Len())
-        for i := 0; i &lt; slv.Len(); i++ </span><span class="cov8" title="1">{
-                tmp[i] = slv.Index(i).Interface()
-        }</span>
-        <span class="cov8" title="1">for w, r := range path </span><span class="cov8" title="1">{
-                v := tmp[r]
-                slv.Index(w).Set(reflect.ValueOf(v))
-        }</span>
-}
-</pre>
-		
-		<pre class="file" id="file13" style="display: none">package shortestpath
+		<pre class="file" id="file12" style="display: none">package shortestpath
 
 import (
         "container/heap"
@@ -1553,7 +1532,7 @@ func (dij *DijkstraF32) On(
 }
 </pre>
 		
-		<pre class="file" id="file14" style="display: none">package shortestpath
+		<pre class="file" id="file13" style="display: none">package shortestpath
 
 import (
         "git.fractalqb.de/fractalqb/groph"
@@ -1667,7 +1646,7 @@ func FloydWarshallAdjMxDi32(g *adjmatrix.DInt32) <span class="cov8" title="1">{
 }
 </pre>
 		
-		<pre class="file" id="file15" style="display: none">package sliceofmaps
+		<pre class="file" id="file14" style="display: none">package sliceofmaps
 
 import "git.fractalqb.de/fractalqb/groph"
 
@@ -1812,7 +1791,7 @@ func (g *SoMUf32) SetWeight(u, v groph.VIdx, w interface{}) <span class="cov8" t
 }
 </pre>
 		
-		<pre class="file" id="file16" style="display: none">package sliceofmaps
+		<pre class="file" id="file15" style="display: none">package sliceofmaps
 
 import "git.fractalqb.de/fractalqb/groph"
 
@@ -1956,7 +1935,7 @@ func (g *UInt32) SetWeight(u, v groph.VIdx, w interface{}) <span class="cov8" ti
 }
 </pre>
 		
-		<pre class="file" id="file17" style="display: none">// Package sliceofmaps provides an implementations for graph interfaces suitable
+		<pre class="file" id="file16" style="display: none">// Package sliceofmaps provides an implementations for graph interfaces suitable
 // for sparse graphs.
 package sliceofmaps
 
@@ -2065,6 +2044,69 @@ func (g *SoMU) SetWeight(u, v groph.VIdx, w interface{}) <span class="cov8" titl
 }
 </pre>
 		
+		<pre class="file" id="file17" style="display: none">package traverse
+
+import "git.fractalqb.de/fractalqb/groph"
+
+func HasCycle(g groph.RGraph, reuse *Search) bool <span class="cov8" title="1">{
+        if reuse == nil </span><span class="cov8" title="1">{
+                reuse = NewSearch(g)
+        }</span> else<span class="cov0" title="0"> {
+                reuse.Reset(g)
+        }</span>
+        <span class="cov8" title="1">return reuse.OutDepth1st(false,
+                func(pred, v groph.VIdx, circle bool, cluster int) bool </span><span class="cov8" title="1">{
+                        if circle </span><span class="cov8" title="1">{
+                                return true
+                        }</span>
+                        <span class="cov8" title="1">return false</span>
+                })
+}
+
+type Circle struct {
+        path   []groph.VIdx
+        OnFind func(vs []groph.VIdx) (stop bool)
+}
+
+func (c *Circle) Search(u, v groph.VIdx, circle bool, cluster int) bool <span class="cov8" title="1">{
+        if u &lt; 0 </span><span class="cov8" title="1">{
+                if c.path == nil </span><span class="cov8" title="1">{
+                        c.path = []groph.VIdx{v}
+                }</span> else<span class="cov0" title="0"> {
+                        c.path = c.path[:1]
+                        c.path[0] = v
+                }</span>
+                <span class="cov8" title="1">return false</span>
+        }
+        <span class="cov8" title="1">if ui := c.backTo(u); ui &lt; 0 </span><span class="cov0" title="0">{
+                if c.path != nil </span><span class="cov0" title="0">{
+                        c.path = c.path[:0]
+                }</span>
+        } else<span class="cov8" title="1"> {
+                c.path = c.path[:ui+1]
+        }</span>
+        <span class="cov8" title="1">if circle </span><span class="cov8" title="1">{
+                if vi := c.backTo(v); vi &gt;= 0 </span><span class="cov8" title="1">{
+                        return c.OnFind(c.path[vi:])
+                }</span>
+        }
+        <span class="cov8" title="1">c.path = append(c.path, v)
+        return false</span>
+}
+
+func (c *Circle) backTo(v groph.VIdx) int <span class="cov8" title="1">{
+        if v &lt; 0 </span><span class="cov0" title="0">{
+                return -1
+        }</span>
+        <span class="cov8" title="1">for i := len(c.path) - 1; i &gt;= 0; i-- </span><span class="cov8" title="1">{
+                if c.path[i] == v </span><span class="cov8" title="1">{
+                        return i
+                }</span>
+        }
+        <span class="cov8" title="1">return -1</span>
+}
+</pre>
+		
 		<pre class="file" id="file18" style="display: none">package traverse
 
 import (
@@ -2091,12 +2133,15 @@ type Search struct {
         SortBy func(u, v1, v2 groph.VIdx) bool
 }
 
+func VIdxOrder(_, v1, v2 groph.VIdx) bool <span class="cov8" title="1">{ return v1 &lt; v2 }</span>
+
 func NewSearch(g groph.RGraph) *Search <span class="cov8" title="1">{
         res := &amp;Search{g: g}
         res.visit.reset(g.Order())
         return res
 }</span>
 
+// Reset prepares the Seach instance for use with graph g.
 func (df *Search) Reset(g groph.RGraph) <span class="cov8" title="1">{
         df.g = g
         df.visit.reset(g.Order())
@@ -2110,78 +2155,91 @@ type stepFn = func(g groph.RGraph, v groph.VIdx, on groph.VisitVertex) bool
 // returns the number of distinct vertex hits during the search and
 // an indicator if the visit function 'do' stopped the search.
 func (df *Search) AdjDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov8" title="1">{
-        return df.d1stAt(start, do, groph.EachAdjacent)
+        return df.depth1stAt(start, do, groph.EachAdjacent)
 }</span>
 
 func (df *Search) OutDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov0" title="0">{
-        return df.d1stAt(start, do, groph.EachOutgoing)
+        return df.depth1stAt(start, do, groph.EachOutgoing)
 }</span>
 
 func (df *Search) InDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov0" title="0">{
-        return df.d1stAt(start, do, groph.EachIncoming)
+        return df.depth1stAt(start, do, groph.EachIncoming)
 }</span>
 
-func (df *Search) d1stAt(
+func (df *Search) depth1stAt(
         start groph.VIdx,
         do VisitVertex,
         eachNext stepFn,
 ) (hits int, stopped bool) <span class="cov8" title="1">{
-        if h := df.visit.hits(start); h &gt; 0 </span><span class="cov0" title="0">{
-                return 0, false
-        }</span>
-        <span class="cov8" title="1">if df.mem != nil </span><span class="cov8" title="1">{
+        if df.mem != nil </span><span class="cov8" title="1">{
                 df.mem = df.mem[:0]
         }</span>
         <span class="cov8" title="1">step := groph.Edge{U: -1, V: start}
         df.push(step)
-        df.visit.setHits(start, 1)
-        var onDest func(d groph.VIdx) (stop bool)
+        var selectNext groph.VisitVertex
         if groph.Directed(df.g) </span><span class="cov8" title="1">{
-                onDest = func(d groph.VIdx) bool </span><span class="cov8" title="1">{ return df.checkDDest(step, d, do) }</span>
+                selectNext = func(d groph.VIdx) bool </span><span class="cov8" title="1">{
+                        df.push(groph.Edge{U: step.V, V: d})
+                        return false
+                }</span>
         } else<span class="cov8" title="1"> {
-                onDest = func(d groph.VIdx) bool </span><span class="cov8" title="1">{ return df.checkUDest(step, d, do) }</span>
+                selectNext = func(d groph.VIdx) bool </span><span class="cov8" title="1">{
+                        if d != step.U </span><span class="cov8" title="1">{
+                                df.push(groph.Edge{U: step.V, V: d})
+                        }</span>
+                        <span class="cov8" title="1">return false</span>
+                }
         }
         <span class="cov8" title="1">for len(df.mem) &gt; 0 </span><span class="cov8" title="1">{
                 step = df.pop()
-                if do(step.U, step.V, false) </span><span class="cov0" title="0">{
-                        return hits + 1, true
-                }</span>
-                <span class="cov8" title="1">hits++
-                sortStart := len(df.mem)
-                if eachNext(df.g, step.V, onDest) </span><span class="cov0" title="0">{
-                        return hits, true
-                }</span>
-                <span class="cov8" title="1">if df.SortBy != nil </span><span class="cov8" title="1">{
-                        sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool </span><span class="cov8" title="1">{
-                                return !df.SortBy(step.V, v1, v2)
-                        }</span>)
+                h := df.visit.hits(step.V)
+                if h &gt; 0 </span><span class="cov8" title="1">{
+                        stopped = do(step.U, step.V, true)
+                        df.visit.setHits(step.V, h+1)
+                        if stopped </span><span class="cov8" title="1">{
+                                return hits, true
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        stopped = do(step.U, step.V, false)
+                        df.visit.setHits(step.V, 1)
+                        hits++
+                        if stopped </span><span class="cov0" title="0">{
+                                return hits, true
+                        }</span>
+                        <span class="cov8" title="1">sortStart := len(df.mem)
+                        eachNext(df.g, step.V, selectNext)
+                        if df.SortBy != nil </span><span class="cov8" title="1">{
+                                sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool </span><span class="cov8" title="1">{
+                                        return !df.SortBy(step.V, v1, v2)
+                                }</span>)
+                        }
                 }
         }
         <span class="cov8" title="1">return hits, false</span>
 }
 
 func (df *Search) AdjDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov8" title="1">{
-        return df.d1st(stopToNextCluster, do, groph.EachAdjacent)
+        return df.depth1st(stopToNextCluster, do, groph.EachAdjacent)
 }</span>
 
-func (df *Search) OutDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov0" title="0">{
-        return df.d1st(stopToNextCluster, do, groph.EachOutgoing)
+func (df *Search) OutDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov8" title="1">{
+        return df.depth1st(stopToNextCluster, do, groph.EachOutgoing)
 }</span>
 
 func (df *Search) InDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov0" title="0">{
-        return df.d1st(stopToNextCluster, do, groph.EachIncoming)
+        return df.depth1st(stopToNextCluster, do, groph.EachIncoming)
 }</span>
 
-func (df *Search) d1st(
+func (df *Search) depth1st(
         stopToNextCluster bool,
         do VisitInCluster,
         eachNext stepFn,
 ) (stopped bool) <span class="cov8" title="1">{
         cluster := 0
         cdo := func(p, n groph.VIdx, c bool) bool </span><span class="cov8" title="1">{ return do(p, n, c, cluster) }</span>
-        <span class="cov8" title="1">hits, stop := df.d1stAt(0, cdo, eachNext)
-        if stop </span><span class="cov0" title="0">{
-                if !stopToNextCluster </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">hits, stop := df.depth1stAt(0, cdo, eachNext)
+        if stop </span><span class="cov8" title="1">{
+                if !stopToNextCluster </span><span class="cov8" title="1">{
                         return true
                 }</span>
                 <span class="cov0" title="0">cluster = -1</span>
@@ -2191,7 +2249,7 @@ func (df *Search) d1st(
                         cluster++
                 }</span>
                 <span class="cov0" title="0">start := df.visit.top() // TODO assert hits(start) == 0
-                n, stop := df.d1stAt(start, cdo, eachNext)
+                n, stop := df.depth1stAt(start, cdo, eachNext)
                 if stop </span><span class="cov0" title="0">{
                         if !stopToNextCluster </span><span class="cov0" title="0">{
                                 return true
@@ -2210,77 +2268,90 @@ func (df *Search) d1st(
 // indicator if the visit function 'do' stopped the search.
 
 func (df *Search) AdjBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov8" title="1">{
-        return df.b1stAt(start, do, groph.EachAdjacent)
+        return df.breadth1stAt(start, do, groph.EachAdjacent)
 }</span>
 
 func (df *Search) OutBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov0" title="0">{
-        return df.b1stAt(start, do, groph.EachOutgoing)
+        return df.breadth1stAt(start, do, groph.EachOutgoing)
 }</span>
 
 func (df *Search) InBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) <span class="cov0" title="0">{
-        return df.b1stAt(start, do, groph.EachIncoming)
+        return df.breadth1stAt(start, do, groph.EachIncoming)
 }</span>
 
-func (df *Search) b1stAt(
+func (df *Search) breadth1stAt(
         start groph.VIdx,
         do VisitVertex,
         eachNext stepFn,
 ) (hits int, stopped bool) <span class="cov8" title="1">{
-        if h := df.visit.hits(start); h &gt; 0 </span><span class="cov0" title="0">{
-                return 0, false
-        }</span>
-        <span class="cov8" title="1">if df.mem != nil </span><span class="cov8" title="1">{
+        if df.mem != nil </span><span class="cov8" title="1">{
                 df.mem = df.mem[:0]
         }</span>
-        <span class="cov8" title="1">df.tail = 0
-        step := groph.Edge{U: -1, V: start}
+        <span class="cov8" title="1">step := groph.Edge{U: -1, V: start}
         df.push(step)
-        df.visit.setHits(start, 1)
-        var onDest func(d groph.VIdx) (stop bool)
+        df.tail = 0
+        var selectNext groph.VisitVertex
         if groph.Directed(df.g) </span><span class="cov8" title="1">{
-                onDest = func(d groph.VIdx) bool </span><span class="cov8" title="1">{ return df.checkDDest(step, d, do) }</span>
+                selectNext = func(d groph.VIdx) bool </span><span class="cov8" title="1">{
+                        df.push(groph.Edge{U: step.V, V: d})
+                        return false
+                }</span>
         } else<span class="cov8" title="1"> {
-                onDest = func(d groph.VIdx) bool </span><span class="cov8" title="1">{ return df.checkUDest(step, d, do) }</span>
+                selectNext = func(d groph.VIdx) bool </span><span class="cov8" title="1">{
+                        if d != step.U </span><span class="cov8" title="1">{
+                                df.push(groph.Edge{U: step.V, V: d})
+                        }</span>
+                        <span class="cov8" title="1">return false</span>
+                }
         }
         <span class="cov8" title="1">for df.tail &lt; len(df.mem) </span><span class="cov8" title="1">{
                 step = df.take()
-                if do(step.U, step.V, false) </span><span class="cov0" title="0">{
-                        return hits + 1, true
-                }</span>
-                <span class="cov8" title="1">hits++
-                sortStart := len(df.mem)
-                if eachNext(df.g, step.V, onDest) </span><span class="cov0" title="0">{
-                        return hits, true
-                }</span>
-                <span class="cov8" title="1">if df.SortBy != nil </span><span class="cov0" title="0">{
-                        sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool </span><span class="cov0" title="0">{
-                                return df.SortBy(step.V, v1, v2)
-                        }</span>)
+                h := df.visit.hits(step.V)
+                if h &gt; 0 </span><span class="cov8" title="1">{
+                        stopped = do(step.U, step.V, true)
+                        df.visit.setHits(step.V, h+1)
+                        if stopped </span><span class="cov0" title="0">{
+                                return hits, true
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        stopped = do(step.U, step.V, false)
+                        df.visit.setHits(step.V, 1)
+                        hits++
+                        if stopped </span><span class="cov0" title="0">{
+                                return hits, true
+                        }</span>
+                        <span class="cov8" title="1">sortStart := len(df.mem)
+                        eachNext(df.g, step.V, selectNext)
+                        if df.SortBy != nil </span><span class="cov8" title="1">{
+                                sort.Slice(df.mem[sortStart:], func(v1, v2 int) bool </span><span class="cov0" title="0">{
+                                        return !df.SortBy(step.V, v1, v2)
+                                }</span>)
+                        }
                 }
         }
         <span class="cov8" title="1">return hits, false</span>
 }
 
 func (df *Search) AdjBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov8" title="1">{
-        return df.b1st(stopToNextCluster, do, groph.EachAdjacent)
+        return df.breadth1st(stopToNextCluster, do, groph.EachAdjacent)
 }</span>
 
 func (df *Search) OutBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov0" title="0">{
-        return df.b1st(stopToNextCluster, do, groph.EachOutgoing)
+        return df.breadth1st(stopToNextCluster, do, groph.EachOutgoing)
 }</span>
 
 func (df *Search) InBreadth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) <span class="cov0" title="0">{
-        return df.b1st(stopToNextCluster, do, groph.EachIncoming)
+        return df.breadth1st(stopToNextCluster, do, groph.EachIncoming)
 }</span>
 
-func (df *Search) b1st(
+func (df *Search) breadth1st(
         stopToNextCluster bool,
         do VisitInCluster,
         eachNext stepFn,
 ) (stopped bool) <span class="cov8" title="1">{
         cluster := 0
         cdo := func(p, n groph.VIdx, c bool) bool </span><span class="cov8" title="1">{ return do(p, n, c, cluster) }</span>
-        <span class="cov8" title="1">hits, stop := df.b1stAt(0, cdo, eachNext)
+        <span class="cov8" title="1">hits, stop := df.breadth1stAt(0, cdo, eachNext)
         if stop </span><span class="cov0" title="0">{
                 if !stopToNextCluster </span><span class="cov0" title="0">{
                         return true
@@ -2292,7 +2363,7 @@ func (df *Search) b1st(
                         cluster++
                 }</span>
                 <span class="cov0" title="0">start := df.visit.top() // TODO assert hits(start) == 0
-                n, stop := df.b1stAt(start, cdo, eachNext)
+                n, stop := df.breadth1stAt(start, cdo, eachNext)
                 if stop </span><span class="cov0" title="0">{
                         if !stopToNextCluster </span><span class="cov0" title="0">{
                                 return true
@@ -2304,6 +2375,8 @@ func (df *Search) b1st(
         <span class="cov8" title="1">return false</span>
 }
 
+// Hits returns how often the vertex v of graph g of this seach was hit by
+// traversal operations.
 func (df *Search) Hits(v groph.VIdx) int <span class="cov8" title="1">{
         if v &gt;= len(df.visit.v2i) </span><span class="cov0" title="0">{
                 return 0
@@ -2315,30 +2388,14 @@ func (df *Search) Hits(v groph.VIdx) int <span class="cov8" title="1">{
         <span class="cov8" title="1">return df.visit.is[ii].hits</span>
 }
 
+// LeatsHits returns one of the vertices in graph g of the Search that was least
+// frequently hit by traversal operations.
 func (df *Search) LeastHits() (v groph.VIdx, hits int) <span class="cov0" title="0">{
         if len(df.visit.is) == 0 </span><span class="cov0" title="0">{
                 return -1, -1
         }</span>
         <span class="cov0" title="0">item := df.visit.is[0]
         return item.v, item.hits</span>
-}
-
-func (df *Search) checkDDest(pre groph.Edge, d groph.VIdx, do VisitVertex) bool <span class="cov8" title="1">{
-        h := df.visit.hits(d)
-        if h == 0 </span><span class="cov8" title="1">{
-                df.push(groph.Edge{U: pre.V, V: d})
-        }</span> else<span class="cov8" title="1"> {
-                return do(pre.V, d, true)
-        }</span>
-        <span class="cov8" title="1">df.visit.setHits(d, h+1)
-        return false</span>
-}
-
-func (df *Search) checkUDest(pre groph.Edge, d groph.VIdx, do VisitVertex) bool <span class="cov8" title="1">{
-        if d == pre.U || d == pre.V </span><span class="cov8" title="1">{
-                return false
-        }</span>
-        <span class="cov8" title="1">return df.checkDDest(pre, d, do)</span>
 }
 
 func (df *Search) push(e groph.Edge) <span class="cov8" title="1">{
@@ -3314,7 +3371,11 @@ func gvWriteAtts(
 		
 		<pre class="file" id="file26" style="display: none">package util
 
-import "git.fractalqb.de/fractalqb/groph"
+import (
+        "reflect"
+
+        "git.fractalqb.de/fractalqb/groph"
+)
 
 // WeightOr returns parameter 'or' when the edge (u,v) is not in graph g.
 // Otherwise the weight of edge (u,v) is returned.
@@ -3323,6 +3384,22 @@ func WeightOr(g groph.RGraph, u, v groph.VIdx, or interface{}) interface{} <span
                 return res
         }</span>
         <span class="cov0" title="0">return or</span>
+}
+
+// TODO can this be done in place?
+func ReorderPath(slice interface{}, path []groph.VIdx) <span class="cov8" title="1">{
+        slv := reflect.ValueOf(slice)
+        if slv.Len() == 0 </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">tmp := make([]interface{}, slv.Len())
+        for i := 0; i &lt; slv.Len(); i++ </span><span class="cov8" title="1">{
+                tmp[i] = slv.Index(i).Interface()
+        }</span>
+        <span class="cov8" title="1">for w, r := range path </span><span class="cov8" title="1">{
+                v := tmp[r]
+                slv.Index(w).Set(reflect.ValueOf(v))
+        }</span>
 }
 </pre>
 		
