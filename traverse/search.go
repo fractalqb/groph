@@ -26,9 +26,13 @@ type Search struct {
 
 func VIdxOrder(_, v1, v2 groph.VIdx) bool { return v1 < v2 }
 
-func NewSearch(g groph.RGraph) *Search {
-	res := &Search{g: g}
-	res.visit.reset(g.Order())
+func NewSearch(g groph.RGraph) (res *Search) {
+	if g == nil {
+		res = new(Search)
+	} else {
+		res = &Search{g: g}
+		res.visit.reset(g.Order())
+	}
 	return res
 }
 
@@ -62,6 +66,9 @@ func (df *Search) depth1stAt(
 	do VisitVertex,
 	eachNext stepFn,
 ) (hits int, stopped bool) {
+	if df.g.Order() == 0 {
+		return 0, false
+	}
 	if df.mem != nil {
 		df.mem = df.mem[:0]
 	}
@@ -175,6 +182,9 @@ func (df *Search) breadth1stAt(
 	do VisitVertex,
 	eachNext stepFn,
 ) (hits int, stopped bool) {
+	if df.g.Order() == 0 {
+		return 0, false
+	}
 	if df.mem != nil {
 		df.mem = df.mem[:0]
 	}

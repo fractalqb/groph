@@ -9,6 +9,34 @@ import (
 	"git.fractalqb.de/fractalqb/groph"
 )
 
+func TestSearch_emptyGraphs(t *testing.T) {
+	var visited bool
+	visit := func(pred, v groph.VIdx, circle bool, cluster int) bool {
+		visited = true
+		return false
+	}
+	s := NewSearch(nil)
+	g := adjmatrix.NewDBool(0, nil)
+	test := func(name string, call func(bool, VisitInCluster) bool) {
+		t.Run(name, func(t *testing.T) {
+			s.Reset(g)
+			visited = false
+			if call(true, visit) {
+				t.Error("visit was stopped")
+			}
+			if visited {
+				t.Error("visited something in empty graph")
+			}
+		})
+	}
+	test("InDepth1st", s.InDepth1st)
+	test("InBreadth1st", s.InBreadth1st)
+	test("AdjDepth1st", s.AdjDepth1st)
+	test("AdjBreadth1st", s.AdjBreadth1st)
+	test("OutDepth1st", s.OutDepth1st)
+	test("OutBreadth1st", s.OutBreadth1st)
+}
+
 // Just to make go vet happy! I like
 // 	type E = groph.Edge
 //  E{u, v} better

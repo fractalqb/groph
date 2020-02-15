@@ -5,8 +5,6 @@ import (
 	"reflect"
 	"testing"
 
-	"git.fractalqb.de/fractalqb/groph/sliceofmaps"
-
 	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/adjmatrix"
 )
@@ -107,29 +105,72 @@ func ExampleEachEdge_undirected() {
 	// [{1 0} {2 1}]
 }
 
+func TestSize_dir(t *testing.T) {
+	const (
+		ord    = 3
+		expect = ord * ord
+	)
+	g := testRDFull(ord)
+	if !groph.Directed(g) {
+		t.Fatal("undirected graph detected")
+	}
+	const msgpat = "unexpected graph size %d, want %d"
+	if s := groph.Size(g); s != expect {
+		t.Errorf(msgpat, s, expect)
+	}
+	t.Run("out lister", func(t *testing.T) {
+		if s := groph.Size(testRDols{g}); s != expect {
+			t.Errorf(msgpat, s, expect)
+		}
+	})
+	t.Run("in lister", func(t *testing.T) {
+		if s := groph.Size(testRDils{g}); s != expect {
+			t.Errorf(msgpat, s, expect)
+		}
+	})
+	t.Run("in+out lister", func(t *testing.T) {
+		if s := groph.Size(testRDiols{testRDols{g}}); s != expect {
+			t.Errorf(msgpat, s, expect)
+		}
+	})
+	t.Run("edge lister", func(t *testing.T) {
+		if s := groph.Size(testRDels{g}); s != expect {
+			t.Errorf(msgpat, s, expect)
+		}
+	})
+}
+
 func TestSize_undir(t *testing.T) {
-	var g groph.WUndirected = adjmatrix.NewUInt32(4, adjmatrix.I32Del, nil).
-		Init(adjmatrix.I32Del)
-	if sz := groph.Size(g); sz != 0 {
-		t.Fatalf("new graph size not 0: size=%d", sz)
+	const (
+		ord    = 3
+		expect = (ord * (ord + 1)) / 2
+	)
+	g := testRUFull(ord)
+	if groph.Directed(g) {
+		t.Fatal("directed graph detected")
 	}
-	type E = groph.Edge
-	groph.Set(g, int32(1), E{0, 0}, E{1, 2}, E{2, 1}, E{2, 3})
-	if sz := groph.Size(g); sz != 3 {
-		t.Fatalf("unexpected graph size: want 3, got %d", sz)
+	const msgpat = "unexpected graph size %d, want %d"
+	if s := groph.Size(g); s != expect {
+		t.Errorf(msgpat, s, expect)
 	}
+	t.Run("out lister", func(t *testing.T) {
+		if s := groph.Size(testRUols{g}); s != expect {
+			t.Errorf(msgpat, s, expect)
+		}
+	})
+	t.Run("in lister", func(t *testing.T) {
+		if s := groph.Size(testRUils{g}); s != expect {
+			t.Errorf(msgpat, s, expect)
+		}
+	})
+	t.Run("in+out lister", func(t *testing.T) {
+		if s := groph.Size(testRUiols{testRUols{g}}); s != expect {
+			t.Errorf(msgpat, s, expect)
+		}
+	})
+	t.Run("edge lister", func(t *testing.T) {
+		if s := groph.Size(testRUels{g}); s != expect {
+			t.Errorf(msgpat, s, expect)
+		}
+	})
 }
-
-func TestSize_undir_outlister(t *testing.T) {
-	var g groph.WUndirected = sliceofmaps.NewUInt32(4, nil)
-	if _, ok := g.(groph.OutLister); !ok {
-		t.Fatal("graph is not an out lister")
-	}
-	type E = groph.Edge
-	groph.Set(g, int32(1), E{0, 0}, E{1, 2}, E{2, 1}, E{2, 3}, E{2, 0})
-	if sz := groph.Size(g); sz != 4 {
-		t.Fatalf("unexpected graph size: want 4, got %d", sz)
-	}
-}
-
-// TODO more test cases for Size()
