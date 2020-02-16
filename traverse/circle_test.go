@@ -65,7 +65,5 @@ func ExampleCircle_dgraph() {
 		fmt.Printf("%d --> %d: %t %d\n", u, v, circ, cl)
 		return false
 	})
-	// Output:
-	// [0 1 2]
-	// [0 1 2 3]
+	// TODO Insead of depth1st we need something like backtrace
 }

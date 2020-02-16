@@ -18,7 +18,7 @@ type Search struct {
 	g     groph.RGraph
 	mem   []groph.Edge
 	tail  int
-	visit hitPq
+	visit hitPrioQ
 	// If not nil SortBy is used to sort the neighbours v of node u. SortBy
 	// returns true if the edge (u,v1) is less than (u,v2).
 	SortBy func(u, v1, v2 groph.VIdx) bool
@@ -279,23 +279,23 @@ func (df *Search) breadth1st(
 // Hits returns how often the vertex v of graph g of this seach was hit by
 // traversal operations.
 func (df *Search) Hits(v groph.VIdx) int {
-	if v >= len(df.visit.v2i) {
+	if v >= len(df.visit.vtx2item) {
 		return 0
 	}
-	ii := df.visit.v2i[v]
+	ii := df.visit.vtx2item[v]
 	if ii < 0 {
 		return 0
 	}
-	return df.visit.is[ii].hits
+	return df.visit.items[ii].hits
 }
 
 // LeatsHits returns one of the vertices in graph g of the Search that was least
 // frequently hit by traversal operations.
 func (df *Search) LeastHits() (v groph.VIdx, hits int) {
-	if len(df.visit.is) == 0 {
+	if len(df.visit.items) == 0 {
 		return -1, -1
 	}
-	item := df.visit.is[0]
+	item := df.visit.items[0]
 	return item.v, item.hits
 }
 
@@ -321,46 +321,46 @@ type hitPqItem struct {
 	v    groph.VIdx
 }
 
-type hitPq struct {
-	v2i []int
-	is  []hitPqItem
+type hitPrioQ struct {
+	vtx2item []int
+	items    []hitPqItem
 }
 
-func (pq *hitPq) reset(ord groph.VIdx) {
-	pq.v2i = iutil.IntSlice(pq.v2i, ord)
-	if pq.is == nil || cap(pq.is) < ord {
-		pq.is = make([]hitPqItem, ord)
+func (pq *hitPrioQ) reset(ord groph.VIdx) {
+	pq.vtx2item = iutil.IntSlice(pq.vtx2item, ord)
+	if pq.items == nil || cap(pq.items) < ord {
+		pq.items = make([]hitPqItem, ord)
 	} else {
-		pq.is = pq.is[:ord]
+		pq.items = pq.items[:ord]
 	}
-	for i := range pq.is {
-		pq.v2i[i] = i
-		pq.is[i] = hitPqItem{hits: 0, v: i}
+	for i := range pq.items {
+		pq.vtx2item[i] = i
+		pq.items[i] = hitPqItem{hits: 0, v: i}
 	}
 }
 
-func (pq *hitPq) top() groph.VIdx { return pq.is[0].v }
+func (pq *hitPrioQ) top() groph.VIdx { return pq.items[0].v }
 
-func (pq *hitPq) hits(v groph.VIdx) int { return pq.is[pq.v2i[v]].hits }
+func (pq *hitPrioQ) hits(v groph.VIdx) int { return pq.items[pq.vtx2item[v]].hits }
 
-func (pq *hitPq) setHits(v groph.VIdx, hits int) {
-	ii := pq.v2i[v]
-	pq.is[ii].hits = hits
+func (pq *hitPrioQ) setHits(v groph.VIdx, hits int) {
+	ii := pq.vtx2item[v]
+	pq.items[ii].hits = hits
 	heap.Fix(pq, ii)
 }
 
-func (pq *hitPq) Len() int { return len(pq.is) }
+func (pq *hitPrioQ) Len() int { return len(pq.items) }
 
-func (pq *hitPq) Less(i, j int) bool { return pq.is[i].hits < pq.is[j].hits }
+func (pq *hitPrioQ) Less(i, j int) bool { return pq.items[i].hits < pq.items[j].hits }
 
-func (pq *hitPq) Swap(i, j int) {
-	ii, ji := pq.is[i], pq.is[j]
-	pq.is[i], pq.is[j] = ji, ii
-	pq.v2i[ii.v] = j
-	pq.v2i[ji.v] = i
+func (pq *hitPrioQ) Swap(i, j int) {
+	ii, ji := pq.items[i], pq.items[j]
+	pq.items[i], pq.items[j] = ji, ii
+	pq.vtx2item[ii.v] = j
+	pq.vtx2item[ji.v] = i
 }
 
-func (pq *hitPq) Push(x interface{}) {
+func (pq *hitPrioQ) Push(x interface{}) {
 	panic("must not be called")
 	// pqItem := x.(hitPqItem)
 	// for pqItem.v >= len(pq.v2i) {
@@ -370,7 +370,7 @@ func (pq *hitPq) Push(x interface{}) {
 	// pq.is = append(pq.is, pqItem)
 }
 
-func (pq *hitPq) Pop() interface{} {
+func (pq *hitPrioQ) Pop() interface{} {
 	panic("must not be called")
 	// lm1 := len(pq.is) - 1
 	// res := pq.is[lm1]

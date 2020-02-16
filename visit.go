@@ -77,11 +77,29 @@ func Size(g RGraph) (res int) {
 		return xl.Size()
 	case RUndirected:
 		ord := g.Order()
-		// TODO optimize with in/out lister
-		for i := 0; i < ord; i++ {
-			for j := 0; j <= i; j++ {
-				if xl.WeightU(i, j) != nil {
+		switch ls := g.(type) {
+		case OutLister:
+			for i := 0; i < ord; i++ {
+				res += ls.OutDegree(i)
+				if g.Weight(i, i) != nil {
 					res++
+				}
+			}
+			res /= 2
+		case InLister:
+			for i := 0; i < ord; i++ {
+				res += ls.InDegree(i)
+				if g.Weight(i, i) != nil {
+					res++
+				}
+			}
+			res /= 2
+		default:
+			for i := 0; i < ord; i++ {
+				for j := 0; j <= i; j++ {
+					if xl.WeightU(i, j) != nil {
+						res++
+					}
 				}
 			}
 		}
