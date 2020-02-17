@@ -32,38 +32,24 @@ func TestHasCycle_ugraph(t *testing.T) {
 	}
 }
 
-func ExampleCircle_ugraph() {
+func ExampleCycle_ugraph() {
 	g := adjmatrix.NewUBool(4, nil)
 	groph.Set(g, true, e(0, 1), e(1, 2), e(2, 3), e(3, 0), e(0, 2))
-	srch := NewSearch(g)
-	srch.SortBy = VIdxOrder
-	circ := Circle{
-		OnFind: func(vs []groph.VIdx) bool {
-			fmt.Println(vs)
-			return false
-		},
-	}
-	srch.AdjDepth1st(false, circ.Search)
+	search := NewSearch(nil)
+	search.SortBy = VIdxOrder
+	circ := NewCycle(search)
+	circ.FindOne(g, func(c []groph.VIdx) { fmt.Println(c) })
 	// Output:
 	// [0 1 2]
-	// [0 1 2 3]
 }
 
-func ExampleCircle_dgraph() {
+func ExampleCycle_dgraph() {
 	g := adjmatrix.NewDBool(4, nil)
 	groph.Set(g, true, e(0, 1), e(1, 2), e(2, 3), e(3, 0), e(0, 2))
-	srch := NewSearch(g)
-	srch.SortBy = VIdxOrder
-	// circ := Circle{
-	// 	OnFind: func(vs []groph.VIdx) bool {
-	// 		fmt.Println(vs)
-	// 		return false
-	// 	},
-	// }
-	// srch.OutDepth1st(false, circ.Search)
-	srch.OutDepth1st(false, func(u, v int, circ bool, cl int) bool {
-		fmt.Printf("%d --> %d: %t %d\n", u, v, circ, cl)
-		return false
-	})
-	// TODO Insead of depth1st we need something like backtrace
+	search := NewSearch(nil)
+	search.SortBy = VIdxOrder
+	circ := NewCycle(search)
+	circ.FindOne(g, func(c []groph.VIdx) { fmt.Println(c) })
+	// Output:
+	// [0 1 2 3]
 }

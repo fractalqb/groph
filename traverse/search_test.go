@@ -11,7 +11,7 @@ import (
 
 func TestSearch_emptyGraphs(t *testing.T) {
 	var visited bool
-	visit := func(pred, v groph.VIdx, circle bool, cluster int) bool {
+	visit := func(_, _ groph.VIdx, _ int, _ int) bool {
 		visited = true
 		return false
 	}
@@ -52,8 +52,8 @@ func ExampleSearch_Depth1stAt() {
 	)
 	search := NewSearch(g)
 	search.SortBy = VIdxOrder
-	hits, _ := search.AdjDepth1stAt(0, func(u, v groph.VIdx, c bool) bool {
-		if c {
+	hits, _ := search.AdjDepth1stAt(0, func(u, v groph.VIdx, vHits int) bool {
+		if vHits > 0 {
 			fmt.Printf("[%d %d]", u, v)
 		} else {
 			fmt.Printf("(%d %d)", u, v)
@@ -74,8 +74,8 @@ func ExampleSearch_Breadth1stAt() {
 		e(2, 5),
 		e(3, 6),
 	)
-	hits, _ := NewSearch(g).AdjBreadth1stAt(0, func(u, v groph.VIdx, c bool) bool {
-		if c {
+	hits, _ := NewSearch(g).AdjBreadth1stAt(0, func(u, v groph.VIdx, vHits int) bool {
+		if vHits > 0 {
 			fmt.Printf("[%d %d]", u, v)
 		} else {
 			fmt.Printf("(%d %d)", u, v)
@@ -96,8 +96,8 @@ func TestSearch_Depth1st_dir_find_clusters(t *testing.T) {
 		hits := 0
 		circ := 0
 		clusters := make(map[int]bool)
-		search.AdjDepth1st(false, func(_, _ groph.VIdx, ci bool, cl int) bool {
-			if ci {
+		search.AdjDepth1st(false, func(_, _ groph.VIdx, h int, cl int) bool {
+			if h > 0 {
 				circ++
 			} else {
 				hits++
@@ -108,8 +108,8 @@ func TestSearch_Depth1st_dir_find_clusters(t *testing.T) {
 		if hits != 2 {
 			t.Errorf("unexpected number of hits: %d, want 2", hits)
 		}
-		if circ != 1 {
-			t.Errorf("unexpected number of circles: %d, want 1", circ)
+		if circ != 0 {
+			t.Errorf("unexpected number of circles: %d, want 0", circ)
 		}
 		if len(clusters) != 1 {
 			t.Errorf("found wrong clusters: %v", clusters)
@@ -131,8 +131,8 @@ func TestSearch_Breadth1st_dir_find_clusters(t *testing.T) {
 		search.Reset(g)
 		hits, circ := 0, 0
 		clusters := make(map[int]bool)
-		search.AdjBreadth1st(false, func(_, _ groph.VIdx, ci bool, cl int) bool {
-			if ci {
+		search.AdjBreadth1st(false, func(_, _ groph.VIdx, h int, cl int) bool {
+			if h > 0 {
 				circ++
 			} else {
 				hits++
@@ -162,21 +162,23 @@ func TestSearch_Breadth1st_dir_find_clusters(t *testing.T) {
 func ExampleSearch_ugraph() {
 	g := adjmatrix.NewUBool(4, nil)
 	groph.Set(g, true, e(0, 1), e(1, 2), e(2, 3), e(3, 0), e(0, 2))
-	srch := NewSearch(g)
-	srch.SortBy = VIdxOrder
-	srch.AdjDepth1stAt(0, func(u, v int, circ bool) bool {
-		fmt.Println(u, v, circ, srch.Hits(v))
+	search := NewSearch(g)
+	search.SortBy = VIdxOrder
+	search.AdjDepth1stAt(0, func(u, v int, vHits int) bool {
+		_, fin := search.State(v)
+		fmt.Println(u, v, vHits, fin)
 		return false
 	})
 	// Output:
-	// -1 0 false 0
-	// 0 1 false 0
-	// 1 2 false 0
-	// 2 0 true 1
-	// 2 3 false 0
-	// 3 0 true 2
-	// 0 2 true 1
-	// 0 3 true 1
+	// -1 0 0 false
+	// 0 1 0 false
+	// 1 2 0 false
+	// 2 0 1 false
+	// 2 3 0 false
+	// 3 0 2 false
+	// 0 2 1 true
+	// 0 3 1 true
+
 }
 
 func ExampleSearch_ugd1st_loop_not_parent() {
@@ -184,14 +186,15 @@ func ExampleSearch_ugd1st_loop_not_parent() {
 	groph.Set(g, true, e(0, 1), e(1, 1))
 	search := NewSearch(g)
 	search.SortBy = VIdxOrder
-	search.AdjDepth1stAt(0, func(u, v int, circ bool) bool {
-		fmt.Println(u, v, circ, search.Hits(v))
+	search.AdjDepth1stAt(0, func(u, v int, vHits int) bool {
+		_, fin := search.State(v)
+		fmt.Println(u, v, vHits, fin)
 		return false
 	})
 	// Output:
-	// -1 0 false 0
-	// 0 1 false 0
-	// 1 1 true 1
+	// -1 0 0 false
+	// 0 1 0 false
+	// 1 1 1 false
 }
 
 func ExampleSearch_ugb1st_loop_not_parent() {
@@ -199,12 +202,13 @@ func ExampleSearch_ugb1st_loop_not_parent() {
 	groph.Set(g, true, e(0, 1), e(1, 1))
 	search := NewSearch(g)
 	search.SortBy = VIdxOrder
-	search.AdjBreadth1stAt(0, func(u, v int, circ bool) bool {
-		fmt.Println(u, v, circ, search.Hits(v))
+	search.AdjBreadth1stAt(0, func(u, v int, vHits int) bool {
+		_, fin := search.State(v)
+		fmt.Println(u, v, vHits, fin)
 		return false
 	})
 	// Output:
-	// -1 0 false 0
-	// 0 1 false 0
-	// 1 1 true 1
+	// -1 0 0 false
+	// 0 1 0 false
+	// 1 1 1 false
 }

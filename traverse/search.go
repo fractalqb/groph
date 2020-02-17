@@ -8,9 +8,9 @@ import (
 	iutil "git.fractalqb.de/fractalqb/groph/internal/util"
 )
 
-type VisitVertex = func(pred, v groph.VIdx, circle bool) (stop bool)
+type VisitVertex = func(pred, v groph.VIdx, vHits int) (stop bool)
 
-type VisitInCluster = func(pred, v groph.VIdx, circle bool, cluster int) (stop bool)
+type VisitInCluster = func(pred, v groph.VIdx, vHits int, cluster int) (stop bool)
 
 // Search performs depth-first or breadth-breadth searches of
 // groph.RGraph objects.
@@ -50,21 +50,22 @@ type stepFn = func(g groph.RGraph, v groph.VIdx, on groph.VisitVertex) bool
 // returns the number of distinct vertex hits during the search and
 // an indicator if the visit function 'do' stopped the search.
 func (df *Search) AdjDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
-	return df.depth1stAt(start, do, groph.EachAdjacent)
+	return df.depth1stAt(start, do, groph.EachAdjacent, false)
 }
 
 func (df *Search) OutDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
-	return df.depth1stAt(start, do, groph.EachOutgoing)
+	return df.depth1stAt(start, do, groph.EachOutgoing, groph.Directed(df.g))
 }
 
 func (df *Search) InDepth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
-	return df.depth1stAt(start, do, groph.EachIncoming)
+	return df.depth1stAt(start, do, groph.EachIncoming, groph.Directed(df.g))
 }
 
 func (df *Search) depth1stAt(
 	start groph.VIdx,
 	do VisitVertex,
 	eachNext stepFn,
+	selectDir bool,
 ) (hits int, stopped bool) {
 	if df.g.Order() == 0 {
 		return 0, false
@@ -75,7 +76,7 @@ func (df *Search) depth1stAt(
 	step := groph.Edge{U: -1, V: start}
 	df.push(step)
 	var selectNext groph.VisitVertex
-	if groph.Directed(df.g) {
+	if selectDir {
 		selectNext = func(d groph.VIdx) bool {
 			df.push(groph.Edge{U: step.V, V: d})
 			return false
@@ -90,20 +91,25 @@ func (df *Search) depth1stAt(
 	}
 	for len(df.mem) > 0 {
 		step = df.pop()
+		if step.V < 0 { // finish marker for backtracking
+			df.visit.setFini(step.U, true)
+			continue
+		}
 		h := df.visit.hits(step.V)
 		if h > 0 {
-			stopped = do(step.U, step.V, true)
+			stopped = do(step.U, step.V, h)
 			df.visit.setHits(step.V, h+1)
 			if stopped {
 				return hits, true
 			}
 		} else {
-			stopped = do(step.U, step.V, false)
+			stopped = do(step.U, step.V, 0)
 			df.visit.setHits(step.V, 1)
 			hits++
 			if stopped {
 				return hits, true
 			}
+			df.push(groph.Edge{U: step.V, V: -1})
 			sortStart := len(df.mem)
 			eachNext(df.g, step.V, selectNext)
 			if df.SortBy != nil {
@@ -117,25 +123,26 @@ func (df *Search) depth1stAt(
 }
 
 func (df *Search) AdjDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
-	return df.depth1st(stopToNextCluster, do, groph.EachAdjacent)
+	return df.depth1st(stopToNextCluster, do, groph.EachAdjacent, false)
 }
 
 func (df *Search) OutDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
-	return df.depth1st(stopToNextCluster, do, groph.EachOutgoing)
+	return df.depth1st(stopToNextCluster, do, groph.EachOutgoing, groph.Directed(df.g))
 }
 
 func (df *Search) InDepth1st(stopToNextCluster bool, do VisitInCluster) (stopped bool) {
-	return df.depth1st(stopToNextCluster, do, groph.EachIncoming)
+	return df.depth1st(stopToNextCluster, do, groph.EachIncoming, groph.Directed(df.g))
 }
 
 func (df *Search) depth1st(
 	stopToNextCluster bool,
 	do VisitInCluster,
 	eachNext stepFn,
+	selectDir bool,
 ) (stopped bool) {
 	cluster := 0
-	cdo := func(p, n groph.VIdx, c bool) bool { return do(p, n, c, cluster) }
-	hits, stop := df.depth1stAt(0, cdo, eachNext)
+	cdo := func(p, n groph.VIdx, nh int) bool { return do(p, n, nh, cluster) }
+	hits, stop := df.depth1stAt(0, cdo, eachNext, selectDir)
 	if stop {
 		if !stopToNextCluster {
 			return true
@@ -147,7 +154,7 @@ func (df *Search) depth1st(
 			cluster++
 		}
 		start := df.visit.top() // TODO assert hits(start) == 0
-		n, stop := df.depth1stAt(start, cdo, eachNext)
+		n, stop := df.depth1stAt(start, cdo, eachNext, selectDir)
 		if stop {
 			if !stopToNextCluster {
 				return true
@@ -188,7 +195,8 @@ func (df *Search) breadth1stAt(
 	if df.mem != nil {
 		df.mem = df.mem[:0]
 	}
-	step := groph.Edge{U: -1, V: start}
+	lastU := -1
+	step := groph.Edge{U: lastU, V: start}
 	df.push(step)
 	df.tail = 0
 	var selectNext groph.VisitVertex
@@ -209,13 +217,13 @@ func (df *Search) breadth1stAt(
 		step = df.take()
 		h := df.visit.hits(step.V)
 		if h > 0 {
-			stopped = do(step.U, step.V, true)
+			stopped = do(step.U, step.V, h)
 			df.visit.setHits(step.V, h+1)
 			if stopped {
 				return hits, true
 			}
 		} else {
-			stopped = do(step.U, step.V, false)
+			stopped = do(step.U, step.V, 0)
 			df.visit.setHits(step.V, 1)
 			hits++
 			if stopped {
@@ -251,7 +259,7 @@ func (df *Search) breadth1st(
 	eachNext stepFn,
 ) (stopped bool) {
 	cluster := 0
-	cdo := func(p, n groph.VIdx, c bool) bool { return do(p, n, c, cluster) }
+	cdo := func(p, n groph.VIdx, nh int) bool { return do(p, n, nh, cluster) }
 	hits, stop := df.breadth1stAt(0, cdo, eachNext)
 	if stop {
 		if !stopToNextCluster {
@@ -276,17 +284,20 @@ func (df *Search) breadth1st(
 	return false
 }
 
-// Hits returns how often the vertex v of graph g of this seach was hit by
-// traversal operations.
-func (df *Search) Hits(v groph.VIdx) int {
+// State returns the state of a vertex caused by a search. The state is the
+// number of hits and its finished state. The finished state of vertext v is set
+// true only during depth-first searchs when all vertices reached through v have
+// been visited.
+//
+// State may be called during searches in VisitVertex or VisitInCluster
+// callback functions. Note that the hit count of a vertex is updated after
+// the callback.
+func (df *Search) State(v groph.VIdx) (hits int, finished bool) {
 	if v >= len(df.visit.vtx2item) {
-		return 0
+		return 0, false
 	}
-	ii := df.visit.vtx2item[v]
-	if ii < 0 {
-		return 0
-	}
-	return df.visit.items[ii].hits
+	pqi := df.visit.items[df.visit.vtx2item[v]]
+	return pqi.hits(), pqi.fini()
 }
 
 // LeatsHits returns one of the vertices in graph g of the Search that was least
@@ -296,7 +307,7 @@ func (df *Search) LeastHits() (v groph.VIdx, hits int) {
 		return -1, -1
 	}
 	item := df.visit.items[0]
-	return item.v, item.hits
+	return item.v, item.hits()
 }
 
 func (df *Search) push(e groph.Edge) {
@@ -310,6 +321,14 @@ func (df *Search) pop() (step groph.Edge) {
 	return step
 }
 
+func (df *Search) top() (step groph.Edge) {
+	l := len(df.mem)
+	if l == 0 {
+		return groph.Edge{U: -1, V: -1}
+	}
+	return df.mem[l-1]
+}
+
 func (df *Search) take() (step groph.Edge) {
 	step = df.mem[df.tail]
 	df.tail++
@@ -317,8 +336,32 @@ func (df *Search) take() (step groph.Edge) {
 }
 
 type hitPqItem struct {
-	hits int
-	v    groph.VIdx
+	finHits int
+	v       groph.VIdx
+}
+
+const (
+	MaxUInt = ^uint(0)
+	MaxInt  = int(MaxUInt >> 1)
+	MinInt  = -MaxInt - 1
+)
+
+func (pqi *hitPqItem) fini() bool { return pqi.finHits&MinInt != 0 }
+
+func (pqi *hitPqItem) setFini(f bool) {
+	hits := pqi.hits()
+	if f {
+		pqi.finHits = hits | MinInt
+	} else {
+		pqi.finHits = hits
+	}
+}
+
+func (pqi *hitPqItem) hits() int { return pqi.finHits & MaxInt }
+
+func (pqi *hitPqItem) setHits(h int) {
+	fini := pqi.finHits & MinInt
+	pqi.finHits = fini | h
 }
 
 type hitPrioQ struct {
@@ -335,23 +378,32 @@ func (pq *hitPrioQ) reset(ord groph.VIdx) {
 	}
 	for i := range pq.items {
 		pq.vtx2item[i] = i
-		pq.items[i] = hitPqItem{hits: 0, v: i}
+		pq.items[i] = hitPqItem{finHits: 0, v: i}
 	}
 }
 
 func (pq *hitPrioQ) top() groph.VIdx { return pq.items[0].v }
 
-func (pq *hitPrioQ) hits(v groph.VIdx) int { return pq.items[pq.vtx2item[v]].hits }
+func (pq *hitPrioQ) hits(v groph.VIdx) int {
+	return pq.items[pq.vtx2item[v]].hits()
+}
 
 func (pq *hitPrioQ) setHits(v groph.VIdx, hits int) {
 	ii := pq.vtx2item[v]
-	pq.items[ii].hits = hits
+	pq.items[ii].setHits(hits)
 	heap.Fix(pq, ii)
+}
+
+func (pq *hitPrioQ) setFini(v groph.VIdx, f bool) {
+	ii := pq.vtx2item[v]
+	pq.items[ii].setFini(f)
 }
 
 func (pq *hitPrioQ) Len() int { return len(pq.items) }
 
-func (pq *hitPrioQ) Less(i, j int) bool { return pq.items[i].hits < pq.items[j].hits }
+func (pq *hitPrioQ) Less(i, j int) bool {
+	return pq.items[i].hits() < pq.items[j].hits()
+}
 
 func (pq *hitPrioQ) Swap(i, j int) {
 	ii, ji := pq.items[i], pq.items[j]
