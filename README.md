@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/fractalqb/groph.svg)](https://travis-ci.org/fractalqb/groph)
 [![codecov](https://codecov.io/gh/fractalqb/groph/branch/master/graph/badge.svg)](https://codecov.io/gh/fractalqb/groph)
 [![Go Report Card](https://goreportcard.com/badge/git.fractalqb.de/fractalqb/groph)](https://goreportcard.com/report/git.fractalqb.de/fractalqb/groph)
-[![GoDoc](https://godoc.org/git.fractalqb.de/fractalqb/groph?status.svg)](https://godoc.org/git.fractalqb.de/fractalqb/groph)
+[![GoDoc](https://godoc.org/git.fractalqb.de/fractalqb/groph?status.svg)](https://pkg.go.dev/git.fractalqb.de/fractalqb/groph)
 
 `import "git.fractalqb.de/fractalqb/groph"`
 
