@@ -123,9 +123,11 @@ _Feedback on the benchmark project is very welcome to improve the validity of th
 
 | Library | Test | t-Factor |
 |---------|------|-------:|
-| groph   | access directed int32 | 1 |
-| [yourbasic graph](https://github.com/yourbasic/graph) | directed int64 | 44 |
-| [goraph](https://github.com/gyuho/goraph) | directed float64 | 737 |
-| [thcyron graphs](https://github.com/thcyron/graphs) | directed float64 | 1145 |
+| [groph](https://github.com/fractalqb/groph) | directed int32 | 1 |
+| [groph](https://github.com/fractalqb/groph) | directed float32 | 1,15 |
+| [yourbasic graph](https://github.com/yourbasic/graph) | directed int64 | 43 |
+| [gonum/graph](https://github.com/gonum/gonum) | directed float64 | 61 |
+| [goraph](https://github.com/gyuho/goraph) | directed float64 | 634 |
+| [thcyron graphs](https://github.com/thcyron/graphs) | directed float64 | 1031 |
 
 _t-Factor: smaller is better_
