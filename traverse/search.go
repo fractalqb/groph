@@ -12,7 +12,7 @@ type VisitVertex = func(pred, v groph.VIdx, vHits int) (stop bool)
 
 type VisitInCluster = func(pred, v groph.VIdx, vHits int, cluster int) (stop bool)
 
-// Search performs depth-first or breadth-breadth searches of
+// Search performs depth-first or breadth-first searches of
 // groph.RGraph objects.
 type Search struct {
 	g     groph.RGraph
