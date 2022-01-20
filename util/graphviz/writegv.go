@@ -11,6 +11,10 @@ import (
 
 type Attributes = map[string]interface{}
 
+type EdgeAttributer interface {
+	Atts(g groph.RGraph, u, v groph.VIdx) Attributes
+}
+
 type Writer struct {
 	GraphAtts   func(g groph.RGraph) Attributes
 	NodeAtts    func(g groph.RGraph) Attributes
@@ -41,7 +45,7 @@ func (gv Writer) Write(
 	wr io.Writer,
 	g groph.RGraph,
 	name string,
-	vlabels ...interface{},
+	vlabels ...string,
 ) {
 	if u, ok := g.(groph.RUndirected); ok {
 		gv.uwrite(wr, u, name, vlabels)
@@ -50,7 +54,7 @@ func (gv Writer) Write(
 	}
 }
 
-func (gv *Writer) nAtts(g groph.RGraph, v groph.VIdx, vlbs []interface{}) string {
+func (gv *Writer) vAtts(g groph.RGraph, v groph.VIdx, vlbs []string) string {
 	var label interface{}
 	if v < len(vlbs) {
 		label = vlbs[v]
@@ -84,10 +88,14 @@ func (gv *Writer) nAtts(g groph.RGraph, v groph.VIdx, vlbs []interface{}) string
 
 func (gv *Writer) eAtts(g groph.RGraph, u, v groph.VIdx) string {
 	w := g.Weight(u, v)
-	if gv.PerEdgeAtts == nil {
-		return fmt.Sprintf("label=\"%v\"", w)
+	var atts Attributes
+	if watt, ok := w.(EdgeAttributer); ok {
+		atts = watt.Atts(g, u, v)
+	} else if gv.PerEdgeAtts != nil {
+		atts = gv.PerEdgeAtts(g, u, v)
+	} else {
+		return ""
 	}
-	atts := gv.PerEdgeAtts(g, u, v)
 	var sb strings.Builder
 	sep := false
 	if lb, ok := atts["label"]; ok {
@@ -116,7 +124,7 @@ func (gv *Writer) dwrite(
 	wr io.Writer,
 	g groph.RGraph,
 	name string,
-	vlabels []interface{},
+	vlabels []string,
 ) {
 	if name == "" {
 		name = "G"
@@ -128,7 +136,7 @@ func (gv *Writer) dwrite(
 	gvWriteAtts(tw, g, "edge", gv.EdgeAtts)
 	if len(vlabels) > 0 || gv.PerNodeAtts != nil {
 		for i := 0; i < g.Order(); i++ {
-			atts := gv.nAtts(g, i, vlabels)
+			atts := gv.vAtts(g, i, vlabels)
 			if atts != "" {
 				fmt.Fprintf(tw, "\t%d\t[%s];\n", i, atts)
 			}
@@ -150,7 +158,7 @@ func (gv *Writer) uwrite(
 	wr io.Writer,
 	g groph.RUndirected,
 	name string,
-	vlabels []interface{},
+	vlabels []string,
 ) {
 	if name == "" {
 		name = "G"
@@ -162,7 +170,7 @@ func (gv *Writer) uwrite(
 	gvWriteAtts(tw, g, "edge", gv.EdgeAtts)
 	if len(vlabels) > 0 || gv.PerNodeAtts != nil {
 		for i := 0; i < g.Order(); i++ {
-			atts := gv.nAtts(g, i, vlabels)
+			atts := gv.vAtts(g, i, vlabels)
 			if atts != "" {
 				fmt.Fprintf(tw, "\t%d\t[%s];\n", i, atts)
 			}

@@ -76,29 +76,29 @@ func (dij *DijkstraBool) init(ord int) { dij.pq.init(ord) }
 func (dij *DijkstraBool) On(
 	g groph.RGbool,
 	start groph.VIdx,
-	dist []int,
-	prev []groph.VIdx,
+	distReuse []int,
+	treeReuse []groph.VIdx,
 ) ([]int, groph.Tree) {
 	order := g.Order()
-	dist = iutil.IntSlice(dist, order)
-	if prev != nil {
-		prev = iutil.VIdxSlice(prev, order)
+	distReuse = iutil.IntSlice(distReuse, order)
+	if treeReuse != nil {
+		treeReuse = iutil.VIdxSlice(treeReuse, order)
 	}
 	dij.init(order)
-	dist[start] = 0
+	distReuse[start] = 0
 	for v := 0; v < g.Order(); v++ {
 		if v != start {
-			dist[v] = -1
+			distReuse[v] = -1
 		}
-		if prev != nil {
-			prev[v] = -1
+		if treeReuse != nil {
+			treeReuse[v] = -1
 		}
-		heap.Push(&dij.pq, pqItemBool{v, dist[v]})
+		heap.Push(&dij.pq, pqItemBool{v, distReuse[v]})
 	}
 	for dij.pq.Len() != 0 {
 		u := heap.Pop(&dij.pq).(pqItemBool).v
 		groph.EachOutgoing(g, u, func(n groph.VIdx) (stop bool) {
-			alt := dist[u]
+			alt := distReuse[u]
 			if alt < 0 {
 				return false
 			}
@@ -107,17 +107,17 @@ func (dij *DijkstraBool) On(
 				return false
 			}
 			alt++
-			if dist[n] < 0 || alt < dist[n] {
-				dist[n] = alt
-				if prev != nil {
-					prev[n] = u
+			if distReuse[n] < 0 || alt < distReuse[n] {
+				distReuse[n] = alt
+				if treeReuse != nil {
+					treeReuse[n] = u
 				}
 				dij.pq.update(n, alt)
 			}
 			return false
 		})
 	}
-	return dist, prev
+	return distReuse, treeReuse
 }
 
 type pqItemI32 struct {
@@ -188,29 +188,29 @@ func (dij *DijkstraI32) init(ord int) { dij.pq.init(ord) }
 func (dij *DijkstraI32) On(
 	g groph.RGi32,
 	start groph.VIdx,
-	dist []int32,
-	prev []groph.VIdx,
+	distReuse []int32,
+	prevReuse []groph.VIdx,
 ) ([]int32, groph.Tree) {
 	order := g.Order()
-	dist = iutil.I32Slice(dist, order)
-	if prev != nil {
-		prev = iutil.VIdxSlice(prev, order)
+	distReuse = iutil.I32Slice(distReuse, order)
+	if prevReuse != nil {
+		prevReuse = iutil.VIdxSlice(prevReuse, order)
 	}
 	dij.init(order)
-	dist[start] = 0
+	distReuse[start] = 0
 	for v := 0; v < g.Order(); v++ {
 		if v != start {
-			dist[v] = -1
+			distReuse[v] = -1
 		}
-		if prev != nil {
-			prev[v] = -1
+		if prevReuse != nil {
+			prevReuse[v] = -1
 		}
-		heap.Push(&dij.pq, pqItemI32{v, dist[v]})
+		heap.Push(&dij.pq, pqItemI32{v, distReuse[v]})
 	}
 	for dij.pq.Len() != 0 {
 		u := heap.Pop(&dij.pq).(pqItemI32).v
 		groph.EachOutgoing(g, u, func(n groph.VIdx) (stop bool) {
-			alt := dist[u]
+			alt := distReuse[u]
 			if alt < 0 {
 				return false
 			}
@@ -219,17 +219,17 @@ func (dij *DijkstraI32) On(
 				return false
 			}
 			alt += e
-			if dist[n] < 0 || alt < dist[n] {
-				dist[n] = alt
-				if prev != nil {
-					prev[n] = u
+			if distReuse[n] < 0 || alt < distReuse[n] {
+				distReuse[n] = alt
+				if prevReuse != nil {
+					prevReuse[n] = u
 				}
 				dij.pq.update(n, alt)
 			}
 			return false
 		})
 	}
-	return dist, prev
+	return distReuse, prevReuse
 }
 
 type pqItemF32 struct {
@@ -289,38 +289,38 @@ func (dij *DijkstraF32) init(ord int) { dij.pq.init(ord) }
 func (dij *DijkstraF32) On(
 	g groph.RGf32,
 	start groph.VIdx,
-	dist []float32,
-	prev []groph.VIdx,
+	distReuse []float32,
+	treeReuse []groph.VIdx,
 ) ([]float32, groph.Tree) {
 	order := g.Order()
-	dist = iutil.F32Slice(dist, order)
-	if prev != nil {
-		prev = iutil.VIdxSlice(prev, order)
+	distReuse = iutil.F32Slice(distReuse, order)
+	if treeReuse != nil {
+		treeReuse = iutil.VIdxSlice(treeReuse, order)
 	}
 	dij.init(order)
-	dist[start] = 0
+	distReuse[start] = 0
 	for v := 0; v < g.Order(); v++ {
 		if v != start {
-			dist[v] = float32(math.Inf(1))
+			distReuse[v] = float32(math.Inf(1))
 		}
-		if prev != nil {
-			prev[v] = -1
+		if treeReuse != nil {
+			treeReuse[v] = -1
 		}
-		heap.Push(&dij.pq, pqItemF32{v, dist[v]})
+		heap.Push(&dij.pq, pqItemF32{v, distReuse[v]})
 	}
 	for dij.pq.Len() != 0 {
 		u := heap.Pop(&dij.pq).(pqItemF32).v
 		groph.EachOutgoing(g, u, func(n groph.VIdx) (stop bool) {
-			alt := dist[u] + g.Edge(u, n) // TODO EdgeU?
-			if alt < dist[n] {
-				dist[n] = alt
-				if prev != nil {
-					prev[n] = u
+			alt := distReuse[u] + g.Edge(u, n) // TODO EdgeU?
+			if alt < distReuse[n] {
+				distReuse[n] = alt
+				if treeReuse != nil {
+					treeReuse[n] = u
 				}
 				dij.pq.update(n, alt)
 			}
 			return false
 		})
 	}
-	return dist, prev
+	return distReuse, treeReuse
 }

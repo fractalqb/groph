@@ -52,6 +52,20 @@ func (g *SoMD) Reset(order int) {
 	}
 }
 
+func (g *SoMD) Reorder(order int) {
+	o := g.Order()
+	switch {
+	case order == g.Order():
+		return
+	case order < o:
+		g.ws = g.ws[:order]
+	default:
+		tmp := make([]spmro, order)
+		copy(tmp, g.ws)
+		g.ws = tmp
+	}
+}
+
 func (g *SoMD) EachOutgoing(from groph.VIdx, onDest groph.VisitVertex) (stopped bool) {
 	if row := g.ws[from]; row != nil {
 		for n := range row {

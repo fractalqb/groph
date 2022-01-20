@@ -12,12 +12,16 @@ type VisitVertex = func(pred, v groph.VIdx, vHits int) (stop bool)
 
 type VisitInCluster = func(pred, v groph.VIdx, vHits int, cluster int) (stop bool)
 
-// Search performs depth-first or breadth-first searches of
-// groph.RGraph objects.
+// Search performs depth-first or breadth-first searches of groph.RGraph
+// objects. A Search is created for the graph to be searched. The Search must
+// not be used concurrently. It can be resued for other graphs with the Reset
+// methods.
 type Search struct {
-	g     groph.RGraph
-	mem   []groph.Edge
-	tail  int
+	g    groph.RGraph
+	mem  []groph.Edge
+	tail int
+	// Heap with per-node hit counts. A root with hit count 0 is a good start
+	// for the next tree in a forest.
 	visit hitPrioQ
 	// If not nil SortBy is used to sort the neighbours v of node u. SortBy
 	// returns true if the edge (u,v1) is less than (u,v2).
@@ -171,7 +175,6 @@ func (df *Search) depth1st(
 // further vertices can be reached via an edge of the graph. It
 // returns the number of distinct vertex hits during the search and an
 // indicator if the visit function 'do' stopped the search.
-
 func (df *Search) AdjBreadth1stAt(start groph.VIdx, do VisitVertex) (hits int, stopped bool) {
 	return df.breadth1stAt(start, do, groph.EachAdjacent)
 }

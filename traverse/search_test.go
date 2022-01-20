@@ -9,6 +9,8 @@ import (
 	"git.fractalqb.de/fractalqb/groph"
 )
 
+func e(u, v groph.VIdx) groph.Edge { return groph.Edge{U: u, V: v} }
+
 func TestSearch_emptyGraphs(t *testing.T) {
 	var visited bool
 	visit := func(_, _ groph.VIdx, _ int, _ int) bool {
@@ -37,12 +39,7 @@ func TestSearch_emptyGraphs(t *testing.T) {
 	test("OutBreadth1st", s.OutBreadth1st)
 }
 
-// Just to make go vet happy! I like
-// 	type E = groph.Edge
-//  E{u, v} better
-func e(u, v groph.VIdx) groph.Edge { return groph.Edge{U: u, V: v} }
-
-func ExampleSearch_Depth1stAt() {
+func ExampleSearch_AdjDepth1stAt() {
 	g := adjmatrix.NewUBool(7, nil)
 	groph.Set(g, true,
 		e(0, 1), e(0, 2), e(0, 3),
@@ -66,7 +63,7 @@ func ExampleSearch_Depth1stAt() {
 	// hits: 7
 }
 
-func ExampleSearch_Breadth1stAt() {
+func ExampleSearch_AdjBreadth1stAt() {
 	g := adjmatrix.NewUBool(7, nil)
 	groph.Set(g, true,
 		e(0, 1), e(0, 2), e(0, 3),
