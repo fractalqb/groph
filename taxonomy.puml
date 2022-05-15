@@ -1,0 +1,58 @@
+@startuml
+hide empty attributes
+hide empty methods
+
+interface RGraph {
+  Order() int
+  Edge(u, v) W
+  IsEdge(w) bool
+.. gimpls ..
+  Size() int
+  EachEdge(on) stop
+}
+
+interface RDirected {
+.. gimpls ..
+  OutDegree(v) int
+  EachOut(v, on) stop
+  InDegree(v) int
+  EachIn(v, on) stop
+  RootCount() int
+  EachRoot(on) stop
+  LeafCount() int
+  EachLeaf(on) stop
+}
+
+RGraph <|-- RDirected
+
+interface RUndirected {
+  EdgeU(u, v) {u ≥ v}
+.. gimpls ..
+  Degree(v) int
+  EachAdjacent(v, on) stop
+}
+
+RGraph <|-- RUndirected
+
+interface WGraph {
+  Reset(order)
+  SetEdge(u, v, w)
+  DelEdge(u, v)
+}
+
+RGraph <|-- WGraph
+
+interface WDirected
+
+WGraph <|-- WDirected
+RDirected <|-- WDirected
+
+interface WUndirected {
+  SetEdgeU(u, v, w) {u ≥ v}
+  DelEdgeU(u, v) {u ≥ v}
+}
+
+WGraph <|-- WUndirected
+RUndirected <|-- WUndirected
+
+@enduml

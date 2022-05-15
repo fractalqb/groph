@@ -1,174 +1,132 @@
+// Copyright 2022 Marcus Perlick
+// This file is part of Go module git.fractalqb.de/fractalqb/groph
+//
+// groph is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// groph is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with groph.  If not, see <http://www.gnu.org/licenses/>.
+
 package groph
 
-import "math"
+type VisitVertex = func(v VIdx) (stop bool)
+
+type VisitEdge[W any] func(u, v VIdx, w W) (stop bool)
 
 // VIdx is the type used to represent vertices in the graph implementations
 // provided by the groph package.
 type VIdx = int
-
-// Edge represents a graphs edge between vertices U and V. For directed graphs
-// its the edge from U to V.
-type Edge struct {
-	U, V VIdx
-}
 
 // RGraph represents graph that allows read only access to the egde
 // weights.
 //
 // For graphs that can change be modified see WGraph. For undirected
 // graphs see also RUndirected.
-type RGraph interface {
+type RGraph[W any] interface {
 	// Order return the numer of vertices in the graph.
 	Order() int
+	
 	// Returns the weight of the edge that connects the vertex with index
 	// u with the vertex with index v. If there is no such edge it returns nil.
-	Weight(u, v VIdx) interface{}
+	Edge(u, v VIdx) (weight W)
+	
+	// IsEdge returns true if and only if weight denotes an existing edge.
+	IsEdge(weight W) bool
+	
+	// NotEdge return a W typed value that denotes a non-existing edge, i.e.
+	// IsEdge(NotEdge()) == false.
+	NotEdge() W
+	
+	// Size returns the number of edges of the graph.
+	Size() int
+	
+	// EachEdge calls onEdge for each edge in the graph. When onEdge returns
+	// true EachEdge stops immediately and returns true. Otherwise EachEdge
+	// returns false.
+	EachEdge(onEdge VisitEdge[W]) (stopped bool)
+}
+
+type RDirected[W any] interface {
+	RGraph[W]
+	
+	// OutDegree returns the number of outgoing edges of vertex v in graph
+	// g. Note that for undirected graphs each edge is also considered to
+	// be an outgoing edge.
+	OutDegree(v VIdx) int
+	
+	EachOut(from VIdx, onDest VisitVertex) (stopped bool)
+	
+	// InDegree returns the number of incoming edges of vertex v in graph
+	// g. Note that for undirected graphs each edge is also considered to
+	// be an incoming edge.
+	InDegree(v VIdx) int
+	
+	EachIn(to VIdx, onSource VisitVertex) (stopped bool)
+	
+	RootCount() int
+	
+	EachRoot(onEdge VisitVertex) (stopped bool)
+
+	LeafCount() int
+	
+	EachLeaf(onEdge VisitVertex) (stopped bool)
 }
 
 // RUndirected represents an undirected graph that allows read only
 // access to the edge weights. For undirected graphs each edge (u,v) is
 // considered outgiong as well as incoming for both, vertex u and vertext v.
-type RUndirected interface {
-	RGraph
+type RUndirected[W any] interface {
+	RGraph[W]
 	// Weight must only be called when u ≥ v.  Otherwise WeightU's
 	// behaviour is unspecified, it even might crash.  In many
 	// implementations this can be way more efficient than the
 	// general case, see method Weight().
-	WeightU(u, v VIdx) interface{}
+	EdgeU(u, v VIdx) (weight W)
+	
+	Degree(v VIdx) int
+	
+	EachAdjacent(of VIdx, onNeighbour VisitVertex) (stopped bool)
 }
 
 // WGraph represents graph that allows read and write access to the
 // egde weights.
 //
 // For undirected graphs see also WUndirected.
-type WGraph interface {
-	RGraph
+type WGraph[W any] interface {
+	RGraph[W]
 	// Reset resizes the graph to order and reinitializes it. Implementations
 	// are expected to reuse memory.
 	Reset(order int)
 	// SetWeight sets the edge weight for the edge starting at vertex u and
 	// ending at vertex v. Passing w==nil removes the edge.
-	SetWeight(u, v VIdx, w interface{})
+	SetEdge(u, v VIdx, weight W)
+	
+	DelEdge(u, v VIdx)
+}
+
+type WDirected[W any] interface {
+	WGraph[W]
+	RDirected[W]
 }
 
 // WUndirected represents an undirected graph that allows read and
 // write access to the egde weights.
-type WUndirected interface {
-	WGraph
-	// See RUndirected.WeightU
-	WeightU(u, v VIdx) interface{}
+type WUndirected[W any] interface {
+	WGraph[W]
+	RUndirected[W]
+	
 	// SetWeightU must only be called when u ≥ v.  Otherwise
 	// SetWeightU's behaviour is unspecified, it even might crash.
 	//
 	// See also RUndirected.WeightU
-	SetWeightU(u, v VIdx, w interface{})
-}
+	SetEdgeU(u, v VIdx, w W)
 
-// RGbool represents a RGraph with boolean edge weights.
-type RGbool interface {
-	RGraph
-	// Edge returns true, iff the edge (u,v) is in the graph.
-	Edge(u, v VIdx) bool
-}
-
-// RUbool represents a RUndirected with boolean edge weights.
-type RUbool interface {
-	RGbool
-	EdgeU(u, v VIdx) bool
-}
-
-// WGbool represents a WGraph with boolean edge weights.
-type WGbool interface {
-	WGraph
-	// see RGbool
-	Edge(u, v VIdx) bool
-	// SetEdge removes the edge (u,v) from the graph when flag == bool.
-	// Otherwise it adds the edge (u,v) to the graph.
-	SetEdge(u, v VIdx, flag bool)
-}
-
-type WUbool interface {
-	WGbool
-	WeightU(u, v VIdx) interface{}
-	SetWeightU(u, v VIdx, w interface{})
-	EdgeU(u, v VIdx) bool
-	SetEdgeU(u, v VIdx, flag bool)
-}
-
-// An RGi32 is a RGraph with type safe access to the edge weight of type
-// int32. Besides type safety this avoids boxing/unboxing of the Weight
-// method for performance reasons.
-type RGi32 interface {
-	RGraph
-	// Edge returns ok == true, iff the edge (u,v) is in the graph. Then it will
-	// also return the weight of the edge. Otherwise the value of weight is
-	// unspecified.
-	Edge(u, v VIdx) (weight int32, ok bool)
-}
-
-type RUi32 interface {
-	RGi32
-	EdgeU(u, v VIdx) (weight int32, ok bool)
-}
-
-// An WGi32 is to WGraph what RGi32 is to RGraph.
-type WGi32 interface {
-	WGraph
-	// see RGi32
-	Edge(u, v VIdx) (weight int32, ok bool)
-	// SetEdge sets the weight of the edge (u,v). If the edge (u,v) was not in
-	// the graph before, it is implicitly added.
-	SetEdge(u, v VIdx, weight int32)
-}
-
-type WUi32 interface {
-	WGi32
-	WeightU(u, v VIdx) interface{}
-	SetWeightU(u, v VIdx, w interface{})
-	EdgeU(u, v VIdx) (weight int32, ok bool)
-	SetEdgeU(u, v VIdx, weight int32)
-}
-
-var nan32 = float32(math.NaN())
-
-// NaN32 is used by adjacency matrices with edge weight type 'float32'
-// to mark edges that do not exist.
-//
-// See AdjMxDf32 and AdjMxUf32
-func NaN32() float32 { return nan32 }
-
-// IsNaN32 test is x is NaN (no a number). See also NaN32.
-func IsNaN32(x float32) bool { return math.IsNaN(float64(x)) }
-
-// An RGf32 is a RGraph with type safe access to the edge weight of type
-// float32. Besides type safety this avoids boxing/unboxing of the Weight
-// method for performance reasons.
-type RGf32 interface {
-	RGraph
-	// Edge returns Nan32() when the edge (u,v) is not in the graph. Otherwise
-	// it returns the weight of the edge.
-	Edge(u, v VIdx) (weight float32)
-}
-
-type RUf32 interface {
-	RGf32
-	EdgeU(u, v VIdx) (weight float32)
-}
-
-// An WGf32 is to WGraph what RGf32 is to RGraph.
-type WGf32 interface {
-	WGraph
-	// see RGf32
-	Edge(u, v VIdx) (weight float32)
-	// SetEdge removes the edge (u,v) from the graph, iff weight is NaN32().
-	// Othwerwise it sets the weight of the edge to weight.
-	SetEdge(u, v VIdx, weight float32)
-}
-
-type WUf32 interface {
-	WGf32
-	WeightU(u, v VIdx) interface{}
-	SetWeightU(u, v VIdx, w interface{})
-	EdgeU(u, v VIdx) (weight float32)
-	SetEdgeU(u, v VIdx, weight float32)
+	DelEdgeU(u, v VIdx)
 }
