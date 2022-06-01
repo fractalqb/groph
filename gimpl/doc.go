@@ -17,5 +17,5 @@
 // Package gimpls provides standard implementations for graph methods that can
 // help to implement groph graphs.
 //
-// E.g. see the groph adjmtx package.
+// E.g. see the groph graphs and adjmtx package.
 package gimpl

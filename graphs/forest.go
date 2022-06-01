@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-package gimpl
+package graphs
 
 import (
 	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/gimpl"
 	"git.fractalqb.de/fractalqb/groph/internal"
 )
 
@@ -63,15 +64,15 @@ func (f *InForest[W]) Size() (res int) {
 	return res
 }
 
-func (f *InForest[W]) EachEdge(onEdge groph.VisitEdge[W]) (stopped bool) {
+func (f *InForest[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
 	for u, l := range f.es {
 		if l.up >= 0 && l.w != f.noe {
-			if onEdge(u, l.up, l.w) {
-				return true
+			if err := onEdge(u, l.up, l.w); err != nil {
+				return err
 			}
 		}
 	}
-	return false
+	return nil
 }
 
 func (f *InForest[W]) Reset(order int) {
@@ -98,10 +99,10 @@ func (f *InForest[W]) OutDegree(v groph.VIdx) int {
 	return 1
 }
 
-func (f *InForest[W]) EachOut(from groph.VIdx, onDest groph.VisitVertex) (stopped bool) {
+func (f *InForest[W]) EachOut(from groph.VIdx, onDest groph.VisitVertex) error {
 	e := f.es[from]
 	if e.w == f.noe || e.up < 0 {
-		return false
+		return nil
 	}
 	return onDest(e.up)
 }
@@ -115,19 +116,19 @@ func (f *InForest[W]) InDegree(v groph.VIdx) int {
 	return 0
 }
 
-func (f *InForest[W]) EachIn(to groph.VIdx, onSource groph.VisitVertex) (stopped bool) {
+func (f *InForest[W]) EachIn(to groph.VIdx, onSource groph.VisitVertex) error {
 	for from, e := range f.es {
 		if e.up == to && e.w != f.noe {
 			return onSource(from)
 		}
 	}
-	return false
+	return nil
 }
 
-func (f *InForest[W]) RootCount() int { return DRootCount[W](f) }
+func (f *InForest[W]) RootCount() int { return gimpl.DRootCount[W](f) }
 
-func (f *InForest[W]) EachRoot(onEdge groph.VisitVertex) (stopped bool) {
-	return DEachRoot[W](f, onEdge)
+func (f *InForest[W]) EachRoot(onEdge groph.VisitVertex) error {
+	return gimpl.DEachRoot[W](f, onEdge)
 }
 
 func (f *InForest[W]) LeafCount() (res int) {
@@ -139,13 +140,13 @@ func (f *InForest[W]) LeafCount() (res int) {
 	return res
 }
 
-func (f *InForest[W]) EachLeaf(onEdge groph.VisitVertex) (stopped bool) {
+func (f *InForest[W]) EachLeaf(onEdge groph.VisitVertex) error {
 	for v, e := range f.es {
 		if e.w == f.noe || e.up < 0 {
-			if onEdge(v) {
-				return true
+			if err := onEdge(v); err != nil {
+				return err
 			}
 		}
 	}
-	return false
+	return nil
 }

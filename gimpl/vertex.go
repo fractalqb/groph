@@ -30,16 +30,16 @@ func DOutDegree[W any, G groph.RDirected[W]](g G, v groph.VIdx) (d int) {
 	return d
 }
 
-func DEachOut[W any, G groph.RDirected[W]](g G, from groph.VIdx, onDest groph.VisitVertex) bool {
+func DEachOut[W any, G groph.RDirected[W]](g G, from groph.VIdx, onDest groph.VisitVertex) error {
 	ord := g.Order()
 	for to := groph.VIdx(0); to < ord; to++ {
 		if g.IsEdge(g.Edge(from, to)) {
-			if onDest(to) {
-				return true
+			if err := onDest(to); err != nil {
+				return err
 			}
 		}
 	}
-	return false
+	return nil
 }
 
 func DInDegree[W any, G groph.RDirected[W]](g G, v groph.VIdx) (d int) {
@@ -52,40 +52,40 @@ func DInDegree[W any, G groph.RDirected[W]](g G, v groph.VIdx) (d int) {
 	return d
 }
 
-func DEachIn[W any, G groph.RDirected[W]](g G, to groph.VIdx, onSource groph.VisitVertex) bool {
+func DEachIn[W any, G groph.RDirected[W]](g G, to groph.VIdx, onSource groph.VisitVertex) error {
 	ord := g.Order()
 	for from := groph.VIdx(0); from < ord; from++ {
 		if g.IsEdge(g.Edge(from, to)) {
-			if onSource(from) {
-				return true
+			if err := onSource(from); err != nil {
+				return err
 			}
 		}
 	}
-	return false
+	return nil
 }
 
-func DEachRoot[W any, G groph.RDirected[W]](g G, onRoot groph.VisitVertex) bool {
+func DEachRoot[W any, G groph.RDirected[W]](g G, onRoot groph.VisitVertex) error {
 	ord := g.Order()
 	for i := groph.VIdx(0); i < ord; i++ {
 		if g.InDegree(i) == 0 {
-			if onRoot(i) {
-				return true
+			if err := onRoot(i); err != nil {
+				return err
 			}
 		}
 	}
-	return false
+	return nil
 }
 
-func DEachLeaf[W any, G groph.RDirected[W]](g G, onLeaf groph.VisitVertex) bool {
+func DEachLeaf[W any, G groph.RDirected[W]](g G, onLeaf groph.VisitVertex) error {
 	ord := g.Order()
 	for i := groph.VIdx(0); i < ord; i++ {
 		if g.OutDegree(i) == 0 {
-			if onLeaf(i) {
-				return true
+			if err := onLeaf(i); err != nil {
+				return err
 			}
 		}
 	}
-	return false
+	return nil
 }
 
 func UDegree[W any](g groph.RUndirected[W], v groph.VIdx) (d int) {
@@ -106,23 +106,23 @@ func UDegree[W any](g groph.RUndirected[W], v groph.VIdx) (d int) {
 	return d
 }
 
-func UEachAdjacent[W any, G groph.RUndirected[W]](g G, of groph.VIdx, onNeighbour groph.VisitVertex) bool {
+func UEachAdjacent[W any, G groph.RUndirected[W]](g G, of groph.VIdx, onNeighbour groph.VisitVertex) error {
 	n, ord := groph.VIdx(0), g.Order()
 	for n < of {
 		if g.IsEdge(g.EdgeU(of, n)) {
-			if onNeighbour(n) {
-				return true
+			if err := onNeighbour(n); err != nil {
+				return err
 			}
 		}
 		n++
 	}
 	for n < ord { // n >= of
 		if g.IsEdge(g.EdgeU(n, of)) {
-			if onNeighbour(n) {
-				return true
+			if err := onNeighbour(n); err != nil {
+				return err
 			}
 		}
 		n++
 	}
-	return false
+	return nil
 }

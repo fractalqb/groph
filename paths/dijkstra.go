@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-package shortpath
+package paths
 
 import (
 	"container/heap"
@@ -22,7 +22,7 @@ import (
 	"golang.org/x/exp/constraints"
 
 	"git.fractalqb.de/fractalqb/groph"
-	"git.fractalqb.de/fractalqb/groph/gimpl"
+	"git.fractalqb.de/fractalqb/groph/graphs"
 )
 
 type minVItem[W constraints.Ordered] struct {
@@ -87,19 +87,19 @@ func (mv *minVertex[W]) Pop() interface{} {
 	return itm
 }
 
-func DijkstraD[W constraints.Ordered, G groph.RDirected[W]](g G, v groph.VIdx) *gimpl.InForest[W] {
+func DijkstraD[W constraints.Ordered, G groph.RDirected[W]](g G, v groph.VIdx) *graphs.InForest[W] {
 	var minv minVertex[W]
 	minv.init(g, v)
-	res := gimpl.NewInForest(g.Order(), g.NotEdge())
+	res := graphs.NewInForest(g.Order(), g.NotEdge())
 	for minv.Len() > 0 {
 		top := heap.Pop(&minv).(minVItem[W])
 		if !g.IsEdge(top.d) {
 			break
 		}
 		res.SetEdge(v, top.v, top.d)
-		g.EachOut(top.v, func(n groph.VIdx) bool {
+		g.EachOut(top.v, func(n groph.VIdx) error {
 			if minv.v2idx[n] < 0 {
-				return false
+				return nil
 			}
 			d := g.Edge(top.v, n)
 			if g.IsEdge(d) {
@@ -108,26 +108,26 @@ func DijkstraD[W constraints.Ordered, G groph.RDirected[W]](g G, v groph.VIdx) *
 				nv.d = top.d + d
 				heap.Fix(&minv, vi)
 			}
-			return false
+			return nil
 		})
 		v = top.v
 	}
 	return res
 }
 
-func DijkstraU[W constraints.Ordered, G groph.RUndirected[W]](g G, v groph.VIdx) *gimpl.InForest[W] {
+func DijkstraU[W constraints.Ordered, G groph.RUndirected[W]](g G, v groph.VIdx) *graphs.InForest[W] {
 	var minv minVertex[W]
 	minv.init(g, v)
-	res := gimpl.NewInForest(g.Order(), g.NotEdge())
+	res := graphs.NewInForest(g.Order(), g.NotEdge())
 	for minv.Len() > 0 {
 		top := heap.Pop(&minv).(minVItem[W])
 		if !g.IsEdge(top.d) {
 			break
 		}
 		res.SetEdge(v, top.v, top.d)
-		g.EachAdjacent(top.v, func(n groph.VIdx) bool {
+		g.EachAdjacent(top.v, func(n groph.VIdx) error {
 			if minv.v2idx[n] < 0 {
-				return false
+				return nil
 			}
 			d := g.Edge(top.v, n)
 			if g.IsEdge(d) {
@@ -136,7 +136,7 @@ func DijkstraU[W constraints.Ordered, G groph.RUndirected[W]](g G, v groph.VIdx)
 				nv.d = top.d + d
 				heap.Fix(&minv, vi)
 			}
-			return false
+			return nil
 		})
 		v = top.v
 	}

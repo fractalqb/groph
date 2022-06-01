@@ -17,17 +17,18 @@
 package grophtests
 
 import (
-	"math"
 	"fmt"
+	"math"
 	"math/rand"
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/adjmtx"
 )
+
 const intNoE = -1
 
-var f32NoE = float32(math.NaN())
+var f32NoE = float32(math.Inf(-1))
 
 func tstGSame[V, W any](g1 groph.RGraph[V], g2 groph.RGraph[W], sameOrd bool, wEq func(V, W) bool) error {
 	ord := g1.Order()
@@ -49,7 +50,7 @@ func tstGSame[V, W any](g1 groph.RGraph[V], g2 groph.RGraph[W], sameOrd bool, wE
 }
 
 func TestCpWeights_from_directed(t *testing.T) {
-	src := adjmtx.NewDirected[int](11, intNoE, nil)
+	src := adjmtx.NewDirected(11, intNoE, nil)
 	for i := 0; i < src.Order(); i++ {
 		for j := 0; j < src.Order(); j++ {
 			if rand.Intn(100) < 75 {
@@ -59,7 +60,7 @@ func TestCpWeights_from_directed(t *testing.T) {
 	}
 	wEq := func(w1, w2 int) bool { return w1 == w2 }
 	t.Run("to directed", func(t *testing.T) {
-		dst := adjmtx.NewDirected[int](src.Order(), intNoE, nil)
+		dst := adjmtx.NewDirected(src.Order(), intNoE, nil)
 		err := groph.Copy[int](dst, src)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -69,7 +70,7 @@ func TestCpWeights_from_directed(t *testing.T) {
 		}
 	})
 	t.Run("to undirected", func(t *testing.T) {
-		dst := adjmtx.NewUndirected[int](src.Order(), intNoE, nil)
+		dst := adjmtx.NewUndirected(src.Order(), intNoE, nil)
 		err := groph.Copy[int](dst, src)
 		if err == nil {
 			t.Fatal("copy from directed to undirected did not return error")
@@ -81,7 +82,7 @@ func TestCpWeights_from_directed(t *testing.T) {
 }
 
 func TestCpWeights_from_undirected(t *testing.T) {
-	src := adjmtx.NewUndirected[int](11, intNoE, nil)
+	src := adjmtx.NewUndirected(11, intNoE, nil)
 	for i := 0; i < src.Order(); i++ {
 		for j := 0; j <= i; j++ {
 			if rand.Intn(100) < 75 {
@@ -91,7 +92,7 @@ func TestCpWeights_from_undirected(t *testing.T) {
 	}
 	wEq := func(w1, w2 int) bool { return w1 == w2 }
 	t.Run("to directed", func(t *testing.T) {
-		dst := adjmtx.NewDirected[int](src.Order(), intNoE, nil)
+		dst := adjmtx.NewDirected(src.Order(), intNoE, nil)
 		err := groph.Copy[int](dst, src)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -101,7 +102,7 @@ func TestCpWeights_from_undirected(t *testing.T) {
 		}
 	})
 	t.Run("to undirected", func(t *testing.T) {
-		dst := adjmtx.NewUndirected[int](src.Order(), intNoE, nil)
+		dst := adjmtx.NewUndirected(src.Order(), intNoE, nil)
 		err := groph.Copy[int](dst, src)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -113,7 +114,7 @@ func TestCpWeights_from_undirected(t *testing.T) {
 }
 
 func TestCpXWeights_from_directed(t *testing.T) {
-	src := adjmtx.NewDirected[int](11, intNoE, nil)
+	src := adjmtx.NewDirected(11, intNoE, nil)
 	for i := 0; i < src.Order(); i++ {
 		for j := 0; j < src.Order(); j++ {
 			if rand.Intn(100) < 75 {
@@ -122,9 +123,9 @@ func TestCpXWeights_from_directed(t *testing.T) {
 		}
 	}
 	xFn := func(w int) (float32, error) { return float32(w), nil }
-	wEq := func(w1 int, w2 float32) bool { return float32(w1) == w2	}
+	wEq := func(w1 int, w2 float32) bool { return float32(w1) == w2 }
 	t.Run("to directed", func(t *testing.T) {
-		dst := adjmtx.NewDirected[float32](src.Order(), f32NoE, nil)
+		dst := adjmtx.NewDirected(src.Order(), f32NoE, nil)
 		err := groph.CopyX[float32, int](dst, src, xFn)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -134,7 +135,7 @@ func TestCpXWeights_from_directed(t *testing.T) {
 		}
 	})
 	t.Run("to undirected", func(t *testing.T) {
-		dst := adjmtx.NewUndirected[float32](src.Order(), f32NoE, nil)
+		dst := adjmtx.NewUndirected(src.Order(), f32NoE, nil)
 		err := groph.CopyX[float32, int](dst, src, xFn)
 		if err == nil {
 			t.Fatal("copy from directed to undirected did not return error")
@@ -146,7 +147,7 @@ func TestCpXWeights_from_directed(t *testing.T) {
 }
 
 func TestCpXWeights_from_undirected(t *testing.T) {
-	src := adjmtx.NewUndirected[int](11, intNoE, nil)
+	src := adjmtx.NewUndirected(11, intNoE, nil)
 	for i := 0; i < src.Order(); i++ {
 		for j := 0; j <= i; j++ {
 			if rand.Intn(100) < 75 {
@@ -155,9 +156,9 @@ func TestCpXWeights_from_undirected(t *testing.T) {
 		}
 	}
 	xFn := func(w int) (float32, error) { return float32(w), nil }
-	wEq := func(w1 int, w2 float32) bool { return float32(w1) == w2	}
+	wEq := func(w1 int, w2 float32) bool { return float32(w1) == w2 }
 	t.Run("to directed", func(t *testing.T) {
-		dst := adjmtx.NewDirected[float32](src.Order(), f32NoE, nil)
+		dst := adjmtx.NewDirected(src.Order(), f32NoE, nil)
 		err := groph.CopyX[float32, int](dst, src, xFn)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
@@ -167,7 +168,7 @@ func TestCpXWeights_from_undirected(t *testing.T) {
 		}
 	})
 	t.Run("to undirected", func(t *testing.T) {
-		dst := adjmtx.NewUndirected[float32](src.Order(), f32NoE, nil)
+		dst := adjmtx.NewUndirected(src.Order(), f32NoE, nil)
 		err := groph.CopyX[float32, int](dst, src, xFn)
 		if err != nil {
 			t.Fatal("unexpected error:", err)

@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-package gtests
+package gimpl
 
 import (
 	"testing"
+
 	"git.fractalqb.de/fractalqb/groph"
 )
 
@@ -33,7 +34,7 @@ func TestDCleared[W any](t *testing.T, g groph.RGraph[W]) {
 					ri, rj)
 			}
 		}
-	}	
+	}
 }
 
 func TestDSetDel[W any](t *testing.T, g groph.WGraph[W], probe W, eq func(a, b W) bool) {

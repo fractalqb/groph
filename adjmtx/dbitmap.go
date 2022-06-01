@@ -80,7 +80,7 @@ func (g *DBitmap) OutDegree(v groph.VIdx) int {
 	return gimpl.DOutDegree[bool](g, v)
 }
 
-func (g *DBitmap) EachOut(from groph.VIdx, onDest groph.VisitVertex) (stopped bool) {
+func (g *DBitmap) EachOut(from groph.VIdx, onDest groph.VisitVertex) error {
 	return gimpl.DEachOut[bool](g, from, onDest)
 }
 
@@ -88,7 +88,7 @@ func (g *DBitmap) InDegree(v groph.VIdx) int {
 	return gimpl.DInDegree[bool](g, v)
 }
 
-func (g *DBitmap) EachIn(to groph.VIdx, onSource groph.VisitVertex) (stopped bool) {
+func (g *DBitmap) EachIn(to groph.VIdx, onSource groph.VisitVertex) error {
 	return gimpl.DEachIn[bool](g, to, onSource)
 }
 
@@ -96,7 +96,7 @@ func (g *DBitmap) Size() int {
 	return gimpl.DSize[bool](g)
 }
 
-func (g *DBitmap) EachEdge(onEdge groph.VisitEdge[bool]) (stopped bool) {
+func (g *DBitmap) EachEdge(onEdge groph.VisitEdge[bool]) error {
 	return gimpl.DEachEdge(g, onEdge)
 }
 
@@ -104,7 +104,7 @@ func (g *DBitmap) RootCount() int {
 	return gimpl.DRootCount[bool](g)
 }
 
-func (g *DBitmap) EachRoot(onEdge groph.VisitVertex) (stopped bool) {
+func (g *DBitmap) EachRoot(onEdge groph.VisitVertex) error {
 	return gimpl.DEachRoot[bool](g, onEdge)
 }
 
@@ -112,6 +112,6 @@ func (g *DBitmap) LeafCount() int {
 	return gimpl.DLeafCount[bool](g)
 }
 
-func (g *DBitmap) EachLeaf(onEdge groph.VisitVertex) (stopped bool) {
+func (g *DBitmap) EachLeaf(onEdge groph.VisitVertex) error {
 	return gimpl.DEachLeaf[bool](g, onEdge)
 }

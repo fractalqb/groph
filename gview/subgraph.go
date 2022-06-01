@@ -54,7 +54,7 @@ func (g DirectedSub[W]) Size() int {
 	return gimpl.DSize[W](g)
 }
 
-func (g DirectedSub[W]) EachEdge(onEdge groph.VisitEdge[W]) (stop bool) {
+func (g DirectedSub[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
 	return gimpl.DEachEdge(g, onEdge)
 }
 
@@ -62,7 +62,7 @@ func (g DirectedSub[W]) OutDegree(v groph.VIdx) int {
 	return gimpl.DOutDegree[W](g, v)
 }
 
-func (g DirectedSub[W]) EachOut(from groph.VIdx, onDest groph.VisitVertex) (stopped bool) {
+func (g DirectedSub[W]) EachOut(from groph.VIdx, onDest groph.VisitVertex) error {
 	return gimpl.DEachOut[W](g, from, onDest)
 }
 
@@ -70,7 +70,7 @@ func (g DirectedSub[W]) InDegree(v groph.VIdx) int {
 	return gimpl.DInDegree[W](g, v)
 }
 
-func (g DirectedSub[W]) EachIn(to groph.VIdx, onSource groph.VisitVertex) (stopped bool) {
+func (g DirectedSub[W]) EachIn(to groph.VIdx, onSource groph.VisitVertex) error {
 	return gimpl.DEachIn[W](g, to, onSource)
 }
 
@@ -78,7 +78,7 @@ func (g DirectedSub[W]) RootCount() int {
 	return gimpl.DRootCount[W](g)
 }
 
-func (g DirectedSub[W]) EachRoot(onEdge groph.VisitVertex) (stop bool) {
+func (g DirectedSub[W]) EachRoot(onEdge groph.VisitVertex) error {
 	return gimpl.DEachRoot[W](g, onEdge)
 }
 
@@ -86,7 +86,7 @@ func (g DirectedSub[W]) LeafCount() int {
 	return gimpl.DLeafCount[W](g)
 }
 
-func (g DirectedSub[W]) EachLeaf(onEdge groph.VisitVertex) (stop bool) {
+func (g DirectedSub[W]) EachLeaf(onEdge groph.VisitVertex) error {
 	return gimpl.DEachLeaf[W](g, onEdge)
 }
 
@@ -107,7 +107,7 @@ func (g UndirectedSub[W]) Size() int {
 	return gimpl.USize[W](g)
 }
 
-func (g UndirectedSub[W]) EachEdge(onEdge groph.VisitEdge[W]) (stop bool) {
+func (g UndirectedSub[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
 	return gimpl.UEachEdge(g, onEdge)
 }
 
@@ -120,6 +120,6 @@ func (g UndirectedSub[W]) Degree(v groph.VIdx) int {
 	return gimpl.UDegree[W](g, v)
 }
 
-func (g UndirectedSub[W]) EachAdjacent(of groph.VIdx, onNeighbour groph.VisitVertex) (stopped bool) {
+func (g UndirectedSub[W]) EachAdjacent(of groph.VIdx, onNeighbour groph.VisitVertex) error {
 	return gimpl.UEachAdjacent[W](g, of, onNeighbour)
 }

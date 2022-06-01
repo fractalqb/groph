@@ -30,9 +30,9 @@ func ExampleDirectedSub() {
 		0, 2, 9, 0,
 	)
 	s := NewDirectedSub[int](g, 1, 3)
-	s.EachEdge(func(u, v, w int) bool {
+	s.EachEdge(func(u, v, w int) error {
 		fmt.Printf("%d -> %d: %d\n", u, v, w)
-		return false
+		return nil
 	})
 	// Output:
 	// 1 -> 0: 2

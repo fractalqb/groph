@@ -14,6 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-package grophtests
+package graphs
 
-// Copy functions are tested in this separate package to avoid cyclic imports.
+import (
+	"math"
+	"testing"
+
+	"git.fractalqb.de/fractalqb/groph/gimpl"
+)
+
+func TestInForest(t *testing.T) {
+	t.Run("cleared", func(t *testing.T) {
+		f := NewInForest(11, math.MinInt)
+		gimpl.TestDCleared[int](t, f)
+	})
+	t.Run("set-del", func(t *testing.T) {
+		f := NewInForest(11, math.MinInt)
+		gimpl.TestDSetDel[int](t, f, 4, func(a, b int) bool { return a == b })
+	})
+}

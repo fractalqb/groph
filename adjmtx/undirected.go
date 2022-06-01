@@ -93,7 +93,7 @@ func (g *Undirected[W]) Size() int {
 	return gimpl.USize[W](g)
 }
 
-func (g *Undirected[W]) EachEdge(onEdge groph.VisitEdge[W]) (stopped bool) {
+func (g *Undirected[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
 	return gimpl.UEachEdge(g, onEdge)
 }
 
@@ -101,7 +101,7 @@ func (g *Undirected[W]) Degree(v groph.VIdx) int {
 	return gimpl.UDegree[W](g, v)
 }
 
-func (g *Undirected[W]) EachAdjacent(of groph.VIdx, onNeighbour groph.VisitVertex) (stopped bool) {
+func (g *Undirected[W]) EachAdjacent(of groph.VIdx, onNeighbour groph.VisitVertex) error {
 	return gimpl.UEachAdjacent[W](g, of, onNeighbour)
 }
 

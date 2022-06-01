@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
-	"git.fractalqb.de/fractalqb/groph/gtests"
+	"git.fractalqb.de/fractalqb/groph/gimpl"
 )
 
 var (
@@ -30,14 +30,14 @@ var (
 
 func TestUndirected(t *testing.T) {
 	const noEdge = math.MinInt32
-	g := NewUndirected[int32](gtests.SetDelSize, noEdge, nil)
-	gtests.TestUCleared[int32](t, g)
-	gtests.TestUSetDel[int32](t, g, 1, func(a, b int32) bool { return a == b })
+	g := NewUndirected[int32](gimpl.SetDelSize, noEdge, nil)
+	gimpl.TestUCleared[int32](t, g)
+	gimpl.TestUSetDel[int32](t, g, 1, func(a, b int32) bool { return a == b })
 }
 
 func BenchmarkUndirected(b *testing.B) {
 	const noEdge = math.MinInt32
-	m := NewUndirected[int32](gtests.SetDelSize, noEdge, nil)
+	m := NewUndirected[int32](gimpl.SetDelSize, noEdge, nil)
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)

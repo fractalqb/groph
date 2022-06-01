@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-package shortpath
+package paths
 
 import (
 	"fmt"
@@ -55,9 +55,9 @@ func ExampleFloydWarshallD() {
 
 func TestFloydWarshallDirEqUndir(t *testing.T) {
 	const VNO = 7
-	nan := float32(math.NaN())
-	mu := adjmtx.NewUndirected[float32](VNO, nan, nil)
-	md := adjmtx.NewDirected[float32](mu.Order(), nan, nil)
+	noe := float32(math.Inf(1))
+	mu := adjmtx.NewUndirected(VNO, noe, nil)
+	md := adjmtx.NewDirected(mu.Order(), noe, nil)
 	for i := 0; i < VNO; i++ {
 		mu.SetEdge(i, i, 0)
 		for j := i + 1; j < VNO; j++ {

@@ -93,7 +93,7 @@ func (g *Directed[W]) OutDegree(v groph.VIdx) int {
 	return gimpl.DOutDegree[W](g, v)
 }
 
-func (g *Directed[W]) EachOut(from groph.VIdx, onDest groph.VisitVertex) (stopped bool) {
+func (g *Directed[W]) EachOut(from groph.VIdx, onDest groph.VisitVertex) error {
 	return gimpl.DEachOut[W](g, from, onDest)
 }
 
@@ -101,7 +101,7 @@ func (g *Directed[W]) InDegree(v groph.VIdx) int {
 	return gimpl.DInDegree[W](g, v)
 }
 
-func (g *Directed[W]) EachIn(to groph.VIdx, onSource groph.VisitVertex) (stopped bool) {
+func (g *Directed[W]) EachIn(to groph.VIdx, onSource groph.VisitVertex) error {
 	return gimpl.DEachIn[W](g, to, onSource)
 }
 
@@ -115,14 +115,14 @@ func (g *Directed[W]) Size() (s int) {
 	return s
 }
 
-func (g *Directed[W]) EachEdge(onEdge groph.VisitEdge[W]) (stopped bool) {
+func (g *Directed[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
 	// return gimpl.DEachEdge[W](g, onEdge) – speeds up with local impl
 	var u, v groph.VIdx
 	ord := g.Order()
 	for _, w := range g.ws {
 		if g.IsEdge(w) {
-			if onEdge(u, v, w) {
-				return true
+			if err := onEdge(u, v, w); err != nil {
+				return err
 			}
 		}
 		v++ // Depends on g.Edge()
@@ -131,14 +131,14 @@ func (g *Directed[W]) EachEdge(onEdge groph.VisitEdge[W]) (stopped bool) {
 			v = 0
 		}
 	}
-	return false
+	return nil
 }
 
 func (g *Directed[W]) RootCount() int {
 	return gimpl.DRootCount[W](g)
 }
 
-func (g *Directed[W]) EachRoot(onEdge groph.VisitVertex) (stopped bool) {
+func (g *Directed[W]) EachRoot(onEdge groph.VisitVertex) error {
 	return gimpl.DEachRoot[W](g, onEdge)
 }
 
@@ -146,7 +146,7 @@ func (g *Directed[W]) LeafCount() int {
 	return gimpl.DLeafCount[W](g)
 }
 
-func (g *Directed[W]) EachLeaf(onEdge groph.VisitVertex) (stopped bool) {
+func (g *Directed[W]) EachLeaf(onEdge groph.VisitVertex) error {
 	return gimpl.DEachLeaf[W](g, onEdge)
 }
 

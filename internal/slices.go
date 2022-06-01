@@ -22,3 +22,18 @@ func Slice[T any](s []T, l int) []T {
 	}
 	return s[:l]
 }
+
+// func CpSlice[T any](s []T, l int) []T {
+// 	if s == nil || cap(s) < l {
+// 		s2 := make([]T, l)
+// 		copy(s2, s)
+// 		return s2
+// 	}
+// 	i := len(s)
+// 	s = s[:l]
+// 	var zero T
+// 	for i < l {
+// 		s[i] = zero
+// 	}
+// 	return s
+// }

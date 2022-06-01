@@ -21,21 +21,21 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
-	"git.fractalqb.de/fractalqb/groph/gtests"
+	"git.fractalqb.de/fractalqb/groph/gimpl"
 )
 
 var _ groph.WGraph[int] = (*Directed[int])(nil)
 
 func TestDirected(t *testing.T) {
 	const noEdge = math.MinInt32
-	g := NewDirected[int32](gtests.SetDelSize, noEdge, nil)
-	gtests.TestDCleared[int32](t, g)
-	gtests.TestDSetDel[int32](t, g, 1, func(a, b int32) bool { return a == b })
+	g := NewDirected[int32](gimpl.SetDelSize, noEdge, nil)
+	gimpl.TestDCleared[int32](t, g)
+	gimpl.TestDSetDel[int32](t, g, 1, func(a, b int32) bool { return a == b })
 }
 
 func BenchmarkDirected(b *testing.B) {
 	const noEdge = math.MinInt32
-	m := NewDirected[int32](gtests.SetDelSize, noEdge, nil)
+	m := NewDirected[int32](gimpl.SetDelSize, noEdge, nil)
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)

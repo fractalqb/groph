@@ -35,30 +35,30 @@ func USetEdge[W any, G groph.WUndirected[W]](g G, u, v groph.VIdx, w W) {
 	}
 }
 
-func UEachEdge[W any, G groph.RUndirected[W]](g G, onEdge groph.VisitEdge[W]) bool {
+func UEachEdge[W any, G groph.RUndirected[W]](g G, onEdge groph.VisitEdge[W]) error {
 	ord := g.Order()
 	for u := groph.VIdx(0); u < ord; u++ {
 		for v := groph.VIdx(0); v <= u; v++ {
 			if w := g.EdgeU(u, v); g.IsEdge(w) {
-				if onEdge(u, v, w) {
-					return true
+				if err := onEdge(u, v, w); err != nil {
+					return err
 				}
 			}
 		}
 	}
-	return false
+	return nil
 }
 
-func DEachEdge[W any, G groph.RDirected[W]](g G, onEdge groph.VisitEdge[W]) bool {
+func DEachEdge[W any, G groph.RDirected[W]](g G, onEdge groph.VisitEdge[W]) error {
 	ord := g.Order()
 	for u := groph.VIdx(0); u < ord; u++ {
 		for v := groph.VIdx(0); v < ord; v++ {
 			if w := g.Edge(u, v); g.IsEdge(w) {
-				if onEdge(u, v, w) {
-					return true
+				if err := onEdge(u, v, w); err != nil {
+					return err
 				}
 			}
 		}
 	}
-	return false
+	return nil
 }

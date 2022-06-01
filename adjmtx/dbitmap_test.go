@@ -20,18 +20,18 @@ import (
 	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
-	"git.fractalqb.de/fractalqb/groph/gtests"
+	"git.fractalqb.de/fractalqb/groph/gimpl"
 )
 
 var _ groph.WGraph[bool] = (*DBitmap)(nil)
 
 func TestDBitmap(t *testing.T) {
 	m := NewDBitmap(3, nil)
-	gtests.TestDSetDel[bool](t, m, true, func(a, b bool) bool { return a == b })
+	gimpl.TestDSetDel[bool](t, m, true, func(a, b bool) bool { return a == b })
 }
 
 func BenchmarkDBitmap(b *testing.B) {
-	m := NewDBitmap(gtests.SetDelSize, nil)
+	m := NewDBitmap(gimpl.SetDelSize, nil)
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := true

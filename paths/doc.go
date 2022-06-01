@@ -14,5 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package shortpath has shortes path algorithms for the groph library.
-package shortpath
+// Package paths has shortes path algorithms for the groph library.
+package paths
