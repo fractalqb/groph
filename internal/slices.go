@@ -16,11 +16,11 @@
 
 package internal
 
-func Slice[T any](s []T, l int) []T {
+func Slice[T any](s []T, l int) ([]T, bool) {
 	if s == nil || cap(s) < l {
-		return make([]T, l)
+		return make([]T, l), true
 	}
-	return s[:l]
+	return s[:l], false
 }
 
 // func CpSlice[T any](s []T, l int) []T {

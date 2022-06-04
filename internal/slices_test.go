@@ -32,12 +32,12 @@ func assertLenCap(t *testing.T, s interface{}, l, c int, hint string) {
 }
 
 func TestSlice(t *testing.T) {
-	s := Slice[int](nil, 8)
+	s, _ := Slice[int](nil, 8)
 	assertLenCap(t, s, 8, 8, "from nil")
-	s = Slice(s, 5)
+	s, _ = Slice(s, 5)
 	assertLenCap(t, s, 5, 8, "from nil")
-	s = Slice(s, 7)
+	s, _ = Slice(s, 7)
 	assertLenCap(t, s, 7, 8, "from nil")
-	s = Slice(s, 12)
+	s, _ = Slice(s, 12)
 	assertLenCap(t, s, 12, 12, "from nil")
 }

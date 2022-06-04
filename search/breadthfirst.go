@@ -21,13 +21,15 @@ import (
 	"git.fractalqb.de/fractalqb/groph/internal"
 )
 
+type edge struct{ u, v groph.VIdx }
+
 type bfs struct {
-	todo []int
+	todo []edge
 	tail int
 	done internal.BitSet
 }
 
-func (s *bfs) enq(v groph.VIdx) {
+func (s *bfs) enq(v edge) {
 	if 2*s.tail > len(s.todo) { // TODO wild guess
 		copy(s.todo, s.todo[s.tail:])
 		s.todo = s.todo[:len(s.todo)-s.tail]
@@ -36,7 +38,7 @@ func (s *bfs) enq(v groph.VIdx) {
 	s.todo = append(s.todo, v)
 }
 
-func (s *bfs) deq() groph.VIdx {
+func (s *bfs) deq() edge {
 	v := s.todo[s.tail]
 	s.tail++
 	return v
@@ -68,20 +70,20 @@ func (bfs *DirectedBFS[W]) NextStart() groph.VIdx {
 	return n
 }
 
-func (bfs *DirectedBFS[W]) Forward(start groph.VIdx, do groph.VisitVertex) error {
+func (bfs *DirectedBFS[W]) Forward(start groph.VIdx, do groph.VisitEdge) error {
 	bfs.todo = bfs.todo[:0]
 	bfs.tail = 0
 	bfs.done.Set(start)
-	bfs.enq(start)
+	bfs.enq(edge{-1, start})
 	for bfs.qlen() > 0 {
-		start = bfs.deq()
-		if err := do(start); err != nil {
+		e := bfs.deq()
+		if err := do(e.u, e.v); err != nil {
 			return err
 		}
 		bfs.g.EachOut(start, func(n groph.VIdx) error {
 			if !bfs.done.Get(n) {
 				bfs.done.Set(n)
-				bfs.enq(n)
+				bfs.enq(edge{e.v, n})
 			}
 			return nil
 		})
@@ -89,20 +91,20 @@ func (bfs *DirectedBFS[W]) Forward(start groph.VIdx, do groph.VisitVertex) error
 	return nil
 }
 
-func (bfs *DirectedBFS[W]) Backward(start groph.VIdx, do groph.VisitVertex) error {
+func (bfs *DirectedBFS[W]) Backward(start groph.VIdx, do groph.VisitEdge) error {
 	bfs.todo = bfs.todo[:0]
 	bfs.tail = 0
 	bfs.done.Set(start)
-	bfs.enq(start)
+	bfs.enq(edge{-1, start})
 	for bfs.qlen() > 0 {
-		start = bfs.deq()
-		if err := do(start); err != nil {
+		e := bfs.deq()
+		if err := do(e.u, e.v); err != nil {
 			return err
 		}
 		bfs.g.EachIn(start, func(n groph.VIdx) error {
 			if !bfs.done.Get(n) {
 				bfs.done.Set(n)
-				bfs.enq(n)
+				bfs.enq(edge{e.v, n})
 			}
 			return nil
 		})
@@ -134,20 +136,20 @@ func (bfs *UndirectedBFS[W]) NextStart() groph.VIdx {
 	return n
 }
 
-func (bfs *UndirectedBFS[W]) Start(start groph.VIdx, do groph.VisitVertex) error {
+func (bfs *UndirectedBFS[W]) Start(start groph.VIdx, do groph.VisitEdge) error {
 	bfs.todo = bfs.todo[:0]
 	bfs.tail = 0
 	bfs.done.Set(start)
-	bfs.enq(start)
+	bfs.enq(edge{-1, start})
 	for bfs.qlen() > 0 {
-		start = bfs.deq()
-		if err := do(start); err != nil {
+		e := bfs.deq()
+		if err := do(e.u, e.v); err != nil {
 			return err
 		}
-		bfs.g.EachAdjacent(start, func(n groph.VIdx) error {
+		bfs.g.EachAdjacent(e.v, func(n groph.VIdx) error {
 			if !bfs.done.Get(n) {
 				bfs.done.Set(n)
-				bfs.enq(n)
+				bfs.enq(edge{e.v, n})
 			}
 			return nil
 		})

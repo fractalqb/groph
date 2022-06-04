@@ -54,7 +54,7 @@ func (g DirectedSub[W]) Size() int {
 	return gimpl.DSize[W](g)
 }
 
-func (g DirectedSub[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
+func (g DirectedSub[W]) EachEdge(onEdge groph.VisitEdgeW[W]) error {
 	return gimpl.DEachEdge(g, onEdge)
 }
 
@@ -107,7 +107,7 @@ func (g UndirectedSub[W]) Size() int {
 	return gimpl.USize[W](g)
 }
 
-func (g UndirectedSub[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
+func (g UndirectedSub[W]) EachEdge(onEdge groph.VisitEdgeW[W]) error {
 	return gimpl.UEachEdge(g, onEdge)
 }
 

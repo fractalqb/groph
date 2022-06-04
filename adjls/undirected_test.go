@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-package adjmtx
+package adjls
 
 import (
 	"math"
@@ -23,19 +23,18 @@ import (
 	"git.fractalqb.de/fractalqb/groph/gimpl"
 )
 
-func TestDirected(t *testing.T) {
-	const noEdge = math.MinInt32
-	g := NewDirected[int32](gimpl.SetDelSize, noEdge, nil)
-	gimpl.TestDCleared[int32](t, g, "new graph")
-	gimpl.SetDelTest[int32]{
-		Probe:    1,
-		EqWeight: func(a, b int32) bool { return a == b },
-	}.Directed(t, g)
+func TestUndirected(t *testing.T) {
+	g := NewUndirected(11, math.Inf(1), nil)
+	gimpl.TestUCleared[float64](t, g, "new graph")
+	gimpl.SetDelTest[float64]{
+		Probe:    4711,
+		EqWeight: func(a, b float64) bool { return a == b },
+	}.Undirected(t, g)
 }
 
-func BenchmarkDirected(b *testing.B) {
+func BenchmarkUndirected(b *testing.B) {
 	const noEdge = math.MinInt32
-	m := NewDirected[int32](gimpl.SetDelSize, noEdge, nil)
+	m := NewUndirected[int32](gimpl.SetDelSize, noEdge, nil)
 	max := m.Order()
 	for n := 0; n < b.N; n++ {
 		w := int32(n)

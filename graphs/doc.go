@@ -14,5 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package paths has algorithms that compute certain paths of a graph.
-package paths
+// Package graphs provides some specific graph implementstions.
+package graphs

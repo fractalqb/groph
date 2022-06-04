@@ -64,7 +64,7 @@ func (f *InForest[W]) Size() (res int) {
 	return res
 }
 
-func (f *InForest[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
+func (f *InForest[W]) EachEdge(onEdge groph.VisitEdgeW[W]) error {
 	for u, l := range f.es {
 		if l.up >= 0 && l.w != f.noe {
 			if err := onEdge(u, l.up, l.w); err != nil {
@@ -76,7 +76,7 @@ func (f *InForest[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
 }
 
 func (f *InForest[W]) Reset(order int) {
-	f.es = internal.Slice(f.es, order)
+	f.es, _ = internal.Slice(f.es, order)
 	for i := range f.es {
 		f.es[i].up = -1
 	}

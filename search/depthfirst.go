@@ -22,19 +22,19 @@ import (
 )
 
 type dfs struct {
-	todo []int
+	todo []edge
 	done internal.BitSet
 }
 
-func (s *dfs) push(v groph.VIdx) {
-	s.todo = append(s.todo, v)
+func (s *dfs) push(e edge) {
+	s.todo = append(s.todo, e)
 }
 
-func (s *dfs) pop() (v groph.VIdx) {
+func (s *dfs) pop() (e edge) {
 	lm1 := len(s.todo) - 1
-	v = s.todo[lm1]
+	e = s.todo[lm1]
 	s.todo = s.todo[:lm1]
-	return v
+	return e
 }
 
 type DirectedDFS[W any] struct {
@@ -61,18 +61,18 @@ func (dfs *DirectedDFS[W]) NextStart() groph.VIdx {
 	return n
 }
 
-func (dfs *DirectedDFS[W]) Forward(start groph.VIdx, do groph.VisitVertex) error {
+func (dfs *DirectedDFS[W]) Forward(start groph.VIdx, do groph.VisitEdge) error {
 	dfs.todo = dfs.todo[:0]
-	dfs.push(start)
+	dfs.push(edge{-1, start})
 	for len(dfs.todo) > 0 {
-		start = dfs.pop()
-		if !dfs.done.Get(start) {
-			dfs.done.Set(start)
-			if err := do(start); err != nil {
+		e := dfs.pop()
+		if !dfs.done.Get(e.v) {
+			dfs.done.Set(e.v)
+			if err := do(e.u, e.v); err != nil {
 				return err
 			}
-			dfs.g.EachOut(start, func(v groph.VIdx) error {
-				dfs.push(v)
+			dfs.g.EachOut(e.v, func(v groph.VIdx) error {
+				dfs.push(edge{e.v, v})
 				return nil
 			})
 		}
@@ -80,23 +80,46 @@ func (dfs *DirectedDFS[W]) Forward(start groph.VIdx, do groph.VisitVertex) error
 	return nil
 }
 
-func (dfs *DirectedDFS[W]) Backward(start groph.VIdx, do groph.VisitVertex) error {
+func (dfs *DirectedDFS[W]) Backward(start groph.VIdx, do groph.VisitEdge) error {
 	dfs.todo = dfs.todo[:0]
-	dfs.push(start)
+	dfs.push(edge{-1, start})
 	for len(dfs.todo) > 0 {
-		start = dfs.pop()
-		if !dfs.done.Get(start) {
-			dfs.done.Set(start)
-			if err := do(start); err != nil {
+		e := dfs.pop()
+		if !dfs.done.Get(e.v) {
+			dfs.done.Set(e.v)
+			if err := do(e.u, e.v); err != nil {
 				return err
 			}
-			dfs.g.EachIn(start, func(v groph.VIdx) error {
-				dfs.push(v)
+			dfs.g.EachIn(e.v, func(v groph.VIdx) error {
+				dfs.push(edge{e.v, v})
 				return nil
 			})
 		}
 	}
 	return nil
+}
+
+func (dfs *DirectedDFS[W]) HasCycle(start groph.VIdx) bool {
+	dfs.todo = dfs.todo[:0]
+	dfs.push(edge{-1, start})
+	for len(dfs.todo) > 0 {
+		e := dfs.pop()
+		if dfs.done.Get(e.v) {
+			return true
+		}
+		dfs.done.Set(e.v)
+		dfs.g.EachOut(e.v, func(v groph.VIdx) error {
+			dfs.push(edge{e.v, v})
+			return nil
+		})
+		dfs.g.EachIn(e.v, func(v groph.VIdx) error {
+			if v != e.u {
+				dfs.push(edge{e.v, v})
+			}
+			return nil
+		})
+	}
+	return false
 }
 
 type UndirectedDFS[W any] struct {
@@ -124,21 +147,40 @@ func (dfs *UndirectedDFS[W]) NextStart() groph.VIdx {
 	return n
 }
 
-func (dfs *UndirectedDFS[W]) Start(start groph.VIdx, do groph.VisitVertex) error {
+func (dfs *UndirectedDFS[W]) Start(start groph.VIdx, do groph.VisitEdge) error {
 	dfs.todo = dfs.todo[:0]
-	dfs.push(start)
+	dfs.push(edge{-1, start})
 	for len(dfs.todo) > 0 {
-		start = dfs.pop()
-		if !dfs.done.Get(start) {
-			dfs.done.Set(start)
-			if err := do(start); err != nil {
+		e := dfs.pop()
+		if !dfs.done.Get(e.v) {
+			dfs.done.Set(e.v)
+			if err := do(e.u, e.v); err != nil {
 				return err
 			}
-			dfs.g.EachAdjacent(start, func(v groph.VIdx) error {
-				dfs.push(v)
+			dfs.g.EachAdjacent(e.v, func(v groph.VIdx) error {
+				dfs.push(edge{e.v, v})
 				return nil
 			})
 		}
 	}
 	return nil
+}
+
+func (dfs *UndirectedDFS[W]) HasCycle(start groph.VIdx) bool {
+	dfs.todo = dfs.todo[:0]
+	dfs.push(edge{-1, start})
+	for len(dfs.todo) > 0 {
+		e := dfs.pop()
+		if dfs.done.Get(e.v) {
+			return true
+		}
+		dfs.done.Set(e.v)
+		dfs.g.EachAdjacent(e.v, func(v groph.VIdx) error {
+			if v != e.u {
+				dfs.push(edge{e.v, v})
+			}
+			return nil
+		})
+	}
+	return false
 }

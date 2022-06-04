@@ -16,7 +16,10 @@
 
 package graphs
 
-import "git.fractalqb.de/fractalqb/groph"
+import (
+	"git.fractalqb.de/fractalqb/groph"
+	"git.fractalqb.de/fractalqb/groph/gimpl"
+)
 
 // TODO sort edges for faster access
 type Edge struct {
@@ -24,9 +27,11 @@ type Edge struct {
 	W    any
 }
 
-type EdgeList []Edge
+var _ groph.RDirected[any] = DirectedEdges{}
 
-func (g EdgeList) Order() int {
+type DirectedEdges []Edge
+
+func (g DirectedEdges) Order() int {
 	ord := -1
 	for _, e := range g {
 		if e.U > ord {
@@ -39,7 +44,7 @@ func (g EdgeList) Order() int {
 	return ord + 1
 }
 
-func (g EdgeList) Edge(u, v groph.VIdx) (weight any) {
+func (g DirectedEdges) Edge(u, v groph.VIdx) (weight any) {
 	for _, e := range g {
 		if e.U == u && e.V == v {
 			return e.W
@@ -48,17 +53,102 @@ func (g EdgeList) Edge(u, v groph.VIdx) (weight any) {
 	return nil
 }
 
-func (g EdgeList) IsEdge(weight any) bool { return weight != nil }
+func (g DirectedEdges) IsEdge(weight any) bool { return weight != nil }
 
-func (g EdgeList) NotEdge() any { return nil }
+func (g DirectedEdges) NotEdge() any { return nil }
 
-func (g EdgeList) Size() int { return len(g) }
+func (g DirectedEdges) Size() int { return len(g) }
 
-func (g EdgeList) EachEdge(onEdge groph.VisitEdge[any]) error {
+func (g DirectedEdges) EachEdge(onEdge groph.VisitEdgeW[any]) error {
 	for _, e := range g {
 		if err := onEdge(e.U, e.V, e.W); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (g DirectedEdges) OutDegree(v groph.VIdx) int {
+	return gimpl.DOutDegree[any](g, v)
+}
+
+func (g DirectedEdges) EachOut(from groph.VIdx, onDest groph.VisitVertex) error {
+	return gimpl.DEachOut[any](g, from, onDest)
+}
+
+func (g DirectedEdges) InDegree(v groph.VIdx) int {
+	return gimpl.DInDegree[any](g, v)
+}
+
+func (g DirectedEdges) EachIn(to groph.VIdx, onSource groph.VisitVertex) error {
+	return gimpl.DEachIn[any](g, to, onSource)
+}
+
+func (g DirectedEdges) RootCount() int {
+	return gimpl.DRootCount[any](g)
+}
+
+func (g DirectedEdges) EachRoot(onEdge groph.VisitVertex) error {
+	return gimpl.DEachRoot[any](g, onEdge)
+}
+
+func (g DirectedEdges) LeafCount() int {
+	return gimpl.DLeafCount[any](g)
+}
+
+func (g DirectedEdges) EachLeaf(onEdge groph.VisitVertex) error {
+	return gimpl.DEachLeaf[any](g, onEdge)
+}
+
+var _ groph.RUndirected[any] = UndirectedEdges{}
+
+type UndirectedEdges []Edge
+
+func (g UndirectedEdges) Order() int {
+	ord := -1
+	for _, e := range g {
+		if e.U > ord {
+			ord = e.U
+		}
+		if e.V > ord {
+			ord = e.V
+		}
+	}
+	return ord + 1
+}
+
+func (g UndirectedEdges) Edge(u, v groph.VIdx) (weight any) {
+	for _, e := range g {
+		if (e.U == u && e.V == v) || (e.U == v && e.V == u) {
+			return e.W
+		}
+	}
+	return nil
+}
+
+func (g UndirectedEdges) IsEdge(weight any) bool { return weight != nil }
+
+func (g UndirectedEdges) NotEdge() any { return nil }
+
+func (g UndirectedEdges) Size() int { return len(g) }
+
+func (g UndirectedEdges) EachEdge(onEdge groph.VisitEdgeW[any]) error {
+	for _, e := range g {
+		if err := onEdge(e.U, e.V, e.W); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (g UndirectedEdges) EdgeU(u, v groph.VIdx) (weight any) {
+	return g.Edge(u, v)
+}
+
+func (g UndirectedEdges) Degree(v groph.VIdx) int {
+	return gimpl.UDegree[any](g, v)
+}
+
+func (g UndirectedEdges) EachAdjacent(of groph.VIdx, onNeighbour groph.VisitVertex) error {
+	return gimpl.UEachAdjacent[any](g, of, onNeighbour)
 }

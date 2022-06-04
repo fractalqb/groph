@@ -25,6 +25,31 @@ import (
 
 func TestDirected(t *testing.T) {
 	g := NewDirected(11, math.Inf(1), nil)
-	gimpl.TestDCleared[float64](t, g)
-	gimpl.TestDSetDel[float64](t, g, 4711.0, func(a, b float64) bool { return a == b })
+	gimpl.TestDCleared[float64](t, g, "new graph")
+	gimpl.SetDelTest[float64]{
+		Probe:    4711,
+		EqWeight: func(a, b float64) bool { return a == b },
+	}.Directed(t, g)
+}
+
+func BenchmarkDirected(b *testing.B) {
+	const noEdge = math.MinInt32
+	m := NewDirected[int32](gimpl.SetDelSize, noEdge, nil)
+	max := m.Order()
+	for n := 0; n < b.N; n++ {
+		w := int32(n)
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
+				m.SetEdge(i, j, w)
+			}
+		}
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
+				r := m.Edge(i, j)
+				if r != w {
+					b.Fatal("unexpected read", w, r)
+				}
+			}
+		}
+	}
 }

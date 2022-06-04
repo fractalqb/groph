@@ -22,6 +22,8 @@ import (
 	"git.fractalqb.de/fractalqb/groph/internal"
 )
 
+var _ groph.WDirected[bool] = (*DBitmap)(nil)
+
 // AdjMxDbitmap implements WGraph[bool] as a bitmap based adjacency
 // matrix. Compared to AdjMxbool, this sacrifices runtime performance
 // for lesser memory usage.
@@ -96,7 +98,7 @@ func (g *DBitmap) Size() int {
 	return gimpl.DSize[bool](g)
 }
 
-func (g *DBitmap) EachEdge(onEdge groph.VisitEdge[bool]) error {
+func (g *DBitmap) EachEdge(onEdge groph.VisitEdgeW[bool]) error {
 	return gimpl.DEachEdge(g, onEdge)
 }
 

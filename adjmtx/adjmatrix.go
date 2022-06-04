@@ -14,5 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with groph.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package paths has algorithms that compute certain paths of a graph.
-package paths
+// Package adjls provides graph implementations as adjacency matrix.
+package adjmtx
+
+type adjMtx struct {
+	ord int
+}
+
+func (m *adjMtx) Order() int { return m.ord }

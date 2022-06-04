@@ -20,19 +20,17 @@ import (
 	"math"
 	"testing"
 
-	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/gimpl"
-)
-
-var (
-	_ groph.WUndirected[int] = (*Undirected[int])(nil)
 )
 
 func TestUndirected(t *testing.T) {
 	const noEdge = math.MinInt32
 	g := NewUndirected[int32](gimpl.SetDelSize, noEdge, nil)
-	gimpl.TestUCleared[int32](t, g)
-	gimpl.TestUSetDel[int32](t, g, 1, func(a, b int32) bool { return a == b })
+	gimpl.TestUCleared[int32](t, g, "new graph")
+	gimpl.SetDelTest[int32]{
+		Probe:    1,
+		EqWeight: func(a, b int32) bool { return a == b },
+	}.Undirected(t, g)
 }
 
 func BenchmarkUndirected(b *testing.B) {

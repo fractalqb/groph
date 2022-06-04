@@ -18,6 +18,7 @@ package search
 
 import (
 	"fmt"
+	"testing"
 
 	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/adjmtx"
@@ -33,14 +34,14 @@ func ExampleDirectedDFS() {
 	)
 	dfs := *NewDirecredDFS[bool](g)
 	for s := 0; s >= 0; s = dfs.NextStart() {
-		dfs.Forward(0, func(v groph.VIdx) error {
-			fmt.Printf(" %d", v)
+		dfs.Forward(s, func(u, v groph.VIdx) error {
+			fmt.Printf(" %d->%d", u, v)
 			return nil
 		})
 		fmt.Println()
 	}
 	// Output:
-	// 0 3 6 2 5 1 4
+	// -1->0 0->3 3->6 0->2 2->5 0->1 1->4
 }
 
 func ExampleUndirectedDFS() {
@@ -53,13 +54,41 @@ func ExampleUndirectedDFS() {
 	)
 	dfs := *NewUndirecredDFS[bool](g)
 	for s := 0; s >= 0; s = dfs.NextStart() {
-		dfs.Start(0, func(v groph.VIdx) error {
-			fmt.Printf(" %d", v)
+		dfs.Start(s, func(u, v groph.VIdx) error {
+			fmt.Printf(" %d->%d", u, v)
 			return nil
 		})
 		fmt.Println()
 	}
 	fmt.Println()
 	// Output:
-	// 0 3 6 2 5 1 4
+	// -1->0 0->3 3->6 0->2 2->5 5->1 1->4
+}
+
+func TestDirectedDFS_HasCycle(t *testing.T) {
+	g := adjmtx.NewDirected(3, false, nil)
+	groph.Set[bool](g, true, 0, 1, 1, 2)
+	dfs := *NewDirecredDFS[bool](g)
+	if dfs.HasCycle(0) {
+		t.Error("unexpected cycle detected")
+	}
+	g.SetEdge(2, 0, true)
+	dfs.Reset(g)
+	if !dfs.HasCycle(0) {
+		t.Error("no cycle in cyclic graph")
+	}
+}
+
+func TestUndirectedDFS_HasCycle(t *testing.T) {
+	g := adjmtx.NewUndirected(3, false, nil)
+	groph.Set[bool](g, true, 0, 1, 1, 2)
+	dfs := *NewUndirecredDFS[bool](g)
+	if dfs.HasCycle(0) {
+		t.Error("unexpected cycle detected")
+	}
+	g.SetEdge(2, 0, true)
+	dfs.Reset(g)
+	if !dfs.HasCycle(0) {
+		t.Error("no cycle in cyclic graph")
+	}
 }

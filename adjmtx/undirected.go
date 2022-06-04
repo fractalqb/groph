@@ -24,6 +24,8 @@ import (
 	"git.fractalqb.de/fractalqb/groph/gimpl"
 )
 
+var _ groph.WUndirected[int] = (*Undirected[int])(nil)
+
 type Undirected[W comparable] struct {
 	adjMtx
 	ws  []W
@@ -93,7 +95,7 @@ func (g *Undirected[W]) Size() int {
 	return gimpl.USize[W](g)
 }
 
-func (g *Undirected[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
+func (g *Undirected[W]) EachEdge(onEdge groph.VisitEdgeW[W]) error {
 	return gimpl.UEachEdge(g, onEdge)
 }
 
@@ -102,7 +104,7 @@ func (g *Undirected[W]) Degree(v groph.VIdx) int {
 }
 
 func (g *Undirected[W]) EachAdjacent(of groph.VIdx, onNeighbour groph.VisitVertex) error {
-	return gimpl.UEachAdjacent[W](g, of, onNeighbour)
+		return gimpl.UEachAdjacent[W](g, of, onNeighbour)
 }
 
 // nSum computes the sum of the n 1st integers, i.e. 1+2+3+…+n

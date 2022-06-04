@@ -19,15 +19,16 @@ package adjmtx
 import (
 	"testing"
 
-	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/gimpl"
 )
 
-var _ groph.WGraph[bool] = (*DBitmap)(nil)
-
 func TestDBitmap(t *testing.T) {
-	m := NewDBitmap(3, nil)
-	gimpl.TestDSetDel[bool](t, m, true, func(a, b bool) bool { return a == b })
+	g := NewDBitmap(3, nil)
+	gimpl.TestDCleared[bool](t, g, "new graph")
+	gimpl.SetDelTest[bool]{
+		Probe:    true,
+		EqWeight: func(a, b bool) bool { return a == b },
+	}.Directed(t, g)
 }
 
 func BenchmarkDBitmap(b *testing.B) {

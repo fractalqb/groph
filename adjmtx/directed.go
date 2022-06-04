@@ -25,19 +25,7 @@ import (
 	"git.fractalqb.de/fractalqb/groph/internal"
 )
 
-const (
-	IntNoEdge int = minInt
-
-	maxUint = ^uint(0)
-	maxInt  = int(maxUint >> 1)
-	minInt  = -maxInt - 1
-)
-
-type adjMtx struct {
-	ord int
-}
-
-func (m *adjMtx) Order() int { return m.ord }
+var _ groph.WDirected[int] = (*Directed[int])(nil)
 
 type Directed[W comparable] struct {
 	adjMtx
@@ -76,7 +64,7 @@ func (g *Directed[W]) IsEdge(w W) bool { return w != g.noe }
 
 func (g *Directed[W]) Reset(order int) {
 	g.ord = order
-	g.ws = internal.Slice(g.ws, order*order)
+	g.ws, _ = internal.Slice(g.ws, order*order)
 	var zeroW W
 	if g.noe != zeroW { // Skip if .noe is the zero value of W
 		for i := range g.ws {
@@ -115,7 +103,7 @@ func (g *Directed[W]) Size() (s int) {
 	return s
 }
 
-func (g *Directed[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
+func (g *Directed[W]) EachEdge(onEdge groph.VisitEdgeW[W]) error {
 	// return gimpl.DEachEdge[W](g, onEdge) – speeds up with local impl
 	var u, v groph.VIdx
 	ord := g.Order()

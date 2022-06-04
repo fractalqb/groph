@@ -24,20 +24,48 @@ import (
 
 const SetDelSize = 11
 
-func TestDCleared[W any](t *testing.T, g groph.RGraph[W]) {
+func TestDCleared[W any](t *testing.T, g groph.RGraph[W], what string) {
 	vno := g.Order()
 	for ri := 0; ri < vno; ri++ {
 		for rj := 0; rj < vno; rj++ {
 			if w := g.Edge(ri, rj); g.IsEdge(w) {
-				t.Errorf("read non-cleared value [%v] @%d,%d after clear",
+				t.Errorf("%s: read non-cleared value [%v] @%d,%d",
+					what,
 					w,
 					ri, rj)
 			}
 		}
 	}
+	if s := g.Size(); s != 0 {
+		t.Errorf("%s: cleared graph has non-zero size %d", what, s)
+	}
 }
 
-func TestDSetDel[W any](t *testing.T, g groph.WGraph[W], probe W, eq func(a, b W) bool) {
+func TestUCleared[W any](t *testing.T, g groph.RUndirected[W], what string) {
+	vno := g.Order()
+	for ri := 0; ri < vno; ri++ {
+		for rj := ri; rj < vno; rj++ {
+			if w := g.Edge(ri, rj); g.IsEdge(w) {
+				t.Errorf("%s: read non-cleared value [%v] @%d,%d",
+					what,
+					w,
+					ri, rj)
+			}
+		}
+	}
+	if s := g.Size(); s != 0 {
+		t.Errorf("%s: cleared graph has non-zero size %d", what, s)
+	}
+}
+
+// TODO Break down tests into t.Run() calls
+type SetDelTest[W any] struct {
+	Probe    W
+	EqWeight func(a, b W) bool
+	LazySize bool
+}
+
+func (tst SetDelTest[W]) Directed(t *testing.T, g groph.WGraph[W]) {
 	if _, ok := g.(groph.RUndirected[W]); ok {
 		t.Fatal("graph is not directed")
 	}
@@ -47,120 +75,119 @@ func TestDSetDel[W any](t *testing.T, g groph.WGraph[W], probe W, eq func(a, b W
 			g.DelEdge(wi, wj)
 		}
 	}
-	TestDCleared[W](t, g)
+	TestDCleared[W](t, g, "del all edges")
 	for wi := 0; wi < vno; wi++ {
 		for wj := 0; wj < vno; wj++ {
-			g.SetEdge(wi, wj, probe)
+			g.SetEdge(wi, wj, tst.Probe)
+			if s := g.Size(); s != 1 {
+				t.Errorf("Setting single edge has wrong size: %d", s)
+			}
 			for ri := 0; ri < vno; ri++ {
 				for rj := 0; rj < vno; rj++ {
 					r := g.Edge(ri, rj)
 					if ri == wi && rj == wj {
-						if !eq(r, probe) {
+						if !tst.EqWeight(r, tst.Probe) {
 							t.Fatalf("read wrong value [%v] (expect [%v]) @%d,%d",
-								r, probe,
+								r, tst.Probe,
 								wi, wj)
 						}
 					} else if g.IsEdge(r) {
 						t.Fatalf("read non-cleared value [%v] @%d,%d after write @%d,%d",
-							probe,
+							tst.Probe,
 							ri, rj,
 							wi, wj)
 					}
 				}
 			}
 			g.DelEdge(wi, wj)
+			if s := g.Size(); s != 0 {
+				t.Errorf("Deleting single edge has wrong size: %d", s)
+			}
 		}
 	}
+	TestDCleared[W](t, g, "2x flip each edge")
+	size := 0
 	for i := 0; i < vno; i++ {
 		for j := 0; j < vno; j++ {
-			g.SetEdge(i, j, probe)
+			g.SetEdge(i, j, tst.Probe)
+			size++
+			if s := g.Size(); !tst.LazySize && s != size {
+				t.Errorf("Unexpected size %d when filling graph, want %d", s, size)
+			}
 		}
 	}
 	g.Reset(g.Order())
 	if g.Order() != vno {
 		t.Fatal("Reset changed graph size")
 	}
-	for i := 0; i < vno; i++ {
-		for j := 0; j < vno; j++ {
-			if g.IsEdge(g.Edge(i, j)) {
-				t.Fatalf("Reset() did not clear the graph at (%d,%d)", i, j)
-			}
-		}
-	}
+	TestDCleared[W](t, g, "Reset()")
 }
 
-func TestUCleared[W any](t *testing.T, g groph.RUndirected[W]) {
-	vno := g.Order()
-	for ri := 0; ri < vno; ri++ {
-		for rj := ri; rj < vno; rj++ {
-			if w := g.Edge(ri, rj); g.IsEdge(w) {
-				t.Errorf("read non-cleared value [%v] @%d,%d after clear",
-					w,
-					ri, rj)
-			}
-		}
-	}
-}
-
-func TestUSetDel[W any](t *testing.T, g groph.WUndirected[W], probe W, eq func(a, b W) bool) {
+func (tst SetDelTest[W]) Undirected(t *testing.T, g groph.WUndirected[W]) {
 	vno := g.Order()
 	for wi := 0; wi < vno; wi++ {
 		for wj := 0; wj <= wi; wj++ {
 			g.DelEdge(wi, wj)
 		}
 	}
-	TestUCleared[W](t, g)
+	TestUCleared[W](t, g, "del all edges")
 	for wi := 0; wi < vno; wi++ {
 		for wj := 0; wj <= wi; wj++ {
-			g.SetEdge(wi, wj, probe)
+			g.SetEdge(wi, wj, tst.Probe)
+			if s := g.Size(); s != 1 {
+				t.Errorf("Setting single edge has wrong size: %d", s)
+			}
 			for ri := 0; ri < vno; ri++ {
 				for rj := 0; rj < vno; rj++ {
 					expectSet := (ri == wi && rj == wj) || (ri == wj && rj == wi)
 					r := g.Edge(ri, rj)
 					if expectSet {
-						if !eq(r, probe) {
+						if !tst.EqWeight(r, tst.Probe) {
 							t.Fatalf("read wrong value [%v] (expect [%v]) @%d,%d",
-								r, probe,
+								r, tst.Probe,
 								ri, rj)
 						}
 					} else if g.IsEdge(r) {
 						t.Fatalf("read non-cleared value [%v] @%d,%d after write @%d,%d",
-							probe,
+							tst.Probe,
 							ri, rj,
 							wi, wj)
 					}
 					r = g.Edge(rj, ri)
 					if expectSet {
-						if !eq(r, probe) {
+						if !tst.EqWeight(r, tst.Probe) {
 							t.Fatalf("read wrong value [%v] (expect [%v]) @%d,%d",
-								r, probe,
+								r, tst.Probe,
 								ri, rj)
 						}
 					} else if g.IsEdge(r) {
 						t.Fatalf("read non-cleared value [%v] @%d,%d after write @%d,%d",
-							probe,
+							tst.Probe,
 							ri, rj,
 							wi, wj)
 					}
 				}
 			}
 			g.DelEdge(wi, wj)
+			if s := g.Size(); s != 0 {
+				t.Errorf("Deleting single edge has wrong size: %d", s)
+			}
 		}
 	}
+	TestUCleared[W](t, g, "2x flip each edge")
+	size := 0
 	for i := 0; i < vno; i++ {
 		for j := 0; j <= i; j++ {
-			g.SetEdge(i, j, probe)
+			g.SetEdge(i, j, tst.Probe)
+			size++
+			if s := g.Size(); !tst.LazySize && s != size {
+				t.Errorf("Unexpected size %d when filling graph, want %d", s, size)
+			}
 		}
 	}
 	g.Reset(g.Order())
 	if g.Order() != vno {
 		t.Fatal("Reset changed graph size")
 	}
-	for i := 0; i < vno; i++ {
-		for j := 0; j <= i; j++ {
-			if g.IsEdge(g.Edge(i, j)) {
-				t.Fatalf("Reset() did not clear the graph at (%d,%d)", i, j)
-			}
-		}
-	}
+	TestUCleared[W](t, g, "Reset()")
 }

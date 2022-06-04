@@ -26,10 +26,14 @@ import (
 func TestInForest(t *testing.T) {
 	t.Run("cleared", func(t *testing.T) {
 		f := NewInForest(11, math.MinInt)
-		gimpl.TestDCleared[int](t, f)
+		gimpl.TestDCleared[int](t, f, "new forest")
 	})
 	t.Run("set-del", func(t *testing.T) {
 		f := NewInForest(11, math.MinInt)
-		gimpl.TestDSetDel[int](t, f, 4, func(a, b int) bool { return a == b })
+		gimpl.SetDelTest[int]{
+			Probe:    4,
+			EqWeight: func(a, b int) bool { return a == b },
+			LazySize: true,
+		}.Directed(t, f)
 	})
 }

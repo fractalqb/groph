@@ -35,3 +35,9 @@ func Del[W any](g WGraph[W], vs ...VIdx) {
 		g.DelEdge(vs[i], vs[j])
 	}
 }
+
+// func Revert[W any](ls []W) {
+// 	for i, j := 0, len(ls)-1; i < j; i, j = i+1, j-1 {
+// 		ls[i], ls[j] = ls[j], ls[i]
+// 	}
+// }

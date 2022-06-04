@@ -65,7 +65,7 @@ func (g Euclidean) Size() int {
 	return o * o
 }
 
-func (g Euclidean) EachEdge(onEdge groph.VisitEdge[float64]) error {
+func (g Euclidean) EachEdge(onEdge groph.VisitEdgeW[float64]) error {
 	ord := g.Order()
 	for i := groph.VIdx(0); i < ord; i++ {
 		for j := 0; j < ord; j++ {

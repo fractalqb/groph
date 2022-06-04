@@ -19,30 +19,21 @@ package adjls
 import (
 	"git.fractalqb.de/fractalqb/groph"
 	"git.fractalqb.de/fractalqb/groph/gimpl"
-	"git.fractalqb.de/fractalqb/groph/internal"
 )
-
-type cell[W comparable] struct {
-	v groph.VIdx
-	w W
-}
-
-type Directed[W comparable] struct {
-	es  [][]cell[W]
-	sz  int
-	noe W
-}
 
 var _ groph.WDirected[int] = (*Directed[int])(nil)
 
-func NewDirected[W comparable](order int, notEdge W, reuse *Directed[W]) *Directed[W] {
-	return &Directed[W]{
-		es:  make([][]cell[W], order),
-		noe: notEdge,
-	}
+type Directed[W comparable] struct {
+	adjlist[W]
 }
 
-func (g *Directed[W]) Order() int { return len(g.es) }
+func NewDirected[W comparable](order int, notEdge W, reuse *Directed[W]) *Directed[W] {
+	if reuse == nil {
+		reuse = &Directed[W]{*newAdjList(notEdge)}
+	}
+	reuse.Reset(order)
+	return reuse
+}
 
 func (g *Directed[W]) Edge(u, v groph.VIdx) (weight W) {
 	ls := g.es[u]
@@ -54,53 +45,9 @@ func (g *Directed[W]) Edge(u, v groph.VIdx) (weight W) {
 	return g.noe
 }
 
-func (g *Directed[W]) IsEdge(weight W) bool { return weight != g.noe }
+func (g *Directed[W]) SetEdge(u, v groph.VIdx, w W) { g.set(u, v, w) }
 
-func (g *Directed[W]) NotEdge() W { return g.noe }
-
-func (g *Directed[W]) Size() int { return g.sz }
-
-func (g *Directed[W]) EachEdge(onEdge groph.VisitEdge[W]) error {
-	for u, cls := range g.es {
-		for _, c := range cls {
-			if err := onEdge(u, c.v, c.w); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func (g *Directed[W]) Reset(order int) {
-	g.es = internal.Slice(g.es, order)
-	g.sz = 0
-	for i := range g.es {
-		g.es[i] = g.es[i][:0]
-	}
-}
-
-func (g *Directed[W]) SetEdge(u, v groph.VIdx, weight W) {
-	ls := g.es[u]
-	for i := range ls {
-		c := &ls[i]
-		if c.v == v {
-			c.w = weight
-			return
-		}
-	}
-	g.es[u] = append(ls, cell[W]{v: v, w: weight})
-}
-
-func (g *Directed[W]) DelEdge(u, v groph.VIdx) {
-	ls := g.es[u]
-	for i, c := range ls {
-		if c.v == v {
-			copy(ls[i:], ls[i+1:])
-			g.es[u] = ls[:len(ls)-1]
-			return
-		}
-	}
-}
+func (g *Directed[W]) DelEdge(u, v groph.VIdx) { g.del(u, v) }
 
 func (g *Directed[W]) OutDegree(v groph.VIdx) int { return len(g.es[v]) }
 

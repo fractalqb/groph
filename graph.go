@@ -16,9 +16,19 @@
 
 package groph
 
+const (
+	IntNoEdge int = minInt
+
+	maxUint = ^uint(0)
+	maxInt  = int(maxUint >> 1)
+	minInt  = -maxInt - 1
+)
+
 type VisitVertex = func(v VIdx) error
 
-type VisitEdge[W any] func(u, v VIdx, w W) error
+type VisitEdge = func(u, v VIdx) error
+
+type VisitEdgeW[W any] func(u, v VIdx, w W) error
 
 type stop int
 
@@ -56,7 +66,7 @@ type RGraph[W any] interface {
 	// EachEdge calls onEdge for each edge in the graph. When onEdge returns
 	// true EachEdge stops immediately and returns true. Otherwise EachEdge
 	// returns false.
-	EachEdge(onEdge VisitEdge[W]) error
+	EachEdge(onEdge VisitEdgeW[W]) error
 }
 
 type RDirected[W any] interface {
